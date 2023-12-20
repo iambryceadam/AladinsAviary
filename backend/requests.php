@@ -211,8 +211,7 @@
 							<thead>
 								<tr>
 									<th>Transaction ID</th>
-									<th>Profile</th>
-									<th>Client Name</th>
+									<th>Client</th>
 									<th>Animal Description</th>
 									<th>Date Filed</th>
 									<th>Actions</th>
@@ -224,6 +223,22 @@
 									$clientID = $get_clientRequests_result['client_id'];
 									$dateID = $get_clientRequests_result['date_id'];
 									$animalID = $get_clientRequests_result['animal_id'];
+									$transactionID = $get_clientRequests_result['transaction_id'];
+
+									//$get_clientRequests = mysqli_query($conn, "SELECT * FROM tbl_transactions WHERE status = 'for-approval'");
+
+									$get_breed_id = mysqli_query($conn, "SELECT breed_id FROM tbl_animals WHERE transaction_id = '$transactionID'");
+									$breed_id_result = mysqli_fetch_assoc($get_breed_id);
+									$breedID = $breed_id_result['breed_id'];
+
+									$get_breed_data = mysqli_query($conn, "SELECT species_id, description FROM tbl_breeds WHERE breed_id = '$breedID'");
+									$breed_data_result = mysqli_fetch_assoc($get_breed_data);
+									$breed_name = $breed_data_result['description'];
+									$speciesID = $breed_data_result['species_id'];
+
+									$get_species_name = mysqli_query($conn, "SELECT description FROM tbl_species WHERE species_id = '$speciesID'");
+									$species_name_result = mysqli_fetch_assoc($get_species_name);
+									$species_name = $species_name_result['description'];
 
 									$get_clientRecords = mysqli_query($conn, "SELECT * FROM tbl_clients WHERE client_id = '$clientID'");
 									$get_clientRecords_result = mysqli_fetch_array($get_clientRecords);
@@ -233,18 +248,12 @@
 
 									$get_animalRecords = mysqli_query($conn, "SELECT * FROM tbl_animals WHERE animal_id = '$animalID'");
 									$get_animalRecords_result = mysqli_fetch_array($get_animalRecords);
-
-									// $get_dateRecords = mysqli_query($conn, "SELECT * FROM tbl_animals WHERE animal_id = '$animalID'");
-									// $get_dateRecords = mysqli_fetch_array($get_animalRecords);
 								?>
 									<tr>
 										<td><?php echo $get_clientRequests_result['transaction_id']; ?></td>
-										<td class="table-image-text">
-											<div class="table-image-container">
-												<img src="data:image/jpeg;base64,<?php echo base64_encode($get_clientRecords_result['img_profile']); ?>" alt="Client Profile Image">
-											</div>
-										</td>
-										<td><?php echo $get_clientRecords_result['first_name']; ?></td>
+										<td class="table-image-text"><img src="data:image/jpeg;base64,<?php echo base64_encode($get_clientRecords_result['img_profile']); ?>" alt="Client Profile Image"> <span><?php echo $get_clientRecords_result['first_name']; ?></span></td>
+										<td><?php echo $breed_name . ' ' . $species_name ?></td>
+										<td><?php echo $get_dateRecords_result['date_filed_request']; ?></td>
 										<td>
 											<button class="btn-sm btn m-1 table-action-btn action-view" data-toggle="modal" data-target="#viewClientRequest" data-id="<?php echo $get_clientRequests_result['transaction_id']; ?>" onclick="viewClientRequest(this)"><i class="material-icons table-action-icon">visibility</i></button>
 											<button class="btn-sm btn m-1 table-action-btn action-approve"><i class="material-icons table-action-icon">thumb_up</i></button>

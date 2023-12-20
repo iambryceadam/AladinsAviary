@@ -669,10 +669,6 @@ main .btn-send:hover {
 	background: var(--dark-blue);
 }
 
-
-
-
-
 /* Additional */
 /* Cards */
 .card {
@@ -849,12 +845,17 @@ thead {
 	height: 0px;
 }
 .table-image-text img {
-	width: 100%; /* Ensure the image takes the full width of the container */
-    height: 100%; /* Ensure the image takes the full height of the container */
+	width: 35px; /* Ensure the image takes the full width of the container */
+    height: 35px; /* Ensure the image takes the full height of the container */
     object-fit: cover; /* Crop the image to cover the entire container */
     border-radius: 50%; /* Make the image circular */
     transition: filter 0.3s;
 }
+
+.table-image-text span{
+	margin-left: 10px;
+}
+
 .action-approve {
 	background-color: var(--logo-light-green);
 	border-color: var(--logo-light-green);

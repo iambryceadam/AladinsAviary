@@ -485,7 +485,7 @@
     $get_admin_notif_active_count = mysqli_num_rows($get_admin_notif_active);
 
     // FETCH Client Requests
-    $get_clientRequests = mysqli_query($conn, "SELECT * FROM tbl_transactions WHERE status = 0");
+    $get_clientRequests = mysqli_query($conn, "SELECT * FROM tbl_transactions WHERE status = 'for-approval'");
 
     // FETCH Client Cancellations
     $get_clientCancellations = mysqli_query($conn, "SELECT * FROM tbl_transactions");
