@@ -1,0 +1,151 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap');
+
+* {
+	font-family: 'Nunito', sans-serif;
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+	font-weight: 600;
+}
+
+:root {
+	/* Logo Color Palette */
+	--logo-light-green: #2bb673;
+	--logo-dark-green: #2b8859;
+	--logo-light-orange: #f7941d;
+	--logo-dark-orange: #f6791d;
+	/* Logo Color Palette */
+
+	/* System Color Palette */
+	--grey: #F1F0F6;
+	--grey-active-hover: #e1e1e9;
+	--dark-grey: #8D8D8D;
+	--light: #fff;
+	--dark: #333333;
+	--blue: #1775F1;
+	--light-blue: #D0E4FF;
+	--dark-blue: #0C5FCD;
+	--red: #FC3B56;
+	--dark-red: #dc2942;
+	/* System Color Palette */
+}
+
+/* ::-webkit-scrollbar {
+	display: none;
+} */
+
+html {
+	overflow-x: hidden;
+}
+
+body {
+	overflow-x: hidden;
+}
+
+a {
+	text-decoration: none;
+}
+
+li {
+	list-style: none;
+}
+
+.main-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+}
+
+.container {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    text-align: left;
+}
+
+.checkbox-container {
+    height: 45px;
+    display: flex;
+    margin-left: 1px;
+}
+
+.checkbox-container input {
+    width: 20px;
+}
+
+.checkbox-container label {
+    font-size: 14px;
+    margin-top: 9.5px;
+    margin-left: 10px;
+    color: var(--dark-grey);
+}
+
+form {
+    width: 325px;
+}
+
+form img {
+    height: 70px;
+    margin-bottom: 40px;
+    border-radius: 15px;
+    box-shadow: 2px 3.2px 5px 0 rgba(0, 0, 0, 0.2);
+}
+
+form input {
+    display: block;
+    height: 40px;
+    width: 100%;
+    padding: 5px;
+    padding-left: 20px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    border: none;
+    background-color: var(--grey);
+    font-size: 15px;
+}
+
+form .login-header {
+    font-weight: 900;
+    color: var(--dark);
+}
+
+.login-description {
+    font-weight: 600;
+    font-size: 14px;
+    margin-left: 2px;
+    margin-bottom: 25px;
+    color: var(--dark-grey);
+}
+
+form .btn-login {
+    font-family: 'Nunito', 'sans-serif';
+    background-color: var(--logo-light-orange);
+    font-weight: 700;
+    color: var(--light);
+    height: 40px;
+    width: 100%;
+    margin-top: 10px;
+    margin-bottom: 20px;
+}
+
+form .btn-login:hover {
+    background-color: var(--logo-dark-orange);
+    color: var(--light);
+}
+
+.login-trouble {
+    font-size: 14px;
+    font-weight: 600;
+    text-align: center;
+    color: var(--dark-grey);
+}
+
+/* Media Query */
+@media screen and (max-width: 768px) {
+    .container {
+        width: 100%;
+    }
+}
+/* Media Query */
+
