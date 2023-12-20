@@ -232,6 +232,111 @@ function insertInitialPaymentValidate(event) {
     }
 }
 
+function approveInitialPayment(name, tID){
+	Swal.fire({
+		icon: "warning",
+		html: 'Are you sure you want<br>to approve ' + name + '\'s initial payment?',
+		showCancelButton: true,
+		confirmButtonColor: '#f7941d',
+		cancelButtonColor: '#8D8D8D',
+		confirmButtonText: 'Yes',
+		cancelButtonText: 'No',
+		width: '380px',
+		customClass: {
+		  popup: 'swal-popup',
+		  confirmButton: 'swal-btn',
+		}
+	}).then((result) => {
+		if (result.isConfirmed) {
+			window.location.href='processes/queries.php?approveInitialPayment=' + tID;
+		}
+	});
+}
+
+function approvePayment(name, tID){
+	Swal.fire({
+		icon: "warning",
+		html: 'Are you sure you want<br>to approve ' + name + '\'s payment?',
+		showCancelButton: true,
+		confirmButtonColor: '#f7941d',
+		cancelButtonColor: '#8D8D8D',
+		confirmButtonText: 'Yes',
+		cancelButtonText: 'No',
+		width: '380px',
+		customClass: {
+		  popup: 'swal-popup',
+		  confirmButton: 'swal-btn',
+		}
+	}).then((result) => {
+		if (result.isConfirmed) {
+			window.location.href='processes/queries.php?approvePayment=' + tID;
+		}
+	});
+}
+
+function initiatePickup(name, tID){
+	Swal.fire({
+		icon: "warning",
+		html: 'Are you sure you want to<br>proceed with ' + name + '\'s pickup?',
+		showCancelButton: true,
+		confirmButtonColor: '#f7941d',
+		cancelButtonColor: '#8D8D8D',
+		confirmButtonText: 'Yes',
+		cancelButtonText: 'No',
+		width: '380px',
+		customClass: {
+		  popup: 'swal-popup',
+		  confirmButton: 'swal-btn',
+		}
+	}).then((result) => {
+		if (result.isConfirmed) {
+			window.location.href='processes/queries.php?initiatePickup=' + tID;
+		}
+	});
+}
+
+function successPickup(name, tID){
+	Swal.fire({
+		icon: "warning",
+		html: 'Are you sure you want to<br>confirm successful pickup for ' + name + '\'s animal?',
+		showCancelButton: true,
+		confirmButtonColor: '#f7941d',
+		cancelButtonColor: '#8D8D8D',
+		confirmButtonText: 'Yes',
+		cancelButtonText: 'No',
+		width: '380px',
+		customClass: {
+		  popup: 'swal-popup',
+		  confirmButton: 'swal-btn',
+		}
+	}).then((result) => {
+		if (result.isConfirmed) {
+			window.location.href='processes/queries.php?successPickup=' + tID;
+		}
+	});
+}
+
+function proceedForMedical(name, tID){
+	Swal.fire({
+		icon: "warning",
+		html: 'Are you sure you want to<br>proceed with ' + name + '\'s animal to for medical?',
+		showCancelButton: true,
+		confirmButtonColor: '#f7941d',
+		cancelButtonColor: '#8D8D8D',
+		confirmButtonText: 'Yes',
+		cancelButtonText: 'No',
+		width: '380px',
+		customClass: {
+		  popup: 'swal-popup',
+		  confirmButton: 'swal-btn',
+		}
+	}).then((result) => {
+		if (result.isConfirmed) {
+			window.location.href='processes/queries.php?forMedical=' + tID;
+		}
+	});
+}
+
 /*
 function approveTransportRequest(name){
 	Swal.fire({
@@ -965,8 +1070,85 @@ window.onload = function() {
 	const delete_allArchivedAdmin_success = urlParams.get('delete_allArchivedAdmin_success');
 	const retrieve_admin_success = urlParams.get('retrieve_admin_success');
 	const retrieve_allArchivedAdmin_success = urlParams.get('retrieve_allArchivedAdmin_success');
-
-	if (add_admin_success) {
+	const initial_payment_approved_success = urlParams.get('initial_payment_approved_success');
+	const transaction_approved_success = urlParams.get('transaction_approved_success');
+	const payment_approved_success = urlParams.get('payment_approved_success');
+	const moved_for_pickup_success = urlParams.get('moved_for_pickup_success');
+	const pickup_successful = urlParams.get('pickup_successful');
+	const proceed_for_medical = urlParams.get('proceed_for_medical');
+	
+	
+	if(proceed_for_medical){
+		Swal.fire({
+			text: proceed_for_medical,
+			icon: 'success',
+			showConfirmButton: false,
+			timer: 2000,
+			customClass: {
+				popup: 'swal-popup',
+				confirmButton: 'swal-btn',
+		  }
+	  });
+	}
+	else if(pickup_successful){
+		Swal.fire({
+			text: pickup_successful,
+			icon: 'success',
+			showConfirmButton: false,
+			timer: 2000,
+			customClass: {
+				popup: 'swal-popup',
+				confirmButton: 'swal-btn',
+		  }
+	  });
+	}
+	else if(moved_for_pickup_success){
+		Swal.fire({
+			text: moved_for_pickup_success,
+			icon: 'success',
+			showConfirmButton: false,
+			timer: 2000,
+			customClass: {
+				popup: 'swal-popup',
+				confirmButton: 'swal-btn',
+		  }
+	  });
+	}
+	else if(payment_approved_success){
+		Swal.fire({
+			text: payment_approved_success,
+			icon: 'success',
+			showConfirmButton: false,
+			timer: 2000,
+			customClass: {
+				popup: 'swal-popup',
+				confirmButton: 'swal-btn',
+		  }
+	  });
+	}
+	else if(transaction_approved_success){
+		Swal.fire({
+			text: transaction_approved_success,
+			icon: 'success',
+			showConfirmButton: false,
+			timer: 2000,
+			customClass: {
+				popup: 'swal-popup',
+				confirmButton: 'swal-btn',
+		  }
+	  });
+	} else if(initial_payment_approved_success){
+		Swal.fire({
+		  text: initial_payment_approved_success,
+		  icon: 'success',
+		  showConfirmButton: false,
+		  timer: 2000,
+		  customClass: {
+			  popup: 'swal-popup',
+			  confirmButton: 'swal-btn',
+		}
+	});
+	} else if (add_admin_success) {
 		Swal.fire({
 		  text: add_admin_success,
 		  icon: 'success',

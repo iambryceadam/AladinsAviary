@@ -58,10 +58,62 @@
       $i_payment_cost = mysqli_real_escape_string($conn, $_POST['i_payment_cost']);
       $transaction_id = mysqli_real_escape_string($conn, $_POST['transaction_id']);
 
-      mysqli_query($conn, "UPDATE tbl_transactions SET status = 'for-downpayment' WHERE transaction_id = '$transaction_id'");
-      mysqli_query($conn, "UPDATE tbl_payments SET initial_payment_cost = $i_payment_cost WHERE transaction_id = '$transaction_id'");
+      $get_payment_type = mysqli_query($conn, "SELECT payment_type FROM tbl_payments WHERE transaction_id = '$transaction_id'");
+      $payment_type_result = mysqli_fetch_assoc($get_payment_type);
+      $payment_type = $payment_type_result['payment_type'];
+
+      if($payment_type == "Down Payment"){
+        mysqli_query($conn, "UPDATE tbl_transactions SET status = 'for-downpayment' WHERE transaction_id = '$transaction_id'");
+        mysqli_query($conn, "UPDATE tbl_payments SET initial_payment_cost = $i_payment_cost WHERE transaction_id = '$transaction_id'");
+        $transaction_approved_succes = "Successfully approved transaction";
+        header("Location: requests.php?transaction_approved_success=". urldecode($transaction_approved_succes));
+      } else if($payment_type == "Full Payment"){
+        mysqli_query($conn, "UPDATE tbl_transactions SET status = 'for-payment' WHERE transaction_id = '$transaction_id'");
+        mysqli_query($conn, "UPDATE tbl_payments SET final_payment_cost = $i_payment_cost WHERE transaction_id = '$transaction_id'");
+        $transaction_approved_succes = "Successfully approved transaction";
+        header("Location: requests.php?transaction_approved_success=". urldecode($transaction_approved_succes));
+      }
     }
 
+    if(isset($_GET['approveInitialPayment'])){
+      $tID = $_GET['approveInitialPayment'];
+
+      mysqli_query($conn, "UPDATE tbl_transactions SET status = 'downpayment-approved' WHERE transaction_id = '$tID'");
+      $initial_payment_approved_success = "Successfully approved initial payment";
+      header("Location: ../initial_payment.php?initial_payment_approved_success=" . urldecode($initial_payment_approved_success));
+    }
+
+    if(isset($_GET['approvePayment'])){
+      $tID = $_GET['approvePayment'];
+
+      mysqli_query($conn, "UPDATE tbl_transactions SET status = 'payment-approved' WHERE transaction_id = '$tID'");
+      $payment_approved_success = "Successfully approved Payment";
+      header("Location: ../fullCash_payment.php?payment_approved_success=" . urldecode($payment_approved_success));
+    }
+
+    if(isset($_GET['initiatePickup'])){
+      $tID = $_GET['initiatePickup'];
+
+      mysqli_query($conn, "UPDATE tbl_transactions SET status = 'for-pickup' WHERE transaction_id = '$tID'");
+      $moved_for_pickup_success = "Successfully moved transaction for pick up";
+      header("Location: ../pickup.php?moved_for_pickup_success=" . urldecode($moved_for_pickup_success));
+    }
+
+    if(isset($_GET['successPickup'])){
+      $tID = $_GET['successPickup'];
+
+      mysqli_query($conn, "UPDATE tbl_transactions SET status = 'pickup-success' WHERE transaction_id = '$tID'");
+      $pickup_successful = "Successfully picked up animal";
+      header("Location: ../pickup.php?pickup_successful=" . urldecode($pickup_successful));
+    }
+
+    if(isset($_GET['forMedical'])){
+      $tID = $_GET['forMedical'];
+
+      mysqli_query($conn, "UPDATE tbl_transactions SET status = 'for-medical' WHERE transaction_id = '$tID'");
+      $proceed_for_medical = "Successfully proceeded to next step (For Medical))";
+      header("Location: ../pickup.php?pickup_successful=" . urldecode($proceed_for_medical));
+    }
 
     // ADD
     // Add Admin
@@ -141,7 +193,7 @@
     if (isset($_GET['markAllNotifAsRead'])) {
       mysqli_query($conn, "UPDATE tbl_admin_notif SET status=1");
       $mark_read_notif_success = "Successfully marked notifications as read";
-      header("Location: ../notifications.php?mark_read_notif_success=" . urlencode($mark_read_notif_success));
+      header("Location: ../notifications.php?mark_read_notif_success=" . urldecode($mark_read_notif_success));
     }
 
     // Edit Admin
@@ -320,8 +372,6 @@
 
 
 
-
-
     // DELETE
     // Delete Admin
     if (isset($_GET['deleteAdmin'])) {
@@ -493,6 +543,54 @@
 
     // FETCH Client Requests
     $get_clientRequests = mysqli_query($conn, "SELECT * FROM tbl_transactions WHERE status = 'for-approval'");
+
+    // FETCH Pending Initial Payments
+    $get_pending_initial_payments = mysqli_query($conn, "
+    SELECT *
+    FROM tbl_transactions AS t
+    JOIN tbl_payments AS p ON t.payment_id = p.payment_id
+    WHERE t.status = 'for-downpayment' AND p.initial_payment_receipt IS NULL
+    ");
+
+    // FETCH Paid Initial Payments
+    $get_paid_initial_payments = mysqli_query($conn, "
+    SELECT *
+    FROM tbl_transactions AS t
+    JOIN tbl_payments AS p ON t.payment_id = p.payment_id
+    WHERE t.status = 'for-downpayment' AND p.initial_payment_receipt IS NOT NULL
+    ");
+
+
+    // FETCH Pending Final Payments
+    $get_pending_final_payments = mysqli_query($conn, "
+    SELECT *
+    FROM tbl_transactions AS t
+    JOIN tbl_payments AS p ON t.payment_id = p.payment_id
+    WHERE t.status = 'for-payment' AND p.final_payment_receipt IS NULL
+    ");
+
+    // FETCH Pending Final Payments
+    $get_completed_final_payments = mysqli_query($conn, "
+    SELECT *
+    FROM tbl_transactions AS t
+    JOIN tbl_payments AS p ON t.payment_id = p.payment_id
+    WHERE t.status = 'for-payment' AND p.final_payment_receipt IS NOT NULL
+    ");
+
+    //FETCH Approved Initial Payment
+    $get_approved_payments = mysqli_query($conn, "
+    SELECT *
+    FROM tbl_transactions AS t
+    JOIN tbl_payments AS p ON t.payment_id = p.payment_id
+    WHERE (t.status = 'downpayment-approved' OR t.status = 'payment-approved') 
+      AND (p.payment_type = 'Down Payment' OR p.payment_type = 'Full Payment')
+    ");
+
+    //FETCH for-pickup transactions
+    $get_for_pickup_transactions = mysqli_query($conn, "SELECT * FROM tbl_transactions WHERE status = 'for-pickup'");
+
+    //FETCH picked-up transactions
+    $get_picked_up_transactions = mysqli_query($conn, "SELECT * FROM tbl_transactions WHERE status='pickup-success'");
 
     // FETCH Client Cancellations
     $get_clientCancellations = mysqli_query($conn, "SELECT * FROM tbl_transactions");
