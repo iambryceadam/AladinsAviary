@@ -52,8 +52,15 @@
       }
     }
 
+    // TRANSACTIONS
+    // REQUEST APPROVAL
+    if(isset($_POST['insertPaymentCost'])){
+      $i_payment_cost = mysqli_real_escape_string($conn, $_POST['i_payment_cost']);
+      $transaction_id = mysqli_real_escape_string($conn, $_POST['transaction_id']);
 
-
+      mysqli_query($conn, "UPDATE tbl_transactions SET status = 'for-downpayment' WHERE transaction_id = '$transaction_id'");
+      mysqli_query($conn, "UPDATE tbl_payments SET initial_payment_cost = $i_payment_cost WHERE transaction_id = '$transaction_id'");
+    }
 
 
     // ADD

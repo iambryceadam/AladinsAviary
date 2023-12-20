@@ -225,8 +225,6 @@
 									$animalID = $get_clientRequests_result['animal_id'];
 									$transactionID = $get_clientRequests_result['transaction_id'];
 
-									//$get_clientRequests = mysqli_query($conn, "SELECT * FROM tbl_transactions WHERE status = 'for-approval'");
-
 									$get_breed_id = mysqli_query($conn, "SELECT breed_id FROM tbl_animals WHERE transaction_id = '$transactionID'");
 									$breed_id_result = mysqli_fetch_assoc($get_breed_id);
 									$breedID = $breed_id_result['breed_id'];
@@ -242,6 +240,7 @@
 
 									$get_clientRecords = mysqli_query($conn, "SELECT * FROM tbl_clients WHERE client_id = '$clientID'");
 									$get_clientRecords_result = mysqli_fetch_array($get_clientRecords);
+									$client_name = $get_clientRecords_result['first_name'];
 
 									$get_dateRecords = mysqli_query($conn, "SELECT * FROM tbl_transactions_dates WHERE date_id = '$dateID'");
 									$get_dateRecords_result = mysqli_fetch_array($get_dateRecords);
@@ -255,8 +254,8 @@
 										<td><?php echo $breed_name . ' ' . $species_name ?></td>
 										<td><?php echo $get_dateRecords_result['date_filed_request']; ?></td>
 										<td>
-											<button class="btn-sm btn m-1 table-action-btn action-view" data-toggle="modal" data-target="#viewClientRequest" data-id="<?php echo $get_clientRequests_result['transaction_id']; ?>" onclick="viewClientRequest(this)"><i class="material-icons table-action-icon">visibility</i></button>
-											<button class="btn-sm btn m-1 table-action-btn action-approve"><i class="material-icons table-action-icon">thumb_up</i></button>
+											<button class="btn-sm btn m-1 table-action-btn action-view" data-toggle="modal" data-target="#viewClientRequest" onclick="viewClientRequest(this)"><i class="material-icons table-action-icon">visibility</i></button>
+											<button class="btn-sm btn m-1 table-action-btn action-approve" data-toggle="modal" data-target="#addPayment" data-client-id="<?php echo $clientID; ?>" data-transaction-id="<?php echo $transactionID; ?>" data-clientname="<?php echo $client_name; ?>" onclick="costClientDetails(this)"><i class="material-icons table-action-icon">thumb_up</i></button>
 											<button class="btn-sm btn m-1 table-action-btn action-deny"><i class="material-icons table-action-icon">thumb_down</i></button>
 										</td>
 									</tr>
@@ -267,13 +266,50 @@
 				</div>
 			</div>
 			<!-- Requests -->
+
+			<!-- Input Cost -->
+			<div class="modal fade" id="addPayment" tabindex="-1" role="dialog" aria-hidden="true">
+				<div class="modal-dialog modal-dialog-centered" role="document">
+					<div class="modal-content popup">
+						<div class="modal-header">
+							<h5 class="modal-title popup-title" id="exampleModalCenterTitle">Approve Transport</h5>
+							<span aria-hidden="true" data-dismiss="modal" class="modal-exit">&times;</span>
+							</button>
+						</div>
+						<form id="insertPaymentCost" action="requests.php" method="POST" autocomplete="off" enctype="multipart/form-data">
+							<input type="hidden" id="e_admin_id" name="e_admin_id">
+							<div class="modal-body" style="padding-bottom: 0px;">
+								<div class="row form-modal" style="padding-right: 20px;">
+									<div class="col col-md-12 ml-auto">
+										<div class="pop-up-prompt" id="update_admin_error"></div>
+										<div class="row mb-3 ml-auto">
+											<p class="pop-up-heading">Insert Payment Amount:</p>
+											<input type="text" class="form-control" required pattern="[a-zA-Z0-9\s]+" oninput="validatePaymentAmountPattern(this)" placeholder="Payment Cost..." name="i_payment_cost" id="i_payment_cost">
+											<input type="hidden" name="client_name" id="client_name">
+											<input type="hidden" name="client_id" id="client_id">
+											<input type="hidden" name="transaction_id" id="transaction_id">
+										</div>
+										<input type="hidden" id="insertPaymentCostInput" name="insertPaymentCost">
+									</div>
+									<div class="modal-footer popup-footer">
+										<button type="button" class="btn btn-secondary action-cancel" data-dismiss="modal">Close</button>
+										<button type="submit" id="insertPaymentCostSubmit" class="btn action-view" name="insertPaymentCost" onclick="insertInitialPaymentValidate(event)">Save Changes</button>
+									</div>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
 		</main>
 		<!-- Notifications -->
 		<!-- Main -->
 	</section>
 </body>
 	<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous"></script>
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 	<!-- External JavaScript -->
 	<script src="js/script.js"></script>
 	<!-- External JavaScript -->

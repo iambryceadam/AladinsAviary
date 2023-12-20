@@ -186,9 +186,74 @@ function confirmValidateSpeciesFill(button){
     xhr.send();
 }
 
+// VALIDATE TRANSFER TRANSACTIONS
+// REQUEST APPROVAL
 
+function validatePaymentAmountPattern(input){
+	input.value = input.value.replace(/[^0-9\s]/g, '');
+}
 
+function costClientDetails(button){
+	var cName = button.getAttribute('data-clientname');
+	var cID = button.getAttribute('data-client-id');
+	var tID = button.getAttribute('data-transaction-id');
+	document.getElementById('client_name').value = cName;
+	document.getElementById('client_id').value = cID;
+	document.getElementById('transaction_id').value = tID;
+}
 
+function insertInitialPaymentValidate(event) {
+	var i_payment_cost = document.getElementById("i_payment_cost").value;
+	var client_name = document.getElementById("client_name").value;
+	var client_id = document.getElementById("client_id").value;
+	var transaction_id = document.getElementById("transaction_id").value;
+
+    if (i_payment_cost == "") {} 
+    else {
+        event.preventDefault();
+        Swal.fire({
+            icon: "warning",
+            html: 'Are you sure you want<br>to approve request from ' + client_name + '?<br>(' +  client_id + ' ' + transaction_id + ')',
+            showCancelButton: true,
+            confirmButtonColor: '#f7941d',
+            cancelButtonColor: '#8D8D8D',
+            confirmButtonText: 'Yes',
+            cancelButtonText: 'No',
+            width: '380px',
+            customClass: {
+                popup: 'swal-popup',
+                confirmButton: 'swal-btn',
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                var form = document.getElementById("insertPaymentCost").submit();
+            }
+        });
+    }
+}
+
+/*
+function approveTransportRequest(name){
+	Swal.fire({
+		icon: "warning",
+		html: 'Are you sure you want<br>to approve request from ' + name + '?',
+		showCancelButton: true,
+		confirmButtonColor: '#f7941d',
+		cancelButtonColor: '#8D8D8D',
+		confirmButtonText: 'Yes',
+		cancelButtonText: 'No',
+		width: '380px',
+		customClass: {
+		  popup: 'swal-popup',
+		  confirmButton: 'swal-btn',
+		}
+	}).then((result) => {
+		if (result.isConfirmed) {
+			window.location.href='processes/queries.php?archiveAdmin=' + true;
+		}
+	});
+}
+*/
 
 // VALIDATE ADD FUNCTIONS
 // Administrator
