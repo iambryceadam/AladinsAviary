@@ -224,42 +224,40 @@
 								</tr>
 							</thead>
 							<tbody>
+								<?php while($get_for_transport_transactions_result = mysqli_fetch_assoc($get_for_transport_transactions)){
+									$transactionID = $get_for_transport_transactions_result['transaction_id'];
+									$clientID = $get_for_transport_transactions_result['client_id'];
+									$dateID = $get_for_transport_transactions_result['date_id'];
+									$locationID = $get_for_transport_transactions_result['location_id'];
+									$paymentID = $get_for_transport_transactions_result['payment_id'];
+
+									$get_pickup_location_id = mysqli_query($conn, "SELECT * FROM tbl_locations WHERE transaction_id = '$transactionID'");
+									$get_pickup_location_id_result = mysqli_fetch_assoc($get_pickup_location_id);
+									$pickup_location_id = $get_pickup_location_id_result['pickup_location_id'];
+									
+									$get_location_details = mysqli_query($conn, "SELECT * FROM tbl_profile_addresses WHERE address_id = '$pickup_location_id'");
+									$get_location_details_results = mysqli_fetch_assoc($get_location_details);
+
+									$get_clientRecords = mysqli_query($conn, "SELECT * FROM tbl_clients WHERE client_id = '$clientID'");
+									$get_clientRecords_result = mysqli_fetch_array($get_clientRecords);
+									$client_name = $get_clientRecords_result['first_name'];
+
+									$get_dateRecords = mysqli_query($conn, "SELECT * FROM tbl_transactions_dates WHERE date_id = '$dateID'");
+									$get_dateRecords_result = mysqli_fetch_array($get_dateRecords);
+
+									$get_date_data = mysqli_query($conn, "SELECT * FROM tbl_transactions_dates WHERE transaction_id = '$transactionID'");
+									$get_date_data_results = mysqli_fetch_array($get_date_data);
+								?>
 								<tr>
-									<td>ORD2023ABC5678</td>
-									<td class="table-image-text"><img src="images/profile_icon.jpg" alt="Profile Icon"> Bryce Adam</td>
-									<td>05-17-23</td>
+									<td><?php echo $transactionID; ?></td>
+									<td class="table-image-text"><img src="data:image/jpeg;base64,<?php echo base64_encode($get_clientRecords_result['img_profile']); ?>" alt="Client Profile Image"> <span><?php echo $get_clientRecords_result['first_name']; ?></span></td>
+									<td> <?php echo $get_date_data_results['date_approved_transport']; ?> </td>
 									<td>
 										<button class="btn-sm btn m-1 table-action-btn action-view"><i class="material-icons table-action-icon">visibility</i></button>
-										<button class="btn-sm btn m-1 table-action-btn action-approve"><i class="material-icons table-action-icon">thumb_up</i></button>
+										<button class="btn-sm btn m-1 table-action-btn action-approve" onclick="transportCompleted('<?php echo $client_name; ?>', '<?php echo $transactionID; ?>')"><i class="material-icons table-action-icon">thumb_up</i></button>
 									</td>
 								</tr>
-								<tr>
-									<td>ORD2023ABC5678</td>
-									<td class="table-image-text"><img src="images/profile_icon.jpg" alt="Profile Icon"> Bryce Adam</td>
-									<td>05-17-23</td>
-									<td>
-										<button class="btn-sm btn m-1 table-action-btn action-view"><i class="material-icons table-action-icon">visibility</i></button>
-										<button class="btn-sm btn m-1 table-action-btn action-approve"><i class="material-icons table-action-icon">thumb_up</i></button>
-									</td>
-								</tr>
-								<tr>
-									<td>ORD2023ABC5678</td>
-									<td class="table-image-text"><img src="images/profile_icon.jpg" alt="Profile Icon"> Bryce Adam</td>
-									<td>05-17-23</td>
-									<td>
-										<button class="btn-sm btn m-1 table-action-btn action-view"><i class="material-icons table-action-icon">visibility</i></button>
-										<button class="btn-sm btn m-1 table-action-btn action-approve"><i class="material-icons table-action-icon">thumb_up</i></button>
-									</td>
-								</tr>
-								<tr>
-									<td>ORD2023ABC5678</td>
-									<td class="table-image-text"><img src="images/profile_icon.jpg" alt="Profile Icon"> Bryce Adam</td>
-									<td>05-17-23</td>
-									<td>
-										<button class="btn-sm btn m-1 table-action-btn action-view"><i class="material-icons table-action-icon">visibility</i></button>
-										<button class="btn-sm btn m-1 table-action-btn action-approve"><i class="material-icons table-action-icon">thumb_up</i></button>
-									</td>
-								</tr>
+							<?php } ?>
 							</tbody>
 						</table>
 					</div>

@@ -115,6 +115,66 @@
       header("Location: ../pickup.php?pickup_successful=" . urldecode($proceed_for_medical));
     }
 
+    if(isset($_GET['ongoingMedical'])){
+      $tID = $_GET['ongoingMedical'];
+
+      mysqli_query($conn, "UPDATE tbl_transactions SET status = 'ongoing-medical' WHERE transaction_id = '$tID'");
+      $ongoing_medical = "Successfully proceeded to next step (On-going Medical))";
+      header("Location: ../medical.php?ongoing_medical=" . urldecode($ongoing_medical));
+    }
+
+    if(isset($_GET['completeMedical'])){
+      $tID = $_GET['completeMedical'];
+
+      mysqli_query($conn, "UPDATE tbl_transactions SET status = 'complete-medical' WHERE transaction_id = '$tID'");
+      $complete_medical = "Successfully proceeded to next step (Completed Medical))";
+      header("Location: ../medical.php?complete_medical=" . urldecode($complete_medical));
+    }
+
+    if(isset($_GET['proceedAfterMedical'])){
+      $tID = $_GET['proceedAfterMedical'];
+
+      mysqli_query($conn, "UPDATE tbl_transactions SET status = 'for-transport' WHERE transaction_id = '$tID'");
+      $for_transport_success = "Successfully proceeded to next step (For Transport))";
+      header("Location: ../medical.php?for_transport_success=" . urldecode($for_transport_success));
+    }
+
+    
+    if(isset($_POST['insertFinalCost'])){
+      $f_payment_cost = mysqli_real_escape_string($conn, $_POST['f_payment_cost']);
+      $transaction_id = mysqli_real_escape_string($conn, $_POST['transaction_id']);
+
+      $get_payment_type = mysqli_query($conn, "SELECT payment_type FROM tbl_payments WHERE transaction_id = '$transaction_id'");
+      $payment_type_result = mysqli_fetch_assoc($get_payment_type);
+      $payment_type = $payment_type_result['payment_type'];
+
+      mysqli_query($conn, "UPDATE tbl_transactions SET status = 'for-payment' WHERE transaction_id = '$transaction_id'");
+      mysqli_query($conn, "UPDATE tbl_payments SET final_payment_cost = $f_payment_cost WHERE transaction_id = '$transaction_id'");
+      $set_final_pay_success = "Successfully updated transaction";
+      header("Location: medical.php?set_final_pay_success=". urldecode($set_final_pay_success));
+    }
+
+    if(isset($_GET['approveFinalPayment'])){
+      $tID = $_GET['approveFinalPayment'];
+      mysqli_query($conn, "UPDATE tbl_transactions SET status = 'for-transport' WHERE transaction_id = '$tID'");
+      $for_transport_success = "Successfully proceeded to next step (For Transport))";
+      header("Location: ../final_payment.php?for_transport_success=" . urldecode($for_transport_success));
+    }
+
+    if(isset($_GET['transportCompleted'])){
+      $tID = $_GET['transportCompleted'];
+      mysqli_query($conn, "UPDATE tbl_transactions SET status = 'for-receiving' WHERE transaction_id = '$tID'");
+      $for_receiving_success = "Successfully proceeded to next step (For Receiving))";
+      header("Location: ../transport.php?for_receiving_success=" . urldecode($for_receiving_success));
+    }
+
+    if(isset($_GET['animalReceived'])){
+      $tID = $_GET['animalReceived'];
+      mysqli_query($conn, "UPDATE tbl_transactions SET status = 'completed' WHERE transaction_id = '$tID'");
+      $completed_transaction_success = "Transaction has been successfully completed";
+      header("Location: ../toReceive.php?completed_transaction_success=" . urldecode($completed_transaction_success));
+    }
+
     // ADD
     // Add Admin
     if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["addAdministrator"])) {
@@ -569,7 +629,7 @@
     WHERE t.status = 'for-payment' AND p.final_payment_receipt IS NULL
     ");
 
-    // FETCH Pending Final Payments
+    // FETCH Paid Final Payments
     $get_completed_final_payments = mysqli_query($conn, "
     SELECT *
     FROM tbl_transactions AS t
@@ -586,14 +646,53 @@
       AND (p.payment_type = 'Down Payment' OR p.payment_type = 'Full Payment')
     ");
 
+
+    // FETCH Pending Final Payments
+    $get_pending_final_payment_data = mysqli_query($conn, "
+    SELECT *
+    FROM tbl_transactions AS t
+    JOIN tbl_payments AS p ON t.payment_id = p.payment_id
+    WHERE (t.status = 'for-payment' OR t.status = 'payment-approved') 
+      AND p.payment_type = 'Down Payment'
+      AND p.final_payment_receipt IS NULL
+    ");
+
+    //FETCH Successful Final Payments
+    $get_successful_final_payment_data = mysqli_query($conn, "
+    SELECT *
+    FROM tbl_transactions AS t
+    JOIN tbl_payments AS p ON t.payment_id = p.payment_id
+    WHERE (t.status = 'for-payment' OR t.status = 'payment-approved') 
+      AND p.payment_type = 'Down Payment'
+      AND p.final_payment_receipt IS NOT NULL
+    ");
+
     //FETCH for-pickup transactions
     $get_for_pickup_transactions = mysqli_query($conn, "SELECT * FROM tbl_transactions WHERE status = 'for-pickup'");
 
     //FETCH picked-up transactions
     $get_picked_up_transactions = mysqli_query($conn, "SELECT * FROM tbl_transactions WHERE status='pickup-success'");
 
+    //FETCH Pending Medical Assessments
+    $get_for_medical_transactions = mysqli_query($conn, "SELECT * FROM tbl_transactions WHERE status='for-medical'");
+
+    //FETCH Ongoing Medical Assessments
+    $get_ongoing_medical_transactions = mysqli_query($conn, "SELECT * FROM tbl_transactions WHERE status='ongoing-medical'");
+
+    // FETCH Completed Medical Assessments
+    $get_completed_medical_transactions = mysqli_query($conn, "SELECT * FROM tbl_transactions WHERE status='complete-medical'");
+
+    // FETCH for transport
+    $get_for_transport_transactions = mysqli_query($conn, "SELECT * FROM tbl_transactions WHERE status='for-transport'");
+
+    // FETCH completed
+    $get_for_completed_transactions = mysqli_query($conn, "SELECT * FROM tbl_transactions WHERE status='completed'");
+
+    // FETCH for receiving
+    $get_for_receiving_transactions = mysqli_query($conn, "SELECT * FROM tbl_transactions WHERE status='for-receiving'");
+
     // FETCH Client Cancellations
-    $get_clientCancellations = mysqli_query($conn, "SELECT * FROM tbl_transactions");
+    $get_clientCancellations = mysqli_query($conn, "SELECT * FROM tbl_transactions WHERE status");
 
     // FETCH Client Completed
     $get_clientCompleted = mysqli_query($conn, "SELECT * FROM tbl_transactions WHERE status");

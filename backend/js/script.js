@@ -337,6 +337,171 @@ function proceedForMedical(name, tID){
 	});
 }
 
+function ongoingMedical(name, tID){
+	Swal.fire({
+		icon: "warning",
+		html: 'Are you sure you want to<br>continue ' + name + '\'s animal\'s medical procedure?',
+		showCancelButton: true,
+		confirmButtonColor: '#f7941d',
+		cancelButtonColor: '#8D8D8D',
+		confirmButtonText: 'Yes',
+		cancelButtonText: 'No',
+		width: '380px',
+		customClass: {
+		  popup: 'swal-popup',
+		  confirmButton: 'swal-btn',
+		}
+	}).then((result) => {
+		if (result.isConfirmed) {
+			window.location.href='processes/queries.php?ongoingMedical=' + tID;
+		}
+	});
+}
+
+function completeMedical(name, tID){
+	Swal.fire({
+		icon: "warning",
+		html: 'Are you sure you want to<br>complete ' + name + '\'s animal\'s medical procedure?',
+		showCancelButton: true,
+		confirmButtonColor: '#f7941d',
+		cancelButtonColor: '#8D8D8D',
+		confirmButtonText: 'Yes',
+		cancelButtonText: 'No',
+		width: '380px',
+		customClass: {
+		  popup: 'swal-popup',
+		  confirmButton: 'swal-btn',
+		}
+	}).then((result) => {
+		if (result.isConfirmed) {
+			window.location.href='processes/queries.php?completeMedical=' + tID;
+		}
+	});
+}
+
+function costClientDetails(button){
+	var cName = button.getAttribute('data-clientname');
+	var cID = button.getAttribute('data-client-id');
+	var tID = button.getAttribute('data-transaction-id');
+	document.getElementById('client_name').value = cName;
+	document.getElementById('client_id').value = cID;
+	document.getElementById('transaction_id').value = tID;
+}
+
+function proceedAfterMedical(name, tID){
+	Swal.fire({
+		icon: "warning",
+		html: 'Are you sure you want to<br>proceed with ' + name + '\'s transaction?',
+		showCancelButton: true,
+		confirmButtonColor: '#f7941d',
+		cancelButtonColor: '#8D8D8D',
+		confirmButtonText: 'Yes',
+		cancelButtonText: 'No',
+		width: '380px',
+		customClass: {
+		  popup: 'swal-popup',
+		  confirmButton: 'swal-btn',
+		}
+	}).then((result) => {
+		if (result.isConfirmed) {
+			window.location.href='processes/queries.php?proceedAfterMedical=' + tID;
+		}
+	});
+}
+
+function proceedFinalPay(event) {
+	var f_payment_cost = document.getElementById("f_payment_cost").value;
+	var client_name = document.getElementById("client_name").value;
+	var client_id = document.getElementById("client_id").value;
+	var transaction_id = document.getElementById("transaction_id").value;
+
+    if (f_payment_cost == "") {} 
+    else {
+        event.preventDefault();
+        Swal.fire({
+            icon: "warning",
+            html: 'Are you sure you want to<br>proceed with ' + client_name + '\'s transaction?<br>(' +  client_id + ' ' + transaction_id + ')',
+            showCancelButton: true,
+            confirmButtonColor: '#f7941d',
+            cancelButtonColor: '#8D8D8D',
+            confirmButtonText: 'Yes',
+            cancelButtonText: 'No',
+            width: '380px',
+            customClass: {
+                popup: 'swal-popup',
+                confirmButton: 'swal-btn',
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                var form = document.getElementById("insertFinalCostForm").submit();
+            }
+        });
+    }
+}
+
+function approveFinalPayment(name, tID){
+	Swal.fire({
+		icon: "warning",
+		html: 'Are you sure you want<br>to approve ' + name + '\'s payment?',
+		showCancelButton: true,
+		confirmButtonColor: '#f7941d',
+		cancelButtonColor: '#8D8D8D',
+		confirmButtonText: 'Yes',
+		cancelButtonText: 'No',
+		width: '380px',
+		customClass: {
+		  popup: 'swal-popup',
+		  confirmButton: 'swal-btn',
+		}
+	}).then((result) => {
+		if (result.isConfirmed) {
+			window.location.href='processes/queries.php?approveFinalPayment=' + tID;
+		}
+	});
+}
+
+function transportCompleted(name, tID){
+	Swal.fire({
+		icon: "warning",
+		html: 'Are you sure that ' + name + '\'s animal is ready for receiving?',
+		showCancelButton: true,
+		confirmButtonColor: '#f7941d',
+		cancelButtonColor: '#8D8D8D',
+		confirmButtonText: 'Yes',
+		cancelButtonText: 'No',
+		width: '380px',
+		customClass: {
+		  popup: 'swal-popup',
+		  confirmButton: 'swal-btn',
+		}
+	}).then((result) => {
+		if (result.isConfirmed) {
+			window.location.href='processes/queries.php?transportCompleted=' + tID;
+		}
+	});
+}
+
+function animalReceived(name, tID){
+	Swal.fire({
+		icon: "warning",
+		html: 'Are you sure that ' + name + '\'s animal has been successfully received by the receiver?',
+		showCancelButton: true,
+		confirmButtonColor: '#f7941d',
+		cancelButtonColor: '#8D8D8D',
+		confirmButtonText: 'Yes',
+		cancelButtonText: 'No',
+		width: '380px',
+		customClass: {
+		  popup: 'swal-popup',
+		  confirmButton: 'swal-btn',
+		}
+	}).then((result) => {
+		if (result.isConfirmed) {
+			window.location.href='processes/queries.php?animalReceived=' + tID;
+		}
+	});
+}
+
 /*
 function approveTransportRequest(name){
 	Swal.fire({
@@ -1076,9 +1241,86 @@ window.onload = function() {
 	const moved_for_pickup_success = urlParams.get('moved_for_pickup_success');
 	const pickup_successful = urlParams.get('pickup_successful');
 	const proceed_for_medical = urlParams.get('proceed_for_medical');
-	
-	
-	if(proceed_for_medical){
+	const ongoing_medical = urlParams.get('ongoing_medical');
+	const complete_medical = urlParams.get('complete_medical');
+	const for_transport_success = urlParams.get('for_transport_success');
+	const set_final_pay_success = urlParams.get('set_final_pay_success');
+	const for_receiving_success = urlParams.get('for_receiving_success');
+	const completed_transaction_success = urlParams.get('completed_transaction_success');
+
+	if(completed_transaction_success){
+		Swal.fire({
+			text: completed_transaction_success,
+			icon: 'success',
+			showConfirmButton: false,
+			timer: 2000,
+			customClass: {
+				popup: 'swal-popup',
+				confirmButton: 'swal-btn',
+		  }
+	  });
+	}
+	else if(for_receiving_success){
+		Swal.fire({
+			text: for_receiving_success,
+			icon: 'success',
+			showConfirmButton: false,
+			timer: 2000,
+			customClass: {
+				popup: 'swal-popup',
+				confirmButton: 'swal-btn',
+		  }
+	  });
+	}
+	else if(set_final_pay_success){
+		Swal.fire({
+			text: set_final_pay_success,
+			icon: 'success',
+			showConfirmButton: false,
+			timer: 2000,
+			customClass: {
+				popup: 'swal-popup',
+				confirmButton: 'swal-btn',
+		  }
+	  });
+	}
+	else if(for_transport_success){
+		Swal.fire({
+			text: for_transport_success,
+			icon: 'success',
+			showConfirmButton: false,
+			timer: 2000,
+			customClass: {
+				popup: 'swal-popup',
+				confirmButton: 'swal-btn',
+		  }
+	  });
+	}
+	else if(complete_medical){
+		Swal.fire({
+			text: complete_medical,
+			icon: 'success',
+			showConfirmButton: false,
+			timer: 2000,
+			customClass: {
+				popup: 'swal-popup',
+				confirmButton: 'swal-btn',
+		  }
+	  });
+	}
+	if(ongoing_medical){
+		Swal.fire({
+			text: ongoing_medical,
+			icon: 'success',
+			showConfirmButton: false,
+			timer: 2000,
+			customClass: {
+				popup: 'swal-popup',
+				confirmButton: 'swal-btn',
+		  }
+	  });
+	}
+	else if(proceed_for_medical){
 		Swal.fire({
 			text: proceed_for_medical,
 			icon: 'success',

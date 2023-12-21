@@ -326,7 +326,7 @@
 									$dateID = $get_paid_initial_payments_result['date_id'];
 									$animalID = $get_paid_initial_payments_result['animal_id'];
 									$paymentID = $get_paid_initial_payments_result['payment_id'];
-									$paymentMethod = $get_paid_initial_payments_result['payment_method'];
+									$paymentType = $get_paid_initial_payments_result['payment_type'];
 
 									$get_breed_id = mysqli_query($conn, "SELECT breed_id FROM tbl_animals WHERE transaction_id = '$transactionID'");
 									$breed_id_result = mysqli_fetch_assoc($get_breed_id);

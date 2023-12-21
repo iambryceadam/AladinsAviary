@@ -233,42 +233,52 @@
 								</tr>
 							</thead>
 							<tbody>
+							<?php while($get_pending_final_payment_data_result =  mysqli_fetch_array($get_pending_final_payment_data)){
+									$transactionID = $get_pending_final_payment_data_result['transaction_id'];
+									$clientID = $get_pending_final_payment_data_result['client_id'];
+									$dateID = $get_pending_final_payment_data_result['date_id'];
+									$animalID = $get_pending_final_payment_data_result['animal_id'];
+									$paymentID = $get_pending_final_payment_data_result['payment_id'];
+									$paymentMethod = $get_pending_final_payment_data_result['payment_method'];
+
+									$get_breed_id = mysqli_query($conn, "SELECT breed_id FROM tbl_animals WHERE transaction_id = '$transactionID'");
+									$breed_id_result = mysqli_fetch_assoc($get_breed_id);
+									$breedID = $breed_id_result['breed_id'];
+
+									$get_breed_data = mysqli_query($conn, "SELECT species_id, description FROM tbl_breeds WHERE breed_id = '$breedID'");
+									$breed_data_result = mysqli_fetch_assoc($get_breed_data);
+									$breed_name = $breed_data_result['description'];
+									$speciesID = $breed_data_result['species_id'];
+
+									$get_species_name = mysqli_query($conn, "SELECT description FROM tbl_species WHERE species_id = '$speciesID'");
+									$species_name_result = mysqli_fetch_assoc($get_species_name);
+									$species_name = $species_name_result['description'];
+
+									$get_clientRecords = mysqli_query($conn, "SELECT * FROM tbl_clients WHERE client_id = '$clientID'");
+									$get_clientRecords_result = mysqli_fetch_array($get_clientRecords);
+									$client_name = $get_clientRecords_result['first_name'];
+
+									$get_dateRecords = mysqli_query($conn, "SELECT * FROM tbl_transactions_dates WHERE date_id = '$dateID'");
+									$get_dateRecords_result = mysqli_fetch_array($get_dateRecords);
+
+									$get_animalRecords = mysqli_query($conn, "SELECT * FROM tbl_animals WHERE animal_id = '$animalID'");
+									$get_animalRecords_result = mysqli_fetch_array($get_animalRecords);
+
+									$get_date_data = mysqli_query($conn, "SELECT * FROM tbl_transactions_dates WHERE transaction_id = '$transactionID'");
+									$get_date_data_results = mysqli_fetch_array($get_date_data);
+								
+								?>
 								<tr>
-									<td>ORD2023ABC5678</td>
-									<td class="table-image-text"><img src="images/profile_icon.jpg" alt="Profile Icon"> Bryce Adam</td>
-									<td>Cash</td>
-									<td>05-17-23</td>
+									<td><?php echo $transactionID; ?></td>
+									<td class="table-image-text"><img src="data:image/jpeg;base64,<?php echo base64_encode($get_clientRecords_result['img_profile']); ?>" alt="Client Profile Image"> <span><?php echo $get_clientRecords_result['first_name']; ?></span></td>
+									<td><?php echo $paymentMethod; ?></td>
+									<td><?php echo $get_date_data_results['date_approved'] ?></td>
 									<td>
 										<button class="btn-sm btn m-1 table-action-btn action-view"><i class="material-icons table-action-icon">visibility</i></button>
+										<!-- <button class="btn-sm btn m-1 table-action-btn action-approve" onclick="approvePayment('<?php echo $client_name ?>' , '<?php echo $transactionID; ?>')"><i class="material-icons table-action-icon">thumb_up</i></button> -->
 									</td>
 								</tr>
-								<tr>
-									<td>ORD2023ABC5678</td>
-									<td class="table-image-text"><img src="images/profile_icon.jpg" alt="Profile Icon"> Bryce Adam</td>
-									<td>Bank Transfer</td>
-									<td>05-17-23</td>
-									<td>
-										<button class="btn-sm btn m-1 table-action-btn action-view"><i class="material-icons table-action-icon">visibility</i></button>
-									</td>
-								</tr>
-								<tr>
-									<td>ORD2023ABC5678</td>
-									<td class="table-image-text"><img src="images/profile_icon.jpg" alt="Profile Icon"> Bryce Adam</td>
-									<td>GCash</td>
-									<td>05-17-23</td>
-									<td>
-										<button class="btn-sm btn m-1 table-action-btn action-view"><i class="material-icons table-action-icon">visibility</i></button>
-									</td>
-								</tr>
-								<tr>
-									<td>ORD2023ABC5678</td>
-									<td class="table-image-text"><img src="images/profile_icon.jpg" alt="Profile Icon"> Bryce Adam</td>
-									<td>Bank Transfer</td>
-									<td>05-17-23</td>
-									<td>
-										<button class="btn-sm btn m-1 table-action-btn action-view"><i class="material-icons table-action-icon">visibility</i></button>
-									</td>
-								</tr>
+							<?php } ?>
 							</tbody>
 						</table>
 					</div>
@@ -300,67 +310,63 @@
 						</div>
 					</div>
 					<div class="table-responsive">
-						<table class="table table-sm table-hover table-striped table-bordered table-light">
+					<table class="table table-sm table-hover table-striped table-bordered table-light">
 							<thead>
 								<tr>
 									<th>Transaction ID</th>
 									<th>Client</th>
 									<th>Payment Method</th>
-									<th>Date Payment</th>
+									<th>Date Approved</th>
 									<th>Actions</th>
 								</tr>
 							</thead>
 							<tbody>
+							<?php while($get_successful_final_payment_data_result =  mysqli_fetch_array($get_successful_final_payment_data)){
+									$transactionID = $get_successful_final_payment_data_result['transaction_id'];
+									$clientID = $get_successful_final_payment_data_result['client_id'];
+									$dateID = $get_successful_final_payment_data_result['date_id'];
+									$animalID = $get_successful_final_payment_data_result['animal_id'];
+									$paymentID = $get_successful_final_payment_data_result['payment_id'];
+									$paymentMethod = $get_successful_final_payment_data_result['payment_method'];
+
+									$get_breed_id = mysqli_query($conn, "SELECT breed_id FROM tbl_animals WHERE transaction_id = '$transactionID'");
+									$breed_id_result = mysqli_fetch_assoc($get_breed_id);
+									$breedID = $breed_id_result['breed_id'];
+
+									$get_breed_data = mysqli_query($conn, "SELECT species_id, description FROM tbl_breeds WHERE breed_id = '$breedID'");
+									$breed_data_result = mysqli_fetch_assoc($get_breed_data);
+									$breed_name = $breed_data_result['description'];
+									$speciesID = $breed_data_result['species_id'];
+
+									$get_species_name = mysqli_query($conn, "SELECT description FROM tbl_species WHERE species_id = '$speciesID'");
+									$species_name_result = mysqli_fetch_assoc($get_species_name);
+									$species_name = $species_name_result['description'];
+
+									$get_clientRecords = mysqli_query($conn, "SELECT * FROM tbl_clients WHERE client_id = '$clientID'");
+									$get_clientRecords_result = mysqli_fetch_array($get_clientRecords);
+									$client_name = $get_clientRecords_result['first_name'];
+
+									$get_dateRecords = mysqli_query($conn, "SELECT * FROM tbl_transactions_dates WHERE date_id = '$dateID'");
+									$get_dateRecords_result = mysqli_fetch_array($get_dateRecords);
+
+									$get_animalRecords = mysqli_query($conn, "SELECT * FROM tbl_animals WHERE animal_id = '$animalID'");
+									$get_animalRecords_result = mysqli_fetch_array($get_animalRecords);
+
+									$get_date_data = mysqli_query($conn, "SELECT * FROM tbl_transactions_dates WHERE transaction_id = '$transactionID'");
+									$get_date_data_results = mysqli_fetch_array($get_date_data);
+								
+								?>
 								<tr>
-									<td>ORD2023ABC5678</td>
-									<td class="table-image-text"><img src="images/profile_icon.jpg" alt="Profile Icon"> Bryce Adam</td>
-									<td>Cash</td>
-									<td>05-17-23</td>
+									<td><?php echo $transactionID; ?></td>
+									<td class="table-image-text"><img src="data:image/jpeg;base64,<?php echo base64_encode($get_clientRecords_result['img_profile']); ?>" alt="Client Profile Image"> <span><?php echo $get_clientRecords_result['first_name']; ?></span></td>
+									<td><?php echo $paymentMethod; ?></td>
+									<td><?php echo $get_date_data_results['date_approved'] ?></td>
 									<td>
 										<button class="btn-sm btn m-1 table-action-btn action-view"><i class="material-icons table-action-icon">visibility</i></button>
-										<button class="btn-sm btn m-1 table-action-btn action-approve"><i class="material-icons table-action-icon">thumb_up</i></button>
+										<button class="btn-sm btn m-1 table-action-btn action-approve" onclick="approveFinalPayment('<?php echo $client_name ?>' , '<?php echo $transactionID; ?>')"><i class="material-icons table-action-icon">thumb_up</i></button>
 									</td>
 								</tr>
-								<tr>
-									<td>ORD2023ABC5678</td>
-									<td class="table-image-text"><img src="images/profile_icon.jpg" alt="Profile Icon"> Bryce Adam</td>
-									<td>GCash</td>
-									<td>05-17-23</td>
-									<td>
-										<button class="btn-sm btn m-1 table-action-btn action-view"><i class="material-icons table-action-icon">visibility</i></button>
-										<button class="btn-sm btn m-1 table-action-btn action-approve"><i class="material-icons table-action-icon">thumb_up</i></button>
-									</td>
-								</tr>
-								<tr>
-									<td>ORD2023ABC5678</td>
-									<td class="table-image-text"><img src="images/profile_icon.jpg" alt="Profile Icon"> Bryce Adam</td>
-									<td>Bank Transfer</td>
-									<td>05-17-23</td>
-									<td>
-										<button class="btn-sm btn m-1 table-action-btn action-view"><i class="material-icons table-action-icon">visibility</i></button>
-										<button class="btn-sm btn m-1 table-action-btn action-approve"><i class="material-icons table-action-icon">thumb_up</i></button>
-									</td>
-								</tr>
-								<tr>
-									<td>ORD2023ABC5678</td>
-									<td class="table-image-text"><img src="images/profile_icon.jpg" alt="Profile Icon"> Bryce Adam</td>
-									<td>Cash</td>
-									<td>05-17-23</td>
-									<td>
-										<button class="btn-sm btn m-1 table-action-btn action-view"><i class="material-icons table-action-icon">visibility</i></button>
-										<button class="btn-sm btn m-1 table-action-btn action-approve"><i class="material-icons table-action-icon">thumb_up</i></button>
-									</td>
-								</tr>
-								<tr>
-									<td>ORD2023ABC5678</td>
-									<td class="table-image-text"><img src="images/profile_icon.jpg" alt="Profile Icon"> Bryce Adam</td>
-									<td>Bank Transfer</td>
-									<td>05-17-23</td>
-									<td>
-										<button class="btn-sm btn m-1 table-action-btn action-view"><i class="material-icons table-action-icon">visibility</i></button>
-										<button class="btn-sm btn m-1 table-action-btn action-approve"><i class="material-icons table-action-icon">thumb_up</i></button>
-									</td>
-								</tr>
+							<?php } ?>
 							</tbody>
 						</table>
 					</div>

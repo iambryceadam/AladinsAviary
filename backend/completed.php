@@ -225,14 +225,43 @@
 								</tr>
 							</thead>
 							<tbody>
-								<?php while($get_clientCompleted_result = mysqli_fetch_array($get_clientCompleted)) { ?>
+								<?php while($get_for_completed_transactions_results = mysqli_fetch_array($get_for_completed_transactions)) { 
+									// Fetching records of foreign keys
+									$clientID = $get_for_completed_transactions_results['client_id'];
+									$dateID = $get_for_completed_transactions_results['date_id'];
+									$animalID = $get_for_completed_transactions_results['animal_id'];
+									$transactionID = $get_for_completed_transactions_results['transaction_id'];
+
+									$get_breed_id = mysqli_query($conn, "SELECT breed_id FROM tbl_animals WHERE transaction_id = '$transactionID'");
+									$breed_id_result = mysqli_fetch_assoc($get_breed_id);
+									$breedID = $breed_id_result['breed_id'];
+
+									$get_breed_data = mysqli_query($conn, "SELECT species_id, description FROM tbl_breeds WHERE breed_id = '$breedID'");
+									$breed_data_result = mysqli_fetch_assoc($get_breed_data);
+									$breed_name = $breed_data_result['description'];
+									$speciesID = $breed_data_result['species_id'];
+
+									$get_species_name = mysqli_query($conn, "SELECT description FROM tbl_species WHERE species_id = '$speciesID'");
+									$species_name_result = mysqli_fetch_assoc($get_species_name);
+									$species_name = $species_name_result['description'];
+
+									$get_clientRecords = mysqli_query($conn, "SELECT * FROM tbl_clients WHERE client_id = '$clientID'");
+									$get_clientRecords_result = mysqli_fetch_array($get_clientRecords);
+									$client_name = $get_clientRecords_result['first_name'];
+
+									$get_dateRecords = mysqli_query($conn, "SELECT * FROM tbl_transactions_dates WHERE date_id = '$dateID'");
+									$get_dateRecords_result = mysqli_fetch_array($get_dateRecords);
+
+									$get_animalRecords = mysqli_query($conn, "SELECT * FROM tbl_animals WHERE animal_id = '$animalID'");
+									$get_animalRecords_result = mysqli_fetch_array($get_animalRecords);
+								?>
 									<tr>
-										<td><?php echo $get_clientCompleted_result['transaction_id']; ?></td>
-										<td class="table-image-text"><img src="data:image/jpeg;base64,<?php echo base64_encode($get_clientCompleted_result['client_img']); ?>" alt="Client Profile Image"> <?php echo $get_clientCompleted_result['client_name']; ?></td>
-										<td><?php echo $get_clientCompleted_result['animal_description']; ?></td>
-										<td><?php echo $get_clientCompleted_result['date_completed']; ?></td>
+										<td><?php echo $transactionID; ?></td>
+										<td class="table-image-text"><img src="data:image/jpeg;base64,<?php echo base64_encode($get_clientRecords_result['img_profile']); ?>" alt="Client Profile Image"> <span><?php echo $get_clientRecords_result['first_name']; ?></span></td>
+										<td><?php echo $breed_name . ' ' . $species_name ?></td>
+										<td><?php echo $get_dateRecords_result['date_completed']; ?></td>
 										<td>
-											<button class="btn-sm btn m-1 table-action-btn action-view" data-toggle="modal" data-target="#viewClientRequest" data-id="<?php echo $get_clientCompleted_result['transaction_id']; ?>" onclick="viewClientRequest(this)"><i class="material-icons table-action-icon">visibility</i></button>
+											<button class="btn-sm btn m-1 table-action-btn action-view" data-toggle="modal" data-target="#viewClientRequest" onclick="viewClientRequest(this)"><i class="material-icons table-action-icon">visibility</i></button>
 										</td>
 									</tr>
 								<?php } ?>
