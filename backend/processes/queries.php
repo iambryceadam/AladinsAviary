@@ -98,6 +98,7 @@
       $moved_for_pickup_success = "Successfully moved transaction for pick up";
       header("Location: ../pickup.php?moved_for_pickup_success=" . urldecode($moved_for_pickup_success));
     }
+    
 
     if(isset($_GET['successPickup'])){
       $tID = $_GET['successPickup'];
@@ -106,6 +107,13 @@
       $pickup_successful = "Successfully picked up animal";
       header("Location: ../pickup.php?pickup_successful=" . urldecode($pickup_successful));
     }
+
+    if(isset($_GET['unsuccessfulPickup'])){
+      $tID = $_GET['unsuccessfulPickup'];
+      mysqli_query($conn, "UPDATE tbl_transactions SET status = 'pickup-unsuccessful' WHERE transaction_id = '$tID'");
+      $pickup_unsuccessful = "Pickup attempt Unsuccessful";
+      header("Location: ../pickup.php?pickup_unsuccessful=" . urldecode($pickup_unsuccessful));
+    } 
 
     if(isset($_GET['forMedical'])){
       $tID = $_GET['forMedical'];
@@ -123,22 +131,95 @@
       header("Location: ../medical.php?ongoing_medical=" . urldecode($ongoing_medical));
     }
 
+    if (isset($_POST['insertMedicalAttachments'])) {
+        $transaction_id = mysqli_real_escape_string($conn, $_POST['transaction_id']);
+        $currentDate = date('mdY');
+        mysqli_query($conn, "UPDATE tbl_transactions SET status = 'completed-medical' WHERE transaction_id = '$transaction_id'");
+    
+        if (!empty($_FILES['images']['name'][0])) {
+            $fileNames = $_FILES['images']['name'];
+            $fileTmpNames = $_FILES['images']['tmp_name'];
+    
+            for ($i = 0; $i < count($fileNames); $i++) {
+                $fileName = mysqli_real_escape_string($conn, $fileNames[$i]);
+                $fileTmpName = $fileTmpNames[$i];
+                $attachmentTag = "Medical";
+    
+                $fileContent = file_get_contents($fileTmpName);
+                $fileContent = mysqli_real_escape_string($conn, $fileContent);
+
+                $customAttachmentsID = generateCustomAttachmentsID($conn, $currentDate);
+    
+                $insertQuery = "INSERT INTO tbl_transactions_attachments (attachment_id, transaction_id, attachment, attachment_tag) VALUES ('$customAttachmentsID', '$transaction_id', '$fileContent', '$attachmentTag')";
+                mysqli_query($conn, $insertQuery);
+            }
+        }
+        $complete_medical = "Successfully proceeded to the next step (Completed Medical)";
+        header("Location: ?complete_medical=" . urldecode($complete_medical));
+    }
+
+    if(isset($_POST['insertShipmentAttachments'])){
+        $transaction_id = mysqli_real_escape_string($conn, $_POST['transaction_id']);
+        $dropoff_location = mysqli_real_escape_string($conn, $_POST['dropoff_location']);
+        $currentDate = date('mdY');
+        mysqli_query($conn, "UPDATE tbl_transactions SET status = 'for-transport' WHERE transaction_id = '$transaction_id'");
+        mysqli_query($conn, "UPDATE tbl_locations SET dropoff_address = '$dropoff_location' WHERE transaction_id = '$transaction_id'");
+    
+        if (!empty($_FILES['images']['name'][0])) {
+            $fileNames = $_FILES['images']['name'];
+            $fileTmpNames = $_FILES['images']['tmp_name'];
+    
+            for ($i = 0; $i < count($fileNames); $i++) {
+                $fileName = mysqli_real_escape_string($conn, $fileNames[$i]);
+                $fileTmpName = $fileTmpNames[$i];
+                $attachmentTag = "Transport";
+    
+                $fileContent = file_get_contents($fileTmpName);
+                $fileContent = mysqli_real_escape_string($conn, $fileContent);
+
+                $customAttachmentsID = generateCustomAttachmentsID($conn, $currentDate);
+    
+                $insertQuery = "INSERT INTO tbl_transactions_attachments (attachment_id, transaction_id, attachment, attachment_tag) VALUES ('$customAttachmentsID', '$transaction_id', '$fileContent', '$attachmentTag')";
+                mysqli_query($conn, $insertQuery);
+            }
+        }
+        $for_transport_success = "Successfully proceeded to next step (For Transport)";
+        header("Location: ?for_transport_success=" . urldecode($for_transport_success));
+    }
+
+    function generateCustomAttachmentsID($conn, $currentDate) {
+      // Get the maximum transaction number from the database
+      $checkTransaction = "SELECT MAX(CAST(SUBSTRING(attachment_id, 13) AS UNSIGNED)) AS max_number FROM tbl_transactions_attachments";
+      $result = mysqli_query($conn, $checkTransaction);
+      $get_max_number = mysqli_fetch_assoc($result);
+      $maxNumber = $get_max_number['max_number'];
+  
+      if (!is_null($maxNumber)) {
+          $transactionNumber = (int)$maxNumber + 1;
+      } else {
+          $transactionNumber = 1;
+      }
+  
+      $customTransactionID = "TRAT" . $currentDate . $transactionNumber;
+      return $customTransactionID;
+  }
+    /*
     if(isset($_GET['completeMedical'])){
       $tID = $_GET['completeMedical'];
 
-      mysqli_query($conn, "UPDATE tbl_transactions SET status = 'complete-medical' WHERE transaction_id = '$tID'");
+      mysqli_query($conn, "UPDATE tbl_transactions SET status = 'completed-medical' WHERE transaction_id = '$tID'");
       $complete_medical = "Successfully proceeded to next step (Completed Medical))";
       header("Location: ../medical.php?complete_medical=" . urldecode($complete_medical));
     }
-
+    */
+    
     if(isset($_GET['proceedAfterMedical'])){
       $tID = $_GET['proceedAfterMedical'];
 
-      mysqli_query($conn, "UPDATE tbl_transactions SET status = 'for-transport' WHERE transaction_id = '$tID'");
-      $for_transport_success = "Successfully proceeded to next step (For Transport))";
+      mysqli_query($conn, "UPDATE tbl_transactions SET status = 'pending-transport' WHERE transaction_id = '$tID'");
+      $for_transport_success = "Successfully proceeded to next step (Pending Transport)";
       header("Location: ../medical.php?for_transport_success=" . urldecode($for_transport_success));
     }
-
     
     if(isset($_POST['insertFinalCost'])){
       $f_payment_cost = mysqli_real_escape_string($conn, $_POST['f_payment_cost']);
@@ -156,8 +237,8 @@
 
     if(isset($_GET['approveFinalPayment'])){
       $tID = $_GET['approveFinalPayment'];
-      mysqli_query($conn, "UPDATE tbl_transactions SET status = 'for-transport' WHERE transaction_id = '$tID'");
-      $for_transport_success = "Successfully proceeded to next step (For Transport))";
+      mysqli_query($conn, "UPDATE tbl_transactions SET status = 'payment-approved' WHERE transaction_id = '$tID'");
+      $for_transport_success = "Successfully proceeded to next step (Pending Transport)";
       header("Location: ../final_payment.php?for_transport_success=" . urldecode($for_transport_success));
     }
 
@@ -174,6 +255,49 @@
       $completed_transaction_success = "Transaction has been successfully completed";
       header("Location: ../toReceive.php?completed_transaction_success=" . urldecode($completed_transaction_success));
     }
+
+    if(isset($_GET['approveCancel'])){
+      $tID = $_GET['approveCancel'];
+      mysqli_query($conn, "UPDATE tbl_transactions SET status = 'cancelled' WHERE transaction_id = '$tID'");
+      $cancelled_transaction_success = "Transaction has been successfully cancelled";
+      header("Location: ../cancelled.php?cancelled_transaction_success=" . urldecode($cancelled_transaction_success));
+    }
+
+    if(isset($_GET['rejectRequest'])){
+      $tID = $_GET['rejectRequest'];
+      mysqli_query($conn, "UPDATE tbl_transactions SET status = 'rejected' WHERE transaction_id = '$tID'");
+      $rejected_transaction_success = "Transaction has been successfully rejected";
+      header("Location: ../requests.php?rejected_transaction_success=" . urldecode($rejected_transaction_success));
+    }
+
+    if(isset($_POST['rfc'])){
+      $currentDate = date('mdY');
+      $customCancelID = generateCustomCancellationID($conn, $currentDate);
+      $rfctext = mysqli_real_escape_string($conn, $_POST['rfctext']);
+      $transaction_id = mysqli_real_escape_string($conn, $_POST['transaction_id']);
+
+      mysqli_query($conn, "UPDATE tbl_transactions SET status = 'cancelled' WHERE transaction_id = '$transaction_id'"); 
+      mysqli_query($conn, "INSERT INTO tbl_cancelled_transactions (cancellation_id, transaction_id, reason_for_cancellation) values ('$customCancelID', '$transaction_id', '$rfctext')");
+      $cancelled_transaction_success = "Transaction has been successfully cancelled";
+      header("Location: ?cancelled_transaction_success=" . urldecode($cancelled_transaction_success));
+    }
+
+    function generateCustomCancellationID($conn, $currentDate) {
+      // Get the maximum transaction number from the database
+      $checkTransaction = "SELECT MAX(CAST(SUBSTRING(cancellation_id, 13) AS UNSIGNED)) AS max_number FROM tbl_cancelled_transactions";
+      $result = mysqli_query($conn, $checkTransaction);
+      $get_max_number = mysqli_fetch_assoc($result);
+      $maxNumber = $get_max_number['max_number'];
+  
+      if (!is_null($maxNumber)) {
+          $transactionNumber = (int)$maxNumber + 1;
+      } else {
+          $transactionNumber = 1;
+      }
+  
+      $customTransactionID = "CNRS" . $currentDate . $transactionNumber;
+      return $customTransactionID;
+  }
 
     // ADD
     // Add Admin
@@ -319,7 +443,7 @@
         ){
           $update_admin_success = "Successfully saved changes to Admin - $e_admin_name";
         } else {
-          $update_admin_success = "There ano changes done to Admin - $e_admin_name";
+          $update_admin_success = "There no changes done to Admin - $e_admin_name";
         }
         
       }
@@ -662,7 +786,7 @@
     SELECT *
     FROM tbl_transactions AS t
     JOIN tbl_payments AS p ON t.payment_id = p.payment_id
-    WHERE (t.status = 'for-payment' OR t.status = 'payment-approved') 
+    WHERE (t.status = 'for-payment') 
       AND p.payment_type = 'Down Payment'
       AND p.final_payment_receipt IS NOT NULL
     ");
@@ -673,6 +797,9 @@
     //FETCH picked-up transactions
     $get_picked_up_transactions = mysqli_query($conn, "SELECT * FROM tbl_transactions WHERE status='pickup-success'");
 
+    //FETCH unsuccessful pickups
+    $get_unsuccessful_pick_up_transactions = mysqli_query($conn, "SELECT * FROM tbl_transactions WHERE status='pickup-unsuccessful'");
+
     //FETCH Pending Medical Assessments
     $get_for_medical_transactions = mysqli_query($conn, "SELECT * FROM tbl_transactions WHERE status='for-medical'");
 
@@ -680,16 +807,31 @@
     $get_ongoing_medical_transactions = mysqli_query($conn, "SELECT * FROM tbl_transactions WHERE status='ongoing-medical'");
 
     // FETCH Completed Medical Assessments
-    $get_completed_medical_transactions = mysqli_query($conn, "SELECT * FROM tbl_transactions WHERE status='complete-medical'");
+    $get_completed_medical_transactions = mysqli_query($conn, "SELECT * FROM tbl_transactions WHERE status='completed-medical'");
+
+    $get_for_transport_transactions = mysqli_query($conn, "
+    SELECT *
+    FROM tbl_transactions AS t
+    JOIN tbl_payments AS p ON t.payment_id = p.payment_id
+    WHERE (t.status = 'payment-approved' AND p.payment_type = 'Down Payment' OR t.status = 'pending-transport' AND p.payment_type = 'Down Payment') 
+      OR (t.status = 'pending-transport' AND p.payment_type = 'Full Payment')
+      AND p.final_payment_receipt IS NOT NULL
+    ");
 
     // FETCH for transport
-    $get_for_transport_transactions = mysqli_query($conn, "SELECT * FROM tbl_transactions WHERE status='for-transport'");
+    $get_ongoing_transport_transactions = mysqli_query($conn, "SELECT * FROM tbl_transactions WHERE status='for-transport'");
+
+    // FETCH for receiving
+    $get_for_receiving_transactions = mysqli_query($conn, "SELECT * FROM tbl_transactions WHERE status='for-receiving'");
 
     // FETCH completed
     $get_for_completed_transactions = mysqli_query($conn, "SELECT * FROM tbl_transactions WHERE status='completed'");
 
-    // FETCH for receiving
-    $get_for_receiving_transactions = mysqli_query($conn, "SELECT * FROM tbl_transactions WHERE status='for-receiving'");
+    // FETCH pending cancellation
+    $get_for_cancellation_transactions = mysqli_query($conn, "SELECT * FROM tbl_transactions WHERE status='for-cancellation'");
+
+    // FETCH pending cancellation
+    $get_cancelled_transactions = mysqli_query($conn, "SELECT * FROM tbl_transactions WHERE status='cancelled'");
 
     // FETCH Client Cancellations
     $get_clientCancellations = mysqli_query($conn, "SELECT * FROM tbl_transactions WHERE status");

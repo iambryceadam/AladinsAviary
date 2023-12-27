@@ -232,6 +232,231 @@ function insertInitialPaymentValidate(event) {
     }
 }
 
+function cancelTransactionValidate(event) {
+	var rfcText = document.getElementById("rfctext").value;
+	var client_name = document.getElementById("client_name").value;
+
+    if (rfcText == "") {} 
+    else {
+        event.preventDefault();
+        Swal.fire({
+            icon: "warning",
+            html: 'Are you sure you want to cancel ' + client_name + '\'s animal transportation request?',
+            showCancelButton: true,
+            confirmButtonColor: '#f7941d',
+            cancelButtonColor: '#8D8D8D',
+            confirmButtonText: 'Yes',
+            cancelButtonText: 'No',
+            width: '380px',
+            customClass: {
+                popup: 'swal-popup',
+                confirmButton: 'swal-btn',
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                var form = document.getElementById("insertRFC").submit();
+            }
+        });
+    }
+}
+
+function viewClientRequest(button) {
+    var id = button.getAttribute('data-transaction-id');
+    console.log('Transaction ID:', id);
+
+    // Make an AJAX request to fetch the data
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', 'processes/transaction_viewing.php?transaction_id=' + id, true);
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+                // Request was successful, parse and update the HTML
+                var transactionData = JSON.parse(xhr.responseText);
+
+                // Update the HTML elements with the retrieved data
+                document.getElementById('tID_text').textContent = transactionData.transaction_id;
+                document.getElementById('tDateFiled_text').textContent = transactionData.transaction_date_filed;
+                //document.getElementById('tStatus_text').textContent = transactionData.transaction_status;
+
+                // Sender Info
+                document.getElementById('senderID_text').textContent = transactionData.sender_id;
+                document.getElementById('senderName_text').textContent = transactionData.sender_first_name + " " + transactionData.sender_last_name;
+                document.getElementById('senderContact_text').textContent = transactionData.sender_contact;
+                document.getElementById('senderEmail_text').textContent = transactionData.sender_email;
+
+                // Receiver Info
+                document.getElementById('receiverID_text').textContent = transactionData.receiver_id;
+                document.getElementById('receiverName_text').textContent = transactionData.receiver_first_name + " " + transactionData.receiver_last_name;
+                document.getElementById('receiverContact_text').textContent = transactionData.receiver_contact;
+                document.getElementById('receiverEmail_text').textContent = transactionData.receiver_email;
+                //document.getElementById('receiverAddressID_text').textContent = transactionData.receiver_address_id;
+
+                // Pickup Location Info
+                document.getElementById('pickupLocationFormatted_text').textContent = transactionData.pickup_location_formatted;
+				//document.getElementById('dropoffAddress').textContent = transactionData.dropoff_location_id ? 'Ninoy Aquino International Airport (MNL) Terminal 4 - Barangay 183 - Pasay, Pasay City' : 'Not Yet Decided';
+				document.getElementById('dropoffAddress').textContent = transactionData.dropoff_location;
+                // Payment Info
+                document.getElementById('paymentType_text').textContent = transactionData.payment_type;
+                document.getElementById('paymentMethod_text').textContent = transactionData.payment_method;
+                //document.getElementById('initialPaymentCost_text').textContent = transactionData.initial_payment_cost;
+                //document.getElementById('finalPaymentCost_text').textContent = transactionData.final_payment_cost;
+                // Update image elements with base64-encoded images
+                //document.getElementById('initialPaymentReceipt').src = 'data:image/png;base64,' + transactionData.initial_payment_receipt;
+                //document.getElementById('finalPaymentReceipt').src = 'data:image/png;base64,' + transactionData.final_payment_receipt;
+
+                // Animal Info
+				document.getElementById('animalImage').src = 'data:image/png;base64,' + transactionData.animal_image;
+				document.getElementById('speciesName_text').textContent = transactionData.species_name;
+				document.getElementById('breedName_text').textContent = transactionData.breed_name;
+                document.getElementById('animalHeight_text').textContent = transactionData.animal_height;
+                document.getElementById('animalWeight_text').textContent = transactionData.animal_weight;
+                document.getElementById('animalAge_text').textContent = transactionData.animal_age;
+                document.getElementById('animalSex_text').textContent = transactionData.animal_sex;
+                document.getElementById('animalColor_text').textContent = transactionData.animal_color;
+                document.getElementById('animalQuantity_text').textContent = transactionData.animal_quantity;
+				document.getElementById('transactionStatus').textContent = getTransactionStatusText(transactionData.status);
+				document.getElementById('dynamic-admin-payment-container').innerHTML = '';
+				
+				if (transactionData.payment_type == "Down Payment" && (transactionData.initial_payment_receipt === "" && transactionData.final_payment_receipt === "")) {
+					document.getElementById('dynamic-admin-payment-container').innerHTML = '<div class="FADetails-data-label">' +
+						'<p>Payment Status</p>' +
+						'</div>' +
+						'<div class="FADetails-data-details">' +
+						'<p class="data-text" id="">Down Payment Cost</p>' +
+						'<p class="data-text" id="initialPaymentCost_text">' + transactionData.initial_payment_cost + '</p>' +
+						'</div>' +
+						'<hr>' +
+						'<div class="FADetails-data-details">' +
+						'<p class="data-text" id="">Final Payment Cost</p>' +
+						'<p class="data-text" id="finalPaymentCost_text">' + transactionData.final_payment_cost + '</p>' +
+						'</div>' +
+						'<hr>' +
+						'<div class="FADetails-data-label">' +
+						'<p>Payment Preview</p>' +
+						'</div>' +
+						'<div class="FADetails-data-attachments">' +
+						'<p>No payments have been submitted by the user yet.</p>' +
+						'</div>';
+				} else if (transactionData.payment_type == "Down Payment" && (transactionData.initial_payment_receipt !== "" || transactionData.final_payment_receipt !== "")) {
+					document.getElementById('dynamic-admin-payment-container').innerHTML =
+					  '<div class="FADetails-data-label">' +
+					  '<p>Payment Status</p>' +
+					  '</div>' +
+					  '<div class="FADetails-data-details">' +
+					  '<p class="data-text" id="">Down Payment Cost</p>' +
+					  '<p class="data-text" id="initialPaymentCost_text">' +
+					  transactionData.initial_payment_cost +
+					  '</p>' +
+					  '</div>' +
+					  '<hr>' +
+					  '<div class="FADetails-data-details">' +
+					  '<p class="data-text" id="">Final Payment Cost</p>' +
+					  '<p class="data-text" id="finalPaymentCost_text">' +
+					  transactionData.final_payment_cost +
+					  '</p>' +
+					  '</div>' +
+					  '<hr>' +
+					  '<div class="FADetails-data-label">' +
+					  '<p>Payment Preview</p>' +
+					  '</div>' +
+					  '<div class="FADetails-data-attachments">' +
+					  '<img src="data:image/png;base64,' +
+						transactionData.initial_payment_receipt +
+						'" id="initialPaymentReceipt" class="initial-receipt-admin-img" alt="" onclick="openImageModal(this.src)"></img>' +
+						'<img src="data:image/png;base64,' +
+						transactionData.final_payment_receipt +
+						'" id="finalPaymentReceipt" class="initial-receipt-admin-img" alt="" onclick="openImageModal(this.src)"></img>' +
+					  '</div>';
+				} else if (transactionData.payment_type == "Full Payment" && (transactionData.final_payment_receipt === "")) {
+					document.getElementById('dynamic-admin-payment-container').innerHTML = '<div class="FADetails-data-label">' +
+						'<p>Payment Status</p>' +
+						'</div>' +
+						'<div class="FADetails-data-details">' +
+						'<p class="data-text" id="">Payment Cost</p>' +
+						'<p class="data-text" id="finalPaymentCost_text">' + transactionData.final_payment_cost + '</p>' +
+						'</div>' +
+						'<hr>' +
+						'<div class="FADetails-data-label">' +
+						'<p>Payment Preview</p>' +
+						'</div>' +
+						'<div class="FADetails-data-attachments">' +
+						'<p>No payments have been submitted by the user yet.</p>' +
+						'</div>';
+				} else if (transactionData.payment_type == "Full Payment" && (transactionData.final_payment_receipt !== "")) {
+					document.getElementById('dynamic-admin-payment-container').innerHTML =
+					  '<div class="FADetails-data-label">' +
+					  '<p>Payment Status</p>' +
+					  '</div>' +
+					  '<div class="FADetails-data-details">' +
+					  '<p class="data-text" id="">Payment Cost</p>' +
+					  '<p class="data-text" id="finalPaymentCost_text">' +
+					  transactionData.final_payment_cost +
+					  '</p>' +
+					  '</div>' +
+					  '<hr>' +
+					  '<div class="FADetails-data-label">' +
+					  '<p>Payment Preview</p>' +
+					  '</div>' +
+					  '<div class="FADetails-data-attachments">' +
+						'<img src="data:image/png;base64,' +
+						transactionData.final_payment_receipt +
+						'" id="finalPaymentReceipt" class="initial-receipt-admin-img" alt="" onclick="openImageModal(this.src)"></img>' +
+					  '</div>';
+				}  
+
+            } else {
+                // Handle errors here, for example:
+                console.error('Error fetching transaction data. Status:', xhr.status);
+            }
+        }
+    };
+    xhr.send();
+}
+
+function openImageModal(base64Image) {
+    var modal = document.getElementById('imageModalClient');
+    var modalImage = document.getElementById('modalImage');
+
+    modalImage.src = base64Image;
+    modal.style.display = 'block';
+}
+
+function closeImageModal() {
+    var modal = document.getElementById('imageModalClient');
+    modal.style.display = 'none';
+}
+
+function getTransactionStatusText(status) {
+    switch (status) {
+        case 'for-approval':
+            return 'Pending For Approval';
+        case 'for-cancellation':
+            return 'Pending For Cancellation';
+        case 'cancelled':
+            return 'Cancelled';
+        case 'for-downpayment':
+            return 'Payment pending for approval';
+        case 'downpayment-approved':
+            return 'Down Payment Approved';
+        case 'for-pickup':
+            return 'For Pickup';
+        case 'for-medical':
+            return 'For Medical';
+        case 'for-payment':
+            return 'Payment pending for approval';
+        case 'payment-approved':
+            return 'Payment Approved';
+        case 'for-transport':
+            return 'For Transport';
+        case 'for-receiving':
+            return 'For Receiving';
+        case 'completed':
+            return 'Completed';
+        default:
+            return '';
+    }
+}
+
 function approveInitialPayment(name, tID){
 	Swal.fire({
 		icon: "warning",
@@ -278,6 +503,27 @@ function initiatePickup(name, tID){
 	Swal.fire({
 		icon: "warning",
 		html: 'Are you sure you want to<br>proceed with ' + name + '\'s pickup?',
+		showCancelButton: true,
+		confirmButtonColor: '#f7941d',
+		cancelButtonColor: '#8D8D8D',
+		confirmButtonText: 'Yes',
+		cancelButtonText: 'No',
+		width: '380px',
+		customClass: {
+		  popup: 'swal-popup',
+		  confirmButton: 'swal-btn',
+		}
+	}).then((result) => {
+		if (result.isConfirmed) {
+			window.location.href='processes/queries.php?initiatePickup=' + tID;
+		}
+	});
+}
+
+function reattemptPickup(name, tID){
+	Swal.fire({
+		icon: "warning",
+		html: 'Are you sure you want to<br>re-attempt the pickup for ' + name + '\'s animal?',
 		showCancelButton: true,
 		confirmButtonColor: '#f7941d',
 		cancelButtonColor: '#8D8D8D',
@@ -358,34 +604,62 @@ function ongoingMedical(name, tID){
 	});
 }
 
-function completeMedical(name, tID){
-	Swal.fire({
-		icon: "warning",
-		html: 'Are you sure you want to<br>complete ' + name + '\'s animal\'s medical procedure?',
-		showCancelButton: true,
-		confirmButtonColor: '#f7941d',
-		cancelButtonColor: '#8D8D8D',
-		confirmButtonText: 'Yes',
-		cancelButtonText: 'No',
-		width: '380px',
-		customClass: {
-		  popup: 'swal-popup',
-		  confirmButton: 'swal-btn',
-		}
-	}).then((result) => {
-		if (result.isConfirmed) {
-			window.location.href='processes/queries.php?completeMedical=' + tID;
-		}
-	});
-}
-
-function costClientDetails(button){
+function medicalClientDetails(button){
 	var cName = button.getAttribute('data-clientname');
 	var cID = button.getAttribute('data-client-id');
 	var tID = button.getAttribute('data-transaction-id');
-	document.getElementById('client_name').value = cName;
-	document.getElementById('client_id').value = cID;
-	document.getElementById('transaction_id').value = tID;
+	document.getElementById('medical_cName').value = cName;
+	document.getElementById('medical_cID').value = cID;
+	document.getElementById('medical_tID').value = tID;
+}
+
+function uploadMedicalAttachments(event){
+	var medicalAttachments = document.getElementById("medicalAttachments").files;
+	var client_name = document.getElementById("client_name").value;
+	var transaction_id = document.getElementById("transaction_id").value;
+
+    if (medicalAttachments.length === 0) {
+		event.preventDefault();
+        Swal.fire({
+            icon: "warning",
+            html: 'Are you sure you want to complete this medical procedure for ' + client_name + '\'s animal without attachments?<br>' + transaction_id,
+            showCancelButton: true,
+            confirmButtonColor: '#f7941d',
+            cancelButtonColor: '#8D8D8D',
+            confirmButtonText: 'Yes',
+            cancelButtonText: 'No',
+            width: '380px',
+            customClass: {
+                popup: 'swal-popup',
+                confirmButton: 'swal-btn',
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                var form = document.getElementById("medicalAttachmentsForm").submit();
+            }
+        });
+	} 
+    else {
+        event.preventDefault();
+        Swal.fire({
+            icon: "warning",
+            html: 'Are you sure you want to complete this medical procedure for ' + client_name + '\'s animal?<br>' + transaction_id,
+            showCancelButton: true,
+            confirmButtonColor: '#f7941d',
+            cancelButtonColor: '#8D8D8D',
+            confirmButtonText: 'Yes',
+            cancelButtonText: 'No',
+            width: '380px',
+            customClass: {
+                popup: 'swal-popup',
+                confirmButton: 'swal-btn',
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                var form = document.getElementById("medicalAttachmentsForm").submit();
+            }
+        });
+    }
 }
 
 function proceedAfterMedical(name, tID){
@@ -460,6 +734,78 @@ function approveFinalPayment(name, tID){
 	});
 }
 
+function transportClientDetails(button){
+	var cName = button.getAttribute('data-clientname');
+	var cID = button.getAttribute('data-client-id');
+	var tID = button.getAttribute('data-transaction-id');
+	document.getElementById('client_name').value = cName;
+	document.getElementById('client_id').value = cID;
+	document.getElementById('transaction_id').value = tID;
+}
+
+function uploadTransportAttachments(event){
+	var transportAttachments = document.getElementById("transportAttachments").files;
+	var client_name = document.getElementById("client_name").value;
+	var transaction_id = document.getElementById("transaction_id").value;
+	var dropoff_location = document.getElementById("dropoff_location").value;
+
+    if (dropoff_location == ""){
+		Swal.fire({
+            icon: "warning",
+            html: 'Please add a dropoff address for ' + client_name + '\'s animal',
+            showCancelButton: false,
+            confirmButtonColor: '#8D8D8D',
+            confirmButtonText: 'Ok',
+            width: '380px',
+            customClass: {
+                popup: 'swal-popup',
+                confirmButton: 'swal-btn',
+            }
+        })
+	} else if (transportAttachments.length === 0) {
+		event.preventDefault();
+        Swal.fire({
+            icon: "warning",
+            html: 'Are you sure you want to transport ' + client_name + '\'s animal without attachments?<br>' + transaction_id,
+            showCancelButton: true,
+            confirmButtonColor: '#f7941d',
+            cancelButtonColor: '#8D8D8D',
+            confirmButtonText: 'Yes',
+            cancelButtonText: 'No',
+            width: '380px',
+            customClass: {
+                popup: 'swal-popup',
+                confirmButton: 'swal-btn',
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                var form = document.getElementById("transportAttachmentsForm").submit();
+            }
+        });
+	} 
+    else {
+        event.preventDefault();
+        Swal.fire({
+            icon: "warning",
+            html: 'Are you sure you want to transport ' + client_name + '\'s animal?<br>' + transaction_id,
+            showCancelButton: true,
+            confirmButtonColor: '#f7941d',
+            cancelButtonColor: '#8D8D8D',
+            confirmButtonText: 'Yes',
+            cancelButtonText: 'No',
+            width: '380px',
+            customClass: {
+                popup: 'swal-popup',
+                confirmButton: 'swal-btn',
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                var form = document.getElementById("transportAttachmentsForm").submit();
+            }
+        });
+    }
+}
+
 function transportCompleted(name, tID){
 	Swal.fire({
 		icon: "warning",
@@ -498,6 +844,69 @@ function animalReceived(name, tID){
 	}).then((result) => {
 		if (result.isConfirmed) {
 			window.location.href='processes/queries.php?animalReceived=' + tID;
+		}
+	});
+}
+
+function approveCancel(name, tID){
+	Swal.fire({
+		icon: "warning",
+		html: 'Are you sure you want to cancel ' + name + '\'s animal transportation request?',
+		showCancelButton: true,
+		confirmButtonColor: '#f7941d',
+		cancelButtonColor: '#8D8D8D',
+		confirmButtonText: 'Yes',
+		cancelButtonText: 'No',
+		width: '380px',
+		customClass: {
+		  popup: 'swal-popup',
+		  confirmButton: 'swal-btn',
+		}
+	}).then((result) => {
+		if (result.isConfirmed) {
+			window.location.href='processes/queries.php?approveCancel=' + tID;
+		}
+	});
+}
+
+function rejectRequest(name, tID){
+	Swal.fire({
+		icon: "warning",
+		html: 'Are you sure you want to<br>reject ' + name + '\'s request for animal transportation?',
+		showCancelButton: true,
+		confirmButtonColor: '#f7941d',
+		cancelButtonColor: '#8D8D8D',
+		confirmButtonText: 'Yes',
+		cancelButtonText: 'No',
+		width: '380px',
+		customClass: {
+		  popup: 'swal-popup',
+		  confirmButton: 'swal-btn',
+		}
+	}).then((result) => {
+		if (result.isConfirmed) {
+			window.location.href='processes/queries.php?rejectRequest=' + tID;
+		}
+	});
+}
+
+function pickupUnsuccessful(name, tID){
+	Swal.fire({
+		icon: "warning",
+		html: 'Confirm ' + name + '\'s<br> unsuccessful animal pickup?',
+		showCancelButton: true,
+		confirmButtonColor: '#f7941d',
+		cancelButtonColor: '#8D8D8D',
+		confirmButtonText: 'Yes',
+		cancelButtonText: 'No',
+		width: '380px',
+		customClass: {
+		  popup: 'swal-popup',
+		  confirmButton: 'swal-btn',
+		}
+	}).then((result) => {
+		if (result.isConfirmed) {
+			window.location.href='processes/queries.php?unsuccessfulPickup=' + tID;
 		}
 	});
 }
@@ -1247,8 +1656,47 @@ window.onload = function() {
 	const set_final_pay_success = urlParams.get('set_final_pay_success');
 	const for_receiving_success = urlParams.get('for_receiving_success');
 	const completed_transaction_success = urlParams.get('completed_transaction_success');
+	const cancelled_transaction_success = urlParams.get('cancelled_transaction_success');
+	const rejected_transaction_success = urlParams.get('rejected_transaction_success');
+	const pickup_unsuccessful = urlParams.get('pickup_unsuccessful');
 
-	if(completed_transaction_success){
+	if(pickup_unsuccessful){
+		Swal.fire({
+			text: pickup_unsuccessful,
+			icon: 'success',
+			showConfirmButton: false,
+			timer: 2000,
+			customClass: {
+				popup: 'swal-popup',
+				confirmButton: 'swal-btn',
+		  }
+	  });
+	}
+	else if(rejected_transaction_success){
+		Swal.fire({
+			text: cancelled_transaction_success,
+			icon: 'success',
+			showConfirmButton: false,
+			timer: 2000,
+			customClass: {
+				popup: 'swal-popup',
+				confirmButton: 'swal-btn',
+		  }
+	  });
+	}
+	else if(cancelled_transaction_success){
+		Swal.fire({
+			text: cancelled_transaction_success,
+			icon: 'success',
+			showConfirmButton: false,
+			timer: 2000,
+			customClass: {
+				popup: 'swal-popup',
+				confirmButton: 'swal-btn',
+		  }
+	  });
+	}
+	else if(completed_transaction_success){
 		Swal.fire({
 			text: completed_transaction_success,
 			icon: 'success',

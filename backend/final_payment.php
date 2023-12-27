@@ -274,7 +274,7 @@
 									<td><?php echo $paymentMethod; ?></td>
 									<td><?php echo $get_date_data_results['date_approved'] ?></td>
 									<td>
-										<button class="btn-sm btn m-1 table-action-btn action-view"><i class="material-icons table-action-icon">visibility</i></button>
+									<button class="btn-sm btn m-1 table-action-btn action-view" data-toggle="modal" data-target="#viewClientRequest" data-transaction-id="<?php echo $transactionID; ?>" onclick="viewClientRequest(this);"><i class="material-icons table-action-icon">visibility</i></button>
 										<!-- <button class="btn-sm btn m-1 table-action-btn action-approve" onclick="approvePayment('<?php echo $client_name ?>' , '<?php echo $transactionID; ?>')"><i class="material-icons table-action-icon">thumb_up</i></button> -->
 									</td>
 								</tr>
@@ -362,7 +362,7 @@
 									<td><?php echo $paymentMethod; ?></td>
 									<td><?php echo $get_date_data_results['date_approved'] ?></td>
 									<td>
-										<button class="btn-sm btn m-1 table-action-btn action-view"><i class="material-icons table-action-icon">visibility</i></button>
+									<button class="btn-sm btn m-1 table-action-btn action-view" data-toggle="modal" data-target="#viewClientRequest" data-transaction-id="<?php echo $transactionID; ?>" onclick="viewClientRequest(this);"><i class="material-icons table-action-icon">visibility</i></button>
 										<button class="btn-sm btn m-1 table-action-btn action-approve" onclick="approveFinalPayment('<?php echo $client_name ?>' , '<?php echo $transactionID; ?>')"><i class="material-icons table-action-icon">thumb_up</i></button>
 									</td>
 								</tr>
@@ -374,6 +374,23 @@
 			</div>
 			<!-- On Transit -->
 			<!-- Pickup -->
+
+			<!-- MODAL TRANSACTION VIEWER -->
+			<div class="modal fade" id="viewClientRequest" tabindex="-1" role="dialog" aria-hidden="true">
+				<div class="modal-dialog custom-modal-dialog" role="document">
+					<div class="modal-content popup transaction-modal">
+						<div class="modal-header transaction-modal">
+							<h5 class="modal-title popup-title" id="exampleModalCenterTitle">Client Request</h5>
+							<span aria-hidden="true" data-dismiss="modal" class="modal-exit">&times;</span>
+							</button>
+						</div>
+						<div class="transactions-details-container">
+							<?php include ('admin_transaction_viewer.php');?>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- MODAL TRANSACTION VIEWER -->
 		</main>
 		<!-- Notifications -->
 		<!-- Main -->

@@ -253,7 +253,7 @@
 									<td class="table-image-text"><img src="data:image/jpeg;base64,<?php echo base64_encode($get_clientRecords_result['img_profile']); ?>" alt="Client Profile Image"> <span><?php echo $get_clientRecords_result['first_name']; ?></span></td>
 									<td> <?php echo $get_date_data_results['date_approved_for_medical']; ?> </td>
 									<td>
-										<button class="btn-sm btn m-1 table-action-btn action-view"><i class="material-icons table-action-icon">visibility</i></button>
+										<button class="btn-sm btn m-1 table-action-btn action-view" data-toggle="modal" data-target="#viewClientRequest" data-transaction-id="<?php echo $transactionID; ?>" onclick="viewClientRequest(this);"><i class="material-icons table-action-icon">visibility</i></button>
 										<button class="btn-sm btn m-1 table-action-btn action-approve"  onclick="ongoingMedical('<?php echo $client_name; ?>', '<?php echo $transactionID; ?>')"><i class="material-icons table-action-icon">redo</i></button>
 									</td>
 								</tr>
@@ -320,8 +320,8 @@
 									<td class="table-image-text"><img src="data:image/jpeg;base64,<?php echo base64_encode($get_clientRecords_result['img_profile']); ?>" alt="Client Profile Image"> <span><?php echo $get_clientRecords_result['first_name']; ?></span></td>
 									<td> <?php echo $get_date_data_results['date_approved_for_medical']; ?> </td>
 									<td>
-										<button class="btn-sm btn m-1 table-action-btn action-view"><i class="material-icons table-action-icon">visibility</i></button>
-										<button class="btn-sm btn m-1 table-action-btn action-approve"  onclick="completeMedical('<?php echo $client_name; ?>', '<?php echo $transactionID; ?>')"><i class="material-icons table-action-icon">redo</i></button>
+										<button class="btn-sm btn m-1 table-action-btn action-view" data-toggle="modal" data-target="#viewClientRequest" data-transaction-id="<?php echo $transactionID; ?>" onclick="viewClientRequest(this);"><i class="material-icons table-action-icon">visibility</i></button>
+										<button class="btn-sm btn m-1 table-action-btn action-approve" data-toggle="modal" data-target="#addMedicalAttachments" data-client-id="<?php echo $clientID; ?>" data-transaction-id="<?php echo $transactionID; ?>" data-clientname="<?php echo $client_name; ?>" onclick="medicalClientDetails(this)"><i class="material-icons table-action-icon">redo</i></button>
 									</td>
 								</tr>
 								<?php } ?>
@@ -393,10 +393,10 @@
 									<td>
 										<?php
 											if($payment_type == "Down Payment"){ ?>
-												<button class="btn-sm btn m-1 table-action-btn action-view"><i class="material-icons table-action-icon">visibility</i></button>
+												<button class="btn-sm btn m-1 table-action-btn action-view" data-toggle="modal" data-target="#viewClientRequest" data-transaction-id="<?php echo $transactionID; ?>" onclick="viewClientRequest(this);"><i class="material-icons table-action-icon">visibility</i></button>
 												<button class="btn-sm btn m-1 table-action-btn action-approve" data-toggle="modal" data-target="#addPayment" data-client-id="<?php echo $clientID; ?>" data-transaction-id="<?php echo $transactionID; ?>" data-clientname="<?php echo $client_name; ?>" onclick="costClientDetails(this)"><i class="material-icons table-action-icon">redo</i></button>
 											<?php }  else if($payment_type == "Full Payment"){ ?>
-												<button class="btn-sm btn m-1 table-action-btn action-view"><i class="material-icons table-action-icon">visibility</i></button>
+												<button class="btn-sm btn m-1 table-action-btn action-view" data-toggle="modal" data-target="#viewClientRequest" data-transaction-id="<?php echo $transactionID; ?>" onclick="viewClientRequest(this);"><i class="material-icons table-action-icon">visibility</i></button>
 												<button class="btn-sm btn m-1 table-action-btn action-approve" onclick="proceedAfterMedical('<?php echo $client_name; ?>', '<?php echo $transactionID; ?>')"><i class="material-icons table-action-icon">redo</i></button>
 											<?php } ?>
 									</td>
@@ -423,7 +423,6 @@
 							<div class="modal-body" style="padding-bottom: 0px;">
 								<div class="row form-modal" style="padding-right: 20px;">
 									<div class="col col-md-12 ml-auto">
-										<div class="pop-up-prompt" id="update_admin_error"></div>
 										<div class="row mb-3 ml-auto">
 											<p class="pop-up-heading">Insert Payment Amount:</p>
 											<input type="text" class="form-control" required pattern="[a-zA-Z0-9\s]+" oninput="validatePaymentAmountPattern(this)" placeholder="Payment Cost..." name="f_payment_cost" id="f_payment_cost">
@@ -443,6 +442,58 @@
 					</div>
 				</div>
 			</div>
+
+			<!-- ADD MEDICAL ATTACHMENTS -->
+			<div class="modal fade" id="addMedicalAttachments" tabindex="-1" role="dialog" aria-hidden="true">
+				<div class="modal-dialog modal-dialog-centered" role="document">
+					<div class="modal-content popup">
+						<div class="modal-header">
+							<h5 class="modal-title popup-title" id="exampleModalCenterTitle">Add Medical Attachments</h5>
+							<span aria-hidden="true" data-dismiss="modal" class="modal-exit">&times;</span>
+							</button>
+						</div>
+						<form id="medicalAttachmentsForm" action="medical.php" method="POST" autocomplete="off" enctype="multipart/form-data">
+							<div class="modal-body" style="padding-bottom: 0px;">
+								<div class="row form-modal" style="padding-right: 20px;">
+									<div class="col col-md-12 ml-auto">
+									<p class="pop-up-heading">Click the button to add medical attachments:</p>
+										<div class="form-group">
+											<input type="hidden" name="client_name" id="medical_cName">
+											<input type="hidden" name="client_id" id="medical_cID">
+											<input type="hidden" name="transaction_id" id="medical_tID">
+											<label for="imageFile">Choose Image:</label>
+                                            <input type="file" id="imageFile" class="form-control-file" accept=".jpg, .jpeg, .png, .pdf, .docx, .xls, .xlsx" id="medicalAttachments" name="images[]" multiple>
+                                        </div>
+										<input type="hidden" id="insertMedicalAttachmentsInput" name="insertMedicalAttachments">
+									</div>
+									<div class="modal-footer popup-footer">
+										<button type="button" class="btn btn-secondary action-cancel" data-dismiss="modal">Close</button>
+										<button type="submit" id="medicalAttachmentsSubmit" class="btn action-view" name="insertMedicalAttachments" onclick="uploadMedicalAttachments(event)">Proceed</button>
+									</div>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+			<!-- ADD MEDICAL ATTACHMENTS -->
+
+			<!-- MODAL TRANSACTION VIEWER -->
+			<div class="modal fade" id="viewClientRequest" tabindex="-1" role="dialog" aria-hidden="true">
+				<div class="modal-dialog custom-modal-dialog" role="document">
+					<div class="modal-content popup transaction-modal">
+						<div class="modal-header transaction-modal">
+							<h5 class="modal-title popup-title" id="exampleModalCenterTitle">Client Request</h5>
+							<span aria-hidden="true" data-dismiss="modal" class="modal-exit">&times;</span>
+							</button>
+						</div>
+						<div class="transactions-details-container">
+							<?php include ('admin_transaction_viewer.php');?>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- MODAL TRANSACTION VIEWER -->
 		</main>
 		<!-- Notifications -->
 		<!-- Main -->

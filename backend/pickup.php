@@ -263,9 +263,9 @@
 										}
 									?>
 									<td>
-										<button class="btn-sm btn m-1 table-action-btn action-view"><i class="material-icons table-action-icon">visibility</i></button>
+										<button class="btn-sm btn m-1 table-action-btn action-view" data-toggle="modal" data-target="#viewClientRequest" data-transaction-id="<?php echo $transactionID; ?>" onclick="viewClientRequest(this);"><i class="material-icons table-action-icon">visibility</i></button>
 										<button class="btn-sm btn m-1 table-action-btn action-approve" onclick="initiatePickup('<?php echo $client_name; ?>', '<?php echo $transactionID; ?>')"><i class="material-icons table-action-icon">thumb_up</i></button>
-										<button class="btn-sm btn m-1 table-action-btn action-deny"><i class="material-icons table-action-icon">thumb_down</i></button>
+										<button class="btn-sm btn m-1 table-action-btn action-deny" data-client-id="<?php echo $clientID; ?>" data-transaction-id="<?php echo $transactionID; ?>" data-clientname="<?php echo $client_name; ?>" onclick="rejectRequest('<?php echo $client_name; ?>', '<?php echo $transactionID; ?>')"><i class="material-icons table-action-icon">thumb_down</i></button>
 									</td>
 								</tr>
 								<?php } ?>
@@ -331,9 +331,9 @@
 									<td class="table-image-text"><img src="data:image/jpeg;base64,<?php echo base64_encode($get_clientRecords_result['img_profile']); ?>" alt="Client Profile Image"> <span><?php echo $get_clientRecords_result['first_name']; ?></span></td>
 									<td><?php echo $get_location_details_results['house_number'] . ' ' . $get_location_details_results['street'] . ' ' . $get_location_details_results['barangay'] . ' ' . $get_location_details_results['city'] . ' ' . $get_location_details_results['province'] . ' ' . $get_location_details_results['region']?></td>
 									<td>
-										<button class="btn-sm btn m-1 table-action-btn action-view"><i class="material-icons table-action-icon">visibility</i></button>
+										<button class="btn-sm btn m-1 table-action-btn action-view" data-toggle="modal" data-target="#viewClientRequest" data-transaction-id="<?php echo $transactionID; ?>" onclick="viewClientRequest(this);"><i class="material-icons table-action-icon">visibility</i></button>
 										<button class="btn-sm btn m-1 table-action-btn action-approve" onclick="successPickup('<?php echo $client_name; ?>', '<?php echo $transactionID; ?>')"><i class="material-icons table-action-icon">thumb_up</i></button>
-										<button class="btn-sm btn m-1 table-action-btn action-deny"><i class="material-icons table-action-icon">thumb_down</i></button>
+										<button class="btn-sm btn m-1 table-action-btn action-deny" data-client-id="<?php echo $clientID; ?>" data-transaction-id="<?php echo $transactionID; ?>" data-clientname="<?php echo $client_name; ?>" onclick="pickupUnsuccessful('<?php echo $client_name; ?>', '<?php echo $transactionID; ?>')"><i class="material-icons table-action-icon">thumb_down</i></button>
 									</td>
 								</tr>
 								<?php } ?>
@@ -401,7 +401,7 @@
 									<td><?php echo $get_location_details_results['house_number'] . ' ' . $get_location_details_results['street'] . ' ' . $get_location_details_results['barangay'] . ' ' . $get_location_details_results['city'] . ' ' . $get_location_details_results['province'] . ' ' . $get_location_details_results['region']?></td>
 									<td> <?php echo $get_date_data_results['date_picked_up']; ?> </td>
 									<td>
-										<button class="btn-sm btn m-1 table-action-btn action-view"><i class="material-icons table-action-icon">visibility</i></button>
+										<button class="btn-sm btn m-1 table-action-btn action-view" data-toggle="modal" data-target="#viewClientRequest" data-transaction-id="<?php echo $transactionID; ?>" onclick="viewClientRequest(this);"><i class="material-icons table-action-icon">visibility</i></button>
 										<button class="btn-sm btn m-1 table-action-btn action-approve" onclick="proceedForMedical('<?php echo $client_name; ?>', '<?php echo $transactionID; ?>')"><i class="material-icons table-action-icon">thumb_up</i></button>
 										<button class="btn-sm btn m-1 table-action-btn action-deny"><i class="material-icons table-action-icon">thumb_down</i></button>
 									</td>
@@ -440,56 +440,41 @@
 								</tr>
 							</thead>
 							<tbody>
+								<?php while($get_unsuccessful_pick_up_transactions_results = mysqli_fetch_assoc($get_unsuccessful_pick_up_transactions)){
+									$transactionID = $get_unsuccessful_pick_up_transactions_results['transaction_id'];
+									$clientID = $get_unsuccessful_pick_up_transactions_results['client_id'];
+									$dateID = $get_unsuccessful_pick_up_transactions_results['date_id'];
+									$locationID = $get_unsuccessful_pick_up_transactions_results['location_id'];
+									$paymentID = $get_unsuccessful_pick_up_transactions_results['payment_id'];
+
+									$get_pickup_location_id = mysqli_query($conn, "SELECT * FROM tbl_locations WHERE transaction_id = '$transactionID'");
+									$get_pickup_location_id_result = mysqli_fetch_assoc($get_pickup_location_id);
+									$pickup_location_id = $get_pickup_location_id_result['pickup_location_id'];
+									
+									$get_location_details = mysqli_query($conn, "SELECT * FROM tbl_profile_addresses WHERE address_id = '$pickup_location_id'");
+									$get_location_details_results = mysqli_fetch_assoc($get_location_details);
+
+									$get_clientRecords = mysqli_query($conn, "SELECT * FROM tbl_clients WHERE client_id = '$clientID'");
+									$get_clientRecords_result = mysqli_fetch_array($get_clientRecords);
+									$client_name = $get_clientRecords_result['first_name'];
+
+									$get_dateRecords = mysqli_query($conn, "SELECT * FROM tbl_transactions_dates WHERE date_id = '$dateID'");
+									$get_dateRecords_result = mysqli_fetch_array($get_dateRecords);
+
+									$get_date_data = mysqli_query($conn, "SELECT * FROM tbl_transactions_dates WHERE transaction_id = '$transactionID'");
+									$get_date_data_results = mysqli_fetch_array($get_date_data);
+								?>
 								<tr>
-									<td>ORD2023ABC5678</td>
-									<td class="table-image-text"><img src="images/profile_icon.jpg" alt="Profile Icon"> Bryce Adam</td>
-									<td>326 Arandia Street Tunasan Muntinlupa City</td>
+									<td><?php echo $transactionID; ?></td>
+									<td class="table-image-text"><img src="data:image/jpeg;base64,<?php echo base64_encode($get_clientRecords_result['img_profile']); ?>" alt="Client Profile Image"> <span><?php echo $get_clientRecords_result['first_name']; ?></span></td>
+									<td><?php echo $get_location_details_results['house_number'] . ' ' . $get_location_details_results['street'] . ' ' . $get_location_details_results['barangay'] . ' ' . $get_location_details_results['city'] . ' ' . $get_location_details_results['province'] . ' ' . $get_location_details_results['region']?></td>
 									<td>
-										<button class="btn-sm btn m-1 table-action-btn action-view"><i class="material-icons table-action-icon">visibility</i></button>
-										<button class="btn-sm btn m-1 table-action-btn action-approve"><i class="material-icons table-action-icon">redo</i></button>
-										<button class="btn-sm btn m-1 table-action-btn action-deny"><i class="material-icons table-action-icon">cancel</i></button>
+										<button class="btn-sm btn m-1 table-action-btn action-view" data-toggle="modal" data-target="#viewClientRequest" data-transaction-id="<?php echo $transactionID; ?>" onclick="viewClientRequest(this);"><i class="material-icons table-action-icon">visibility</i></button>
+										<button class="btn-sm btn m-1 table-action-btn action-approve" onclick="reattemptPickup('<?php echo $client_name; ?>', '<?php echo $transactionID; ?>')"><i class="material-icons table-action-icon"><i class="material-icons table-action-icon">redo</i></button>
+										<button class="btn-sm btn m-1 table-action-btn action-deny" data-toggle="modal" data-target="#cancelTransaction" data-client-id="<?php echo $clientID; ?>" data-transaction-id="<?php echo $transactionID; ?>" data-clientname="<?php echo $client_name; ?>" onclick="costClientDetails(this)"><i class="material-icons table-action-icon">cancel</i></button>
 									</td>
 								</tr>
-								<tr>
-									<td>ORD2023ABC5678</td>
-									<td class="table-image-text"><img src="images/profile_icon.jpg" alt="Profile Icon"> Bryce Adam</td>
-									<td>326 Arandia Street Tunasan Muntinlupa City</td>
-									<td>
-										<button class="btn-sm btn m-1 table-action-btn action-view"><i class="material-icons table-action-icon">visibility</i></button>
-										<button class="btn-sm btn m-1 table-action-btn action-approve"><i class="material-icons table-action-icon">redo</i></button>
-										<button class="btn-sm btn m-1 table-action-btn action-deny"><i class="material-icons table-action-icon">cancel</i></button>
-									</td>
-								</tr>
-								<tr>
-									<td>ORD2023ABC5678</td>
-									<td class="table-image-text"><img src="images/profile_icon.jpg" alt="Profile Icon"> Bryce Adam</td>
-									<td>326 Arandia Street Tunasan Muntinlupa City</td>
-									<td>
-										<button class="btn-sm btn m-1 table-action-btn action-view"><i class="material-icons table-action-icon">visibility</i></button>
-										<button class="btn-sm btn m-1 table-action-btn action-approve"><i class="material-icons table-action-icon">redo</i></button>
-										<button class="btn-sm btn m-1 table-action-btn action-deny"><i class="material-icons table-action-icon">cancel</i></button>
-									</td>
-								</tr>
-								<tr>
-									<td>ORD2023ABC5678</td>
-									<td class="table-image-text"><img src="images/profile_icon.jpg" alt="Profile Icon"> Bryce Adam</td>
-									<td>326 Arandia Street Tunasan Muntinlupa City</td>
-									<td>
-										<button class="btn-sm btn m-1 table-action-btn action-view"><i class="material-icons table-action-icon">visibility</i></button>
-										<button class="btn-sm btn m-1 table-action-btn action-approve"><i class="material-icons table-action-icon">redo</i></button>
-										<button class="btn-sm btn m-1 table-action-btn action-deny"><i class="material-icons table-action-icon">cancel</i></button>
-									</td>
-								</tr>
-								<tr>
-									<td>ORD2023ABC5678</td>
-									<td class="table-image-text"><img src="images/profile_icon.jpg" alt="Profile Icon"> Bryce Adam</td>
-									<td>326 Arandia Street Tunasan Muntinlupa City</td>	
-									<td>
-										<button class="btn-sm btn m-1 table-action-btn action-view"><i class="material-icons table-action-icon">visibility</i></button>
-										<button class="btn-sm btn m-1 table-action-btn action-approve"><i class="material-icons table-action-icon">redo</i></button>
-										<button class="btn-sm btn m-1 table-action-btn action-deny"><i class="material-icons table-action-icon">cancel</i></button>
-									</td>
-								</tr>
+								<?php } ?>
 							</tbody>
 						</table>
 					</div>
@@ -497,7 +482,59 @@
 			</div>
 			<!-- Unsuccessful Pickups -->
 
+			<!-- Reason For Cancellation -->
+			<div class="modal fade" id="cancelTransaction" tabindex="-1" role="dialog" aria-hidden="true">
+				<div class="modal-dialog modal-dialog-centered" role="document">
+					<div class="modal-content popup">
+						<div class="modal-header">
+							<h5 class="modal-title popup-title" id="exampleModalCenterTitle">Cancel Transaction</h5>
+							<span aria-hidden="true" data-dismiss="modal" class="modal-exit">&times;</span>
+							</button>
+						</div>
+						<form id="insertRFC" action="pickup.php" method="POST" autocomplete="off" enctype="multipart/form-data">
+							<input type="hidden" id="e_admin_id" name="e_admin_id">
+							<div class="modal-body" style="padding-bottom: 0px;">
+								<div class="row form-modal" style="padding-right: 20px;">
+									<div class="col col-md-12 ml-auto">
+										<div class="pop-up-prompt" id="update_admin_error"></div>
+										<div class="row mb-3 ml-auto">
+											<p class="pop-up-heading">Please type in the reason for canceling this transaction:</p>
+											<input type="text" class="form-control" value="Multiple unsuccessful pickup attempts" name="rfctext" id="rfctext">
+											<input type="hidden" name="client_name" id="client_name">
+											<input type="hidden" name="client_id" id="client_id">
+											<input type="hidden" name="transaction_id" id="transaction_id">
+										</div>
+										<input type="hidden" id="rfcInput" name="rfc">
+									</div>
+									<div class="modal-footer popup-footer">
+										<button type="button" class="btn btn-secondary action-cancel" data-dismiss="modal">Close</button>
+										<button type="submit" id="rfcSubmit" class="btn action-view" name="rfc" onclick="cancelTransactionValidate(event)">Cancel Transaction</button>
+									</div>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+			<!-- Reason For Cancellation -->
+
 			<!-- Pickup -->
+			<!-- MODAL TRANSACTION VIEWER -->
+			<div class="modal fade" id="viewClientRequest" tabindex="-1" role="dialog" aria-hidden="true">
+				<div class="modal-dialog custom-modal-dialog" role="document">
+					<div class="modal-content popup transaction-modal">
+						<div class="modal-header transaction-modal">
+							<h5 class="modal-title popup-title" id="exampleModalCenterTitle">Client Request</h5>
+							<span aria-hidden="true" data-dismiss="modal" class="modal-exit">&times;</span>
+							</button>
+						</div>
+						<div class="transactions-details-container">
+							<?php include ('admin_transaction_viewer.php');?>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- MODAL TRANSACTION VIEWER -->
 		</main>
 		<!-- Notifications -->
 		<!-- Main -->

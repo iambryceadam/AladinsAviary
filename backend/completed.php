@@ -261,7 +261,7 @@
 										<td><?php echo $breed_name . ' ' . $species_name ?></td>
 										<td><?php echo $get_dateRecords_result['date_completed']; ?></td>
 										<td>
-											<button class="btn-sm btn m-1 table-action-btn action-view" data-toggle="modal" data-target="#viewClientRequest" onclick="viewClientRequest(this)"><i class="material-icons table-action-icon">visibility</i></button>
+										<button class="btn-sm btn m-1 table-action-btn action-view" data-toggle="modal" data-target="#viewClientRequest" data-transaction-id="<?php echo $transactionID; ?>" onclick="viewClientRequest(this);"><i class="material-icons table-action-icon">visibility</i></button>
 										</td>
 									</tr>
 								<?php } ?>
@@ -271,6 +271,23 @@
 				</div>
 			</div>
 			<!-- Pending Payments -->
+
+			<!-- MODAL TRANSACTION VIEWER -->
+			<div class="modal fade" id="viewClientRequest" tabindex="-1" role="dialog" aria-hidden="true">
+				<div class="modal-dialog custom-modal-dialog" role="document">
+					<div class="modal-content popup transaction-modal">
+						<div class="modal-header transaction-modal">
+							<h5 class="modal-title popup-title" id="exampleModalCenterTitle">Client Request</h5>
+							<span aria-hidden="true" data-dismiss="modal" class="modal-exit">&times;</span>
+							</button>
+						</div>
+						<div class="transactions-details-container">
+							<?php include ('admin_transaction_viewer.php');?>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- MODAL TRANSACTION VIEWER -->
 		</main>
 		<!-- Notifications -->
 		<!-- Main -->

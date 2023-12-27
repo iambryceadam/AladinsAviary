@@ -224,6 +224,7 @@
 									$dateID = $get_clientRequests_result['date_id'];
 									$animalID = $get_clientRequests_result['animal_id'];
 									$transactionID = $get_clientRequests_result['transaction_id'];
+									//$transaction_status = $get_clientRequests_result['status'];
 
 									$get_breed_id = mysqli_query($conn, "SELECT breed_id FROM tbl_animals WHERE transaction_id = '$transactionID'");
 									$breed_id_result = mysqli_fetch_assoc($get_breed_id);
@@ -254,9 +255,9 @@
 										<td><?php echo $breed_name . ' ' . $species_name ?></td>
 										<td><?php echo $get_dateRecords_result['date_filed_request']; ?></td>
 										<td>
-											<button class="btn-sm btn m-1 table-action-btn action-view" data-toggle="modal" data-target="#viewClientRequest" onclick="viewClientRequest(this)"><i class="material-icons table-action-icon">visibility</i></button>
+											<button class="btn-sm btn m-1 table-action-btn action-view" data-toggle="modal" data-target="#viewClientRequest" data-transaction-id="<?php echo $transactionID; ?>" onclick="viewClientRequest(this);"><i class="material-icons table-action-icon">visibility</i></button>
 											<button class="btn-sm btn m-1 table-action-btn action-approve" data-toggle="modal" data-target="#addPayment" data-client-id="<?php echo $clientID; ?>" data-transaction-id="<?php echo $transactionID; ?>" data-clientname="<?php echo $client_name; ?>" onclick="costClientDetails(this)"><i class="material-icons table-action-icon">thumb_up</i></button>
-											<button class="btn-sm btn m-1 table-action-btn action-deny"><i class="material-icons table-action-icon">thumb_down</i></button>
+											<button class="btn-sm btn m-1 table-action-btn action-deny" data-client-id="<?php echo $clientID; ?>" data-transaction-id="<?php echo $transactionID; ?>" data-clientname="<?php echo $client_name; ?>" onclick="rejectRequest('<?php echo $client_name; ?>', '<?php echo $transactionID; ?>')"><i class="material-icons table-action-icon">thumb_down</i></button>
 										</td>
 									</tr>
 								<?php } ?>
@@ -266,7 +267,7 @@
 				</div>
 			</div>
 			<!-- Requests -->
-
+			
 			<!-- Input Cost -->
 			<div class="modal fade" id="addPayment" tabindex="-1" role="dialog" aria-hidden="true">
 				<div class="modal-dialog modal-dialog-centered" role="document">
@@ -293,7 +294,7 @@
 									</div>
 									<div class="modal-footer popup-footer">
 										<button type="button" class="btn btn-secondary action-cancel" data-dismiss="modal">Close</button>
-										<button type="submit" id="insertPaymentCostSubmit" class="btn action-view" name="insertPaymentCost" onclick="insertInitialPaymentValidate(event)">Save Changes</button>
+										<button type="submit" id="insertPaymentCostSubmit" class="btn action-view" name="insertPaymentCost" onclick="insertInitialPaymentValidate(event)">Approve Transaction</button>
 									</div>
 								</div>
 							</div>
@@ -301,6 +302,24 @@
 					</div>
 				</div>
 			</div>
+			<!-- Input Cost -->
+
+			<!-- MODAL TRANSACTION VIEWER -->
+			<div class="modal fade" id="viewClientRequest" tabindex="-1" role="dialog" aria-hidden="true">
+				<div class="modal-dialog custom-modal-dialog" role="document">
+					<div class="modal-content popup transaction-modal">
+						<div class="modal-header transaction-modal">
+							<h5 class="modal-title popup-title" id="exampleModalCenterTitle">Client Request</h5>
+							<span aria-hidden="true" data-dismiss="modal" class="modal-exit">&times;</span>
+							</button>
+						</div>
+						<div class="transactions-details-container">
+							<?php include ('admin_transaction_viewer.php');?>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- MODAL TRANSACTION VIEWER -->
 		</main>
 		<!-- Notifications -->
 		<!-- Main -->
