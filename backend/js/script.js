@@ -232,9 +232,19 @@ function insertInitialPaymentValidate(event) {
     }
 }
 
+function cancelClientDetails(button){
+	var cName = button.getAttribute('data-clientname');
+	var cID = button.getAttribute('data-client-id');
+	var tID = button.getAttribute('data-transaction-id');
+	document.getElementById('cancel_client_name').value = cName;
+	document.getElementById('cancel_client_id').value = cID;
+	document.getElementById('cancel_transaction_id').value = tID;
+}
+
+
 function cancelTransactionValidate(event) {
 	var rfcText = document.getElementById("rfctext").value;
-	var client_name = document.getElementById("client_name").value;
+	var client_name = document.getElementById("cancel_client_name").value;
 
     if (rfcText == "") {} 
     else {
@@ -499,6 +509,69 @@ function approvePayment(name, tID){
 	});
 }
 
+function rejectInitialPayment(name, tID){
+	Swal.fire({
+		icon: "warning",
+		html: 'Are you sure you want to<br>reject ' + name + '\'s initial?',
+		showCancelButton: true,
+		confirmButtonColor: '#f7941d',
+		cancelButtonColor: '#8D8D8D',
+		confirmButtonText: 'Yes',
+		cancelButtonText: 'No',
+		width: '380px',
+		customClass: {
+		  popup: 'swal-popup',
+		  confirmButton: 'swal-btn',
+		}
+	}).then((result) => {
+		if (result.isConfirmed) {
+			window.location.href='processes/queries.php?rejectInitialPayment=' + tID;
+		}
+	});
+}
+
+function rejectFinalPayment(name, tID){
+	Swal.fire({
+		icon: "warning",
+		html: 'Are you sure you want to<br>reject ' + name + '\'s final payment?',
+		showCancelButton: true,
+		confirmButtonColor: '#f7941d',
+		cancelButtonColor: '#8D8D8D',
+		confirmButtonText: 'Yes',
+		cancelButtonText: 'No',
+		width: '380px',
+		customClass: {
+		  popup: 'swal-popup',
+		  confirmButton: 'swal-btn',
+		}
+	}).then((result) => {
+		if (result.isConfirmed) {
+			window.location.href='processes/queries.php?rejectFinalPayment=' + tID;
+		}
+	});
+}
+
+function rejectFullPayment(name, tID){
+	Swal.fire({
+		icon: "warning",
+		html: 'Are you sure you want to<br>reject ' + name + '\'s final payment?',
+		showCancelButton: true,
+		confirmButtonColor: '#f7941d',
+		cancelButtonColor: '#8D8D8D',
+		confirmButtonText: 'Yes',
+		cancelButtonText: 'No',
+		width: '380px',
+		customClass: {
+		  popup: 'swal-popup',
+		  confirmButton: 'swal-btn',
+		}
+	}).then((result) => {
+		if (result.isConfirmed) {
+			window.location.href='processes/queries.php?rejectFullPayment=' + tID;
+		}
+	});
+}
+
 function initiatePickup(name, tID){
 	Swal.fire({
 		icon: "warning",
@@ -519,6 +592,7 @@ function initiatePickup(name, tID){
 		}
 	});
 }
+
 
 function reattemptPickup(name, tID){
 	Swal.fire({
@@ -613,10 +687,62 @@ function medicalClientDetails(button){
 	document.getElementById('medical_tID').value = tID;
 }
 
+function documentsClientDetails(button){
+	var cName = button.getAttribute('data-clientname');
+	var cID = button.getAttribute('data-client-id');
+	var tID = button.getAttribute('data-transaction-id');
+	document.getElementById('documents_cName').value = cName;
+	document.getElementById('documents_cID').value = cID;
+	document.getElementById('documents_tID').value = tID;
+}
+
+function uploadDocumentsAttachments(event){
+	var documentAttachments = document.getElementById("documentAttachments").files;
+	var client_name = document.getElementById("documents_cName").value;
+	var transaction_id = document.getElementById("documents_tID").value;
+
+    if (documentAttachments.length === 0) {
+		event.preventDefault();
+        Swal.fire({
+            icon: "warning",
+            html: 'Please add a document before proceeding to the next stage of the transaction',
+            showCancelButton: false,
+            confirmButtonColor: '#8D8D8D',
+            confirmButtonText: 'Okay',
+            width: '380px',
+            customClass: {
+                popup: 'swal-popup',
+                confirmButton: 'swal-btn',
+            }
+        })
+	} 
+    else {
+        event.preventDefault();
+        Swal.fire({
+            icon: "warning",
+            html: 'Are you sure you want to complete the processing of document procedure for this transaction?',
+            showCancelButton: true,
+            confirmButtonColor: '#f7941d',
+            cancelButtonColor: '#8D8D8D',
+            confirmButtonText: 'Yes',
+            cancelButtonText: 'No',
+            width: '380px',
+            customClass: {
+                popup: 'swal-popup',
+                confirmButton: 'swal-btn',
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                var form = document.getElementById("documentAttachmentsForm").submit();
+            }
+        });
+    }
+}
+
 function uploadMedicalAttachments(event){
 	var medicalAttachments = document.getElementById("medicalAttachments").files;
-	var client_name = document.getElementById("client_name").value;
-	var transaction_id = document.getElementById("transaction_id").value;
+	var client_name = document.getElementById("medical_cName").value;
+	var transaction_id = document.getElementById("medical_tID").value;
 
     if (medicalAttachments.length === 0) {
 		event.preventDefault();
@@ -743,6 +869,15 @@ function transportClientDetails(button){
 	document.getElementById('transaction_id').value = tID;
 }
 
+function transportClientDetails_down(button){
+	var cName = button.getAttribute('data-clientname');
+	var cID = button.getAttribute('data-client-id');
+	var tID = button.getAttribute('data-transaction-id');
+	document.getElementById('down_client_name').value = cName;
+	document.getElementById('down_client_id').value = cID;
+	document.getElementById('down_transaction_id').value = tID;
+}
+
 function uploadTransportAttachments(event){
 	var transportAttachments = document.getElementById("transportAttachments").files;
 	var client_name = document.getElementById("client_name").value;
@@ -806,6 +941,132 @@ function uploadTransportAttachments(event){
     }
 }
 
+function uploadBookingAttachments_down(event){
+	var transportAttachments = document.getElementById("down_transportAttachments").files;
+	var client_name = document.getElementById("down_client_name").value;
+	var transaction_id = document.getElementById("down_transaction_id").value;
+	var dropoff_location = document.getElementById("down_dropoff_location").value;
+
+    if (dropoff_location == ""){
+		Swal.fire({
+            icon: "warning",
+            html: 'Please add a dropoff address for ' + client_name + '\'s animal',
+            showCancelButton: false,
+            confirmButtonColor: '#8D8D8D',
+            confirmButtonText: 'Ok',
+            width: '380px',
+            customClass: {
+                popup: 'swal-popup',
+                confirmButton: 'swal-btn',
+            }
+        })
+	} else if (transportAttachments.length === 0) {
+		event.preventDefault();
+        Swal.fire({
+            icon: "warning",
+            html: 'Are you sure you want to transport ' + client_name + '\'s animal without attachments?<br>' + transaction_id,
+            showCancelButton: true,
+            confirmButtonColor: '#f7941d',
+            cancelButtonColor: '#8D8D8D',
+            confirmButtonText: 'Yes',
+            cancelButtonText: 'No',
+            width: '380px',
+            customClass: {
+                popup: 'swal-popup',
+                confirmButton: 'swal-btn',
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                var form = document.getElementById("addBookingAttachmentsDown").submit();
+            }
+        });
+	} 
+    else {
+        event.preventDefault();
+        Swal.fire({
+            icon: "warning",
+            html: 'Are you sure you want to transport ' + client_name + '\'s animal?<br>' + transaction_id,
+            showCancelButton: true,
+            confirmButtonColor: '#f7941d',
+            cancelButtonColor: '#8D8D8D',
+            confirmButtonText: 'Yes',
+            cancelButtonText: 'No',
+            width: '380px',
+            customClass: {
+                popup: 'swal-popup',
+                confirmButton: 'swal-btn',
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                var form = document.getElementById("addBookingAttachmentsDown").submit();
+            }
+        });
+    }
+}
+
+function uploadBookingAttachments(event){
+	var transportAttachments = document.getElementById("transportAttachments").files;
+	var client_name = document.getElementById("client_name").value;
+	var transaction_id = document.getElementById("transaction_id").value;
+	var dropoff_location = document.getElementById("dropoff_location").value;
+
+    if (dropoff_location == ""){
+		Swal.fire({
+            icon: "warning",
+            html: 'Please add a dropoff address for ' + client_name + '\'s animal',
+            showCancelButton: false,
+            confirmButtonColor: '#8D8D8D',
+            confirmButtonText: 'Ok',
+            width: '380px',
+            customClass: {
+                popup: 'swal-popup',
+                confirmButton: 'swal-btn',
+            }
+        })
+	} else if (transportAttachments.length === 0) {
+		event.preventDefault();
+        Swal.fire({
+            icon: "warning",
+            html: 'Are you sure you want to transport ' + client_name + '\'s animal without attachments?<br>' + transaction_id,
+            showCancelButton: true,
+            confirmButtonColor: '#f7941d',
+            cancelButtonColor: '#8D8D8D',
+            confirmButtonText: 'Yes',
+            cancelButtonText: 'No',
+            width: '380px',
+            customClass: {
+                popup: 'swal-popup',
+                confirmButton: 'swal-btn',
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                var form = document.getElementById("addBookingAttachments").submit();
+            }
+        });
+	} 
+    else {
+        event.preventDefault();
+        Swal.fire({
+            icon: "warning",
+            html: 'Are you sure you want to transport ' + client_name + '\'s animal?<br>' + transaction_id,
+            showCancelButton: true,
+            confirmButtonColor: '#f7941d',
+            cancelButtonColor: '#8D8D8D',
+            confirmButtonText: 'Yes',
+            cancelButtonText: 'No',
+            width: '380px',
+            customClass: {
+                popup: 'swal-popup',
+                confirmButton: 'swal-btn',
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                var form = document.getElementById("transportAttachmentsForm").submit();
+            }
+        });
+    }
+}
+
 function transportCompleted(name, tID){
 	Swal.fire({
 		icon: "warning",
@@ -823,6 +1084,27 @@ function transportCompleted(name, tID){
 	}).then((result) => {
 		if (result.isConfirmed) {
 			window.location.href='processes/queries.php?transportCompleted=' + tID;
+		}
+	});
+}
+
+function receiveByContact(name, tID){
+	Swal.fire({
+		icon: "warning",
+		html: 'Move transaction to receive by contact?',
+		showCancelButton: true,
+		confirmButtonColor: '#f7941d',
+		cancelButtonColor: '#8D8D8D',
+		confirmButtonText: 'Yes',
+		cancelButtonText: 'No',
+		width: '380px',
+		customClass: {
+		  popup: 'swal-popup',
+		  confirmButton: 'swal-btn',
+		}
+	}).then((result) => {
+		if (result.isConfirmed) {
+			window.location.href='processes/queries.php?receiveByContact=' + tID;
 		}
 	});
 }
@@ -1657,12 +1939,14 @@ window.onload = function() {
 	const for_receiving_success = urlParams.get('for_receiving_success');
 	const completed_transaction_success = urlParams.get('completed_transaction_success');
 	const cancelled_transaction_success = urlParams.get('cancelled_transaction_success');
-	const rejected_transaction_success = urlParams.get('rejected_transaction_success');
 	const pickup_unsuccessful = urlParams.get('pickup_unsuccessful');
+	const complete_documents = urlParams.get('complete_documents');
+	const booking_success = urlParams.get('booking_success');
+	const full_payment_reject_success = urlParams.get('full_payment_reject_success');
 
-	if(pickup_unsuccessful){
+	if(full_payment_reject_success){
 		Swal.fire({
-			text: pickup_unsuccessful,
+			text: full_payment_reject_success,
 			icon: 'success',
 			showConfirmButton: false,
 			timer: 2000,
@@ -1672,9 +1956,33 @@ window.onload = function() {
 		  }
 	  });
 	}
-	else if(rejected_transaction_success){
+	else if(booking_success){
 		Swal.fire({
-			text: cancelled_transaction_success,
+			text: booking_success,
+			icon: 'success',
+			showConfirmButton: false,
+			timer: 2000,
+			customClass: {
+				popup: 'swal-popup',
+				confirmButton: 'swal-btn',
+		  }
+	  });
+	}
+	else if(complete_documents){
+		Swal.fire({
+			text: complete_documents,
+			icon: 'success',
+			showConfirmButton: false,
+			timer: 2000,
+			customClass: {
+				popup: 'swal-popup',
+				confirmButton: 'swal-btn',
+		  }
+	  });
+	}
+	else if(pickup_unsuccessful){
+		Swal.fire({
+			text: pickup_unsuccessful,
 			icon: 'success',
 			showConfirmButton: false,
 			timer: 2000,

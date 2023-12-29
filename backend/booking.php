@@ -19,7 +19,7 @@
 	<!-- External Stylesheet -->
 	
 	<link rel="icon" type="image/x-icon" href="images/app_icon.png">
-	<title>Requests</title>
+	<title>Transport</title>
 </head>
 <body>
 	
@@ -186,58 +186,63 @@
 		<!-- Main -->
 		<main>
 			<!-- Page Header -->
-			<h1 class="title">Filed Requests</h1>
+			<h1 class="title">Booking Transport</h1>
 			<!-- Page Header -->
 
 			<!-- Breadcrumbs -->
 			<ul class="breadcrumbs">
 				<li><p>Transactions</p></li>
 				<li class="divider">/</li>
-				<li><a href="#" class="active">Requests</a></li>
+				<li><a href="#" class="active">Processing</a></li>
+                <li class="divider">/</li>
+				<li><a href="#" class="active">Booking</a></li>
 			</ul>
 			<!-- Breadcrumbs -->
 
-			<!-- Requests -->
+			<!-- Pickup -->
+			<!-- Pending Payments -->
 			<div class="card table-card">
 				<div class="card-body table-card-body">
-					<form action="#">
-						<div class="form-group">
-							<input type="text" placeholder="Search" id="table-search-client-requests">
-							<i class='bx bx-search icon'></i>
-						</div>
-					</form>
+					<h4 class="card-title table-card-title">For Booking</h4>
+					<p class="card-description table-card-description">
+						Transactions from this record are currently being booked on its way to Aladin's Aviary.
+					</p>
+					<div class="table-search-dropdown">
+						<form action="#">
+							<div class="form-group" style="flex: 95;">
+								<input type="text" placeholder="Search" id="table-search">
+								<i class='bx bx-search icon'></i>
+							</div>
+						</form>
+					</div>
 					<div class="table-responsive">
-						<table class="table table-sm table-hover table-striped table-bordered table-light" id="table-client-requests">
+						<table class="table table-sm table-hover table-striped table-bordered table-light">
 							<thead>
 								<tr>
 									<th>Transaction ID</th>
 									<th>Client</th>
-									<th>Animal Description</th>
-									<th>Date Filed</th>
+									<th>Date Approved</th>
 									<th>Actions</th>
 								</tr>
 							</thead>
 							<tbody>
-								<?php while($get_clientRequests_result = mysqli_fetch_array($get_clientRequests)) { 
-									// Fetching records of foreign keys
-									$clientID = $get_clientRequests_result['client_id'];
-									$dateID = $get_clientRequests_result['date_id'];
-									$animalID = $get_clientRequests_result['animal_id'];
-									$transactionID = $get_clientRequests_result['transaction_id'];
-									//$transaction_status = $get_clientRequests_result['status'];
+								<?php while($get_for_booking_results = mysqli_fetch_assoc($get_for_booking_transactions)){
+									$transactionID = $get_for_booking_results['transaction_id'];
+									$clientID = $get_for_booking_results['client_id'];
+									$dateID = $get_for_booking_results['date_id'];
+									$locationID = $get_for_booking_results['location_id'];
+									$paymentID = $get_for_booking_results['payment_id'];
 
-									$get_breed_id = mysqli_query($conn, "SELECT breed_id FROM tbl_animals WHERE transaction_id = '$transactionID'");
-									$breed_id_result = mysqli_fetch_assoc($get_breed_id);
-									$breedID = $breed_id_result['breed_id'];
+									$get_payment_type = mysqli_query($conn, "SELECT * FROM tbl_payments WHERE transaction_id = '$transactionID'");
+									$get_payment_type_results = mysqli_fetch_assoc($get_payment_type);
+									$payment_type = $get_payment_type_results['payment_type'];
 
-									$get_breed_data = mysqli_query($conn, "SELECT species_id, description FROM tbl_breeds WHERE breed_id = '$breedID'");
-									$breed_data_result = mysqli_fetch_assoc($get_breed_data);
-									$breed_name = $breed_data_result['description'];
-									$speciesID = $breed_data_result['species_id'];
-
-									$get_species_name = mysqli_query($conn, "SELECT description FROM tbl_species WHERE species_id = '$speciesID'");
-									$species_name_result = mysqli_fetch_assoc($get_species_name);
-									$species_name = $species_name_result['description'];
+									$get_pickup_location_id = mysqli_query($conn, "SELECT * FROM tbl_locations WHERE transaction_id = '$transactionID'");
+									$get_pickup_location_id_result = mysqli_fetch_assoc($get_pickup_location_id);
+									$pickup_location_id = $get_pickup_location_id_result['pickup_location_id'];
+									
+									$get_location_details = mysqli_query($conn, "SELECT * FROM tbl_profile_addresses WHERE address_id = '$pickup_location_id'");
+									$get_location_details_results = mysqli_fetch_assoc($get_location_details);
 
 									$get_clientRecords = mysqli_query($conn, "SELECT * FROM tbl_clients WHERE client_id = '$clientID'");
 									$get_clientRecords_result = mysqli_fetch_array($get_clientRecords);
@@ -246,91 +251,133 @@
 									$get_dateRecords = mysqli_query($conn, "SELECT * FROM tbl_transactions_dates WHERE date_id = '$dateID'");
 									$get_dateRecords_result = mysqli_fetch_array($get_dateRecords);
 
-									$get_animalRecords = mysqli_query($conn, "SELECT * FROM tbl_animals WHERE animal_id = '$animalID'");
-									$get_animalRecords_result = mysqli_fetch_array($get_animalRecords);
+									$get_date_data = mysqli_query($conn, "SELECT * FROM tbl_transactions_dates WHERE transaction_id = '$transactionID'");
+									$get_date_data_results = mysqli_fetch_array($get_date_data);
 								?>
-									<tr>
-										<td><?php echo $get_clientRequests_result['transaction_id']; ?></td>
-										<td class="table-image-text"><img src="data:image/jpeg;base64,<?php echo base64_encode($get_clientRecords_result['img_profile']); ?>" alt="Client Profile Image"> <span><?php echo $get_clientRecords_result['first_name']; ?></span></td>
-										<td><?php echo $breed_name . ' ' . $species_name ?></td>
-										<td><?php echo $get_dateRecords_result['date_filed_request']; ?></td>
-										<td>
-											<button class="btn-sm btn m-1 table-action-btn action-view" data-toggle="modal" data-target="#viewClientRequest" data-transaction-id="<?php echo $transactionID; ?>" onclick="viewClientRequest(this);"><i class="material-icons table-action-icon">visibility</i></button>
-											<button class="btn-sm btn m-1 table-action-btn action-approve" data-toggle="modal" data-target="#addPayment" data-client-id="<?php echo $clientID; ?>" data-transaction-id="<?php echo $transactionID; ?>" data-clientname="<?php echo $client_name; ?>" onclick="costClientDetails(this)"><i class="material-icons table-action-icon">thumb_up</i></button>
-											<button class="btn-sm btn m-1 table-action-btn action-deny" data-toggle="modal" data-target="#cancelTransaction" data-client-id="<?php echo $clientID; ?>" data-transaction-id="<?php echo $transactionID; ?>" data-clientname="<?php echo $client_name; ?>" onclick="cancelClientDetails(this)"><i class="material-icons table-action-icon">cancel</i></button>
-										</td>
-									</tr>
-								<?php } ?>
+								<tr>
+									<td><?php echo $transactionID; ?></td>
+									<td class="table-image-text"><img src="data:image/jpeg;base64,<?php echo base64_encode($get_clientRecords_result['img_profile']); ?>" alt="Client Profile Image"> <span><?php echo $get_clientRecords_result['first_name']; ?></span></td>
+									<td> <?php echo $get_date_data_results['date_approved_transport']; ?> </td>
+									<td>
+										<?php
+											if($payment_type == "Down Payment"){ ?>
+												<button class="btn-sm btn m-1 table-action-btn action-view" data-toggle="modal" data-target="#viewClientRequest" data-transaction-id="<?php echo $transactionID; ?>" onclick="viewClientRequest(this);"><i class="material-icons table-action-icon">visibility</i></button>
+												<button class="btn-sm btn m-1 table-action-btn action-approve" data-toggle="modal" data-target="#bookingAttachmentswPrice" data-client-id="<?php echo $clientID; ?>" data-transaction-id="<?php echo $transactionID; ?>" data-clientname="<?php echo $client_name; ?>" onclick="transportClientDetails_down(this)"><i class="material-icons table-action-icon">redo</i></button>
+								   <?php }  else if($payment_type == "Full Payment"){ ?>
+												<button class="btn-sm btn m-1 table-action-btn action-view" data-toggle="modal" data-target="#viewClientRequest" data-transaction-id="<?php echo $transactionID; ?>" onclick="viewClientRequest(this);"><i class="material-icons table-action-icon">visibility</i></button>
+												<button class="btn-sm btn m-1 table-action-btn action-approve" data-toggle="modal" data-target="#addBookingAttachments" data-client-id="<?php echo $clientID; ?>" data-transaction-id="<?php echo $transactionID; ?>" data-clientname="<?php echo $client_name; ?>" onclick="transportClientDetails(this)"><i class="material-icons table-action-icon">redo</i></button>
+										<?php } ?>
+									</td>
+								</tr>
+							<?php } ?>
 							</tbody>
 						</table>
 					</div>
 				</div>
 			</div>
-			<!-- Requests -->
-			
-			<!-- Input Cost -->
-			<div class="modal fade" id="addPayment" tabindex="-1" role="dialog" aria-hidden="true">
+			<!-- Pending Payments -->
+
+			<!-- ADD TRANSPORT ATTACHMENTS -->
+			<div class="modal fade" id="bookingAttachmentswPrice" tabindex="-1" role="dialog" aria-hidden="true">
 				<div class="modal-dialog modal-dialog-centered" role="document">
 					<div class="modal-content popup">
 						<div class="modal-header">
-							<h5 class="modal-title popup-title" id="exampleModalCenterTitle">Approve Transport</h5>
+							<h5 class="modal-title popup-title" id="exampleModalCenterTitle">Add Shipping Attachments</h5>
 							<span aria-hidden="true" data-dismiss="modal" class="modal-exit">&times;</span>
 							</button>
 						</div>
-						<form id="insertPaymentCost" action="requests.php" method="POST" autocomplete="off" enctype="multipart/form-data">
-							<input type="hidden" id="e_admin_id" name="e_admin_id">
+						<form id="addBookingAttachmentsDown" action="booking.php" method="POST" autocomplete="off" enctype="multipart/form-data">
 							<div class="modal-body" style="padding-bottom: 0px;">
 								<div class="row form-modal" style="padding-right: 20px;">
 									<div class="col col-md-12 ml-auto">
-										<div class="pop-up-prompt" id="update_admin_error"></div>
-										<div class="row mb-3 ml-auto">
-											<p class="pop-up-heading">Insert Payment Amount:</p>
-											<input type="text" class="form-control" required pattern="[a-zA-Z0-9\s]+" oninput="validatePaymentAmountPattern(this)" placeholder="Payment Cost..." name="i_payment_cost" id="i_payment_cost">
+										<p class="pop-up-heading">Insert Payment Amount:</p>
+										<div class="form-group">
+											<input type="hidden" name="client_name" id="down_client_name">
+											<input type="hidden" name="client_id" id="down_client_id">
+											<input type="hidden" name="transaction_id" id="down_transaction_id">
+											<input type="text" class="form-control" required pattern="[a-zA-Z0-9\s]+" oninput="validatePaymentAmountPattern(this)" placeholder="Payment Cost..." name="f_payment_cost" id="f_payment_cost">
+										</div>
+										<p class="pop-up-heading">Specify the drop-off location:</p>
+										<div class="form-group">
+											<input type="text" name="dropoff_location" id="down_dropoff_location" placeholder="Dropoff address..." required>
+										</div>
+										<hr>
+                                        <p class="pop-up-heading">Type in expected time of departure:</p>
+                                        <div class="form-group">
+                                            <label for="departureDateTime">Time of Departure:</label>
+                                            <input type="datetime-local" class="form-control" id="down_departureDateTime" name="departureDateTime" required>
+                                        </div>
+                                        <hr>
+                                        <p class="pop-up-heading">Type in expected time of arrival:</p>
+                                        <div class="form-group">
+                                            <label for="arrivalDateTime">Time of Arrival:</label>
+                                            <input type="datetime-local" class="form-control" id="down_arrivalDateTime" name="arrivalDateTime" required>
+                                        </div>
+                                        <hr>
+										<p class="pop-up-heading">Click the button to add shippment papers and/or attachments:</p>
+										<div class="form-group">
+											<label for="imageFile">Choose Image:</label>
+                                            <input type="file" class="form-control-file" accept=".jpg, .jpeg, .png, .pdf, .docx, .xls, .xlsx" id="down_transportAttachments" name="images[]" multiple>
+
+                                        </div>
+										<input type="hidden" id="insertShipmentAttachmentsInput" name="insertBookingAttachmentsDown">
+									</div>
+									<div class="modal-footer popup-footer">
+										<button type="button" class="btn btn-secondary action-cancel" data-dismiss="modal">Close</button>
+										<button type="submit" id="shippingAttachmentsSubmit" class="btn action-view" name="insertBookingAttachmentsDown" onclick="uploadBookingAttachments_down(event)">Proceed</button>
+									</div>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+			<!-- ADD TRANSPORT ATTACHMENTS -->
+
+			<!-- ADD TRANSPORT ATTACHMENTS -->
+			<div class="modal fade" id="addBookingAttachments" tabindex="-1" role="dialog" aria-hidden="true">
+				<div class="modal-dialog modal-dialog-centered" role="document">
+					<div class="modal-content popup">
+						<div class="modal-header">
+							<h5 class="modal-title popup-title" id="exampleModalCenterTitle">Add Shipping Attachments</h5>
+							<span aria-hidden="true" data-dismiss="modal" class="modal-exit">&times;</span>
+							</button>
+						</div>
+						<form id="transportAttachmentsForm" action="booking.php" method="POST" autocomplete="off" enctype="multipart/form-data">
+							<div class="modal-body" style="padding-bottom: 0px;">
+								<div class="row form-modal" style="padding-right: 20px;">
+									<div class="col col-md-12 ml-auto">
+										<p class="pop-up-heading">Specify the drop-off location:</p>
+										<div class="form-group">
 											<input type="hidden" name="client_name" id="client_name">
 											<input type="hidden" name="client_id" id="client_id">
 											<input type="hidden" name="transaction_id" id="transaction_id">
+											<input type="text" name="dropoff_location" id="dropoff_location" placeholder="Dropoff address..." required>
 										</div>
-										<input type="hidden" id="insertPaymentCostInput" name="insertPaymentCost">
-									</div>
-									<div class="modal-footer popup-footer">
-										<button type="button" class="btn btn-secondary action-cancel" data-dismiss="modal">Close</button>
-										<button type="submit" id="insertPaymentCostSubmit" class="btn action-view" name="insertPaymentCost" onclick="insertInitialPaymentValidate(event)">Approve Transaction</button>
-									</div>
-								</div>
-							</div>
-						</form>
-					</div>
-				</div>
-			</div>
-			<!-- Input Cost -->
+										<hr>
+                                        <p class="pop-up-heading">Type in expected time of departure:</p>
+                                        <div class="form-group">
+                                            <label for="departureDateTime">Time of Departure:</label>
+                                            <input type="datetime-local" class="form-control" id="departureDateTime" name="departureDateTime" required>
+                                        </div>
+                                        <hr>
+                                        <p class="pop-up-heading">Type in expected time of arrival:</p>
+                                        <div class="form-group">
+                                            <label for="arrivalDateTime">Time of Arrival:</label>
+                                            <input type="datetime-local" class="form-control" id="arrivalDateTime" name="arrivalDateTime" required>
+                                        </div>
+                                        <hr>
+										<p class="pop-up-heading">Click the button to add shippment papers and/or attachments:</p>
+										<div class="form-group">
+											<label for="imageFile">Choose Image:</label>
+                                            <input type="file" class="form-control-file" accept=".jpg, .jpeg, .png, .pdf, .docx, .xls, .xlsx" id="transportAttachments" name="images[]" multiple>
 
-			<!-- Reason For Cancellation -->
-			<div class="modal fade" id="cancelTransaction" tabindex="-1" role="dialog" aria-hidden="true">
-				<div class="modal-dialog modal-dialog-centered" role="document">
-					<div class="modal-content popup">
-						<div class="modal-header">
-							<h5 class="modal-title popup-title" id="exampleModalCenterTitle">Cancel Transaction</h5>
-							<span aria-hidden="true" data-dismiss="modal" class="modal-exit">&times;</span>
-							</button>
-						</div>
-						<form id="insertRFC" action="pickup.php" method="POST" autocomplete="off" enctype="multipart/form-data">
-							<input type="hidden" id="e_admin_id" name="e_admin_id">
-							<div class="modal-body" style="padding-bottom: 0px;">
-								<div class="row form-modal" style="padding-right: 20px;">
-									<div class="col col-md-12 ml-auto">
-										<div class="pop-up-prompt" id="update_admin_error"></div>
-										<div class="row mb-3 ml-auto">
-											<p class="pop-up-heading">Please type in the reason for canceling this transaction:</p>
-											<input type="text" class="form-control" value="Multiple unsuccessful pickup attempts" name="rfctext" id="rfctext">
-											<input type="hidden" name="cancel_client_name" id="cancel_client_name">
-											<input type="hidden" name="cancel_client_id" id="cancel_client_id">
-											<input type="hidden" name="cancel_transaction_id" id="cancel_transaction_id">
-										</div>
-										<input type="hidden" id="rfcInput" name="rfc">
+                                        </div>
+										<input type="hidden" id="insertShipmentAttachmentsInput" name="insertBookingAttachments">
 									</div>
 									<div class="modal-footer popup-footer">
 										<button type="button" class="btn btn-secondary action-cancel" data-dismiss="modal">Close</button>
-										<button type="submit" id="rfcSubmit" class="btn action-view" name="rfc" onclick="cancelTransactionValidate(event)">Cancel Transaction</button>
+										<button type="submit" id="shippingAttachmentsSubmit" class="btn action-view" name="insertBookingAttachments" onclick="uploadBookingAttachments(event)">Proceed</button>
 									</div>
 								</div>
 							</div>
@@ -338,7 +385,7 @@
 					</div>
 				</div>
 			</div>
-			<!-- Reason For Cancellation -->
+			<!-- ADD TRANSPORT ATTACHMENTS -->
 
 			<!-- MODAL TRANSACTION VIEWER -->
 			<div class="modal fade" id="viewClientRequest" tabindex="-1" role="dialog" aria-hidden="true">
@@ -362,9 +409,7 @@
 	</section>
 </body>
 	<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous"></script>
-	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 	<!-- External JavaScript -->
 	<script src="js/script.js"></script>
 	<!-- External JavaScript -->

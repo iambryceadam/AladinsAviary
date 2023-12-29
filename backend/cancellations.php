@@ -70,7 +70,7 @@
 					<li><a href="requests.php">Requests</a></li>
 					<li><a href="cancellations.php">Cancellations</a></li>
 					<!-- Transport -->
-					<li class="divider" data-text="Transport"></li>
+					<li class="divider" data-text="Shipment"></li>
 					<li><a href="pickup.php">Pickup</a></li>
 					<li><a href="return.php">Return</a></li>
 					<!-- Payment -->
@@ -212,32 +212,67 @@
 								<tr>
 									<th>Transaction ID</th>
 									<th>Client</th>
-									<th>Reason for Cancellation</th>
+									<th>Reason</th>
+									<th>Previous Status</th>
 									<th>Date Filed</th>
 									<th>Actions</th>
 								</tr>
 							</thead>
 							<tbody>
-								<?php while($get_clientCancellations_result = mysqli_fetch_array($get_clientCancellations)) { ?>
+								<?php while($get_for_cancellation_transactions_results = mysqli_fetch_array($get_for_cancellation_transactions)) { 
+									// Fetching records of foreign keys
+									$clientID = $get_for_cancellation_transactions_results['client_id'];
+									$dateID = $get_for_cancellation_transactions_results['date_id'];
+									$animalID = $get_for_cancellation_transactions_results['animal_id'];
+									$transactionID = $get_for_cancellation_transactions_results['transaction_id'];
+
+									$getReasonForCancellation = mysqli_query($conn, "SELECT * FROM tbl_cancelled_transactions WHERE transaction_id = '$transactionID'");
+									$reasonForCancellationResult = mysqli_fetch_array($getReasonForCancellation);
+									$reason_for_cancellation = $reasonForCancellationResult['reason_for_cancellation'];
+
+									$get_clientRecords = mysqli_query($conn, "SELECT * FROM tbl_clients WHERE client_id = '$clientID'");
+									$get_clientRecords_result = mysqli_fetch_array($get_clientRecords);
+									$client_name = $get_clientRecords_result['first_name'];
+
+									$get_dateRecords = mysqli_query($conn, "SELECT * FROM tbl_transactions_dates WHERE date_id = '$dateID'");
+									$get_dateRecords_result = mysqli_fetch_array($get_dateRecords);
+								?>
 									<tr>
-										<td><?php echo $get_clientCancellations_result['transaction_id']; ?></td>
-										<td class="table-image-text"><img src="data:image/jpeg;base64,<?php echo base64_encode($get_clientCancellations_result['client_img']); ?>" alt="Client Profile Image"> <?php echo $get_clientCancellations_result['client_name']; ?></td>
-										<td><?php echo $get_clientCancellations_result['cancellation_reason']; ?></td>
-										<td><?php echo $get_clientCancellations_result['date_filed']; ?></td>
+										<td><?php echo $transactionID; ?></td>
+										<td class="table-image-text"><img src="data:image/jpeg;base64,<?php echo base64_encode($get_clientRecords_result['img_profile']); ?>" alt="Client Profile Image"> <span><?php echo $get_clientRecords_result['first_name']; ?></span></td>
+										<td><?php echo $reason_for_cancellation ?></td>
+										<td>For Pickup</td>
+										<td><?php echo $get_dateRecords_result['date_filed_request']; ?></td>
 										<td>
-											<button class="btn-sm btn m-1 table-action-btn action-view" data-toggle="modal" data-target="#viewClientRequest" data-id="<?php echo $get_clientRequests_result['request_id']; ?>" onclick="viewClientRequest(this)"><i class="material-icons table-action-icon">visibility</i></button>
-											<button class="btn-sm btn m-1 table-action-btn action-approve"><i class="material-icons table-action-icon">thumb_up</i></button>
+											<button class="btn-sm btn m-1 table-action-btn action-view" data-toggle="modal" data-target="#viewClientRequest" data-transaction-id="<?php echo $transactionID; ?>" onclick="viewClientRequest(this);"><i class="material-icons table-action-icon">visibility</i></button>
+											<button class="btn-sm btn m-1 table-action-btn action-approve"  onclick="approveCancel('<?php echo $client_name; ?>', '<?php echo $transactionID; ?>')"><i class="material-icons table-action-icon">redo</i></button>
 											<button class="btn-sm btn m-1 table-action-btn action-deny"><i class="material-icons table-action-icon">thumb_down</i></button>
 										</td>
 									</tr>
 								<?php } ?>
-								
 							</tbody>
 						</table>
 					</div>
 				</div>
 			</div>
 			<!-- Cancellations -->
+
+			<!-- MODAL TRANSACTION VIEWER -->
+			<div class="modal fade" id="viewClientRequest" tabindex="-1" role="dialog" aria-hidden="true">
+				<div class="modal-dialog custom-modal-dialog" role="document">
+					<div class="modal-content popup transaction-modal">
+						<div class="modal-header transaction-modal">
+							<h5 class="modal-title popup-title" id="exampleModalCenterTitle">Client Request</h5>
+							<span aria-hidden="true" data-dismiss="modal" class="modal-exit">&times;</span>
+							</button>
+						</div>
+						<div class="transactions-details-container">
+							<?php include ('admin_transaction_viewer.php');?>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- MODAL TRANSACTION VIEWER -->
 		</main>
 		<!-- Main -->
 	</section>

@@ -70,7 +70,7 @@
 					<li><a href="requests.php">Requests</a></li>
 					<li><a href="cancellations.php">Cancellations</a></li>
 					<!-- Transport -->
-					<li class="divider" data-text="Transport"></li>
+					<li class="divider" data-text="Shipment"></li>
 					<li><a href="pickup.php">Pickup</a></li>
 					<li><a href="return.php">Return</a></li>
 					<!-- Payment -->
@@ -403,7 +403,6 @@
 									<td>
 										<button class="btn-sm btn m-1 table-action-btn action-view" data-toggle="modal" data-target="#viewClientRequest" data-transaction-id="<?php echo $transactionID; ?>" onclick="viewClientRequest(this);"><i class="material-icons table-action-icon">visibility</i></button>
 										<button class="btn-sm btn m-1 table-action-btn action-approve" onclick="proceedForMedical('<?php echo $client_name; ?>', '<?php echo $transactionID; ?>')"><i class="material-icons table-action-icon">thumb_up</i></button>
-										<button class="btn-sm btn m-1 table-action-btn action-deny"><i class="material-icons table-action-icon">thumb_down</i></button>
 									</td>
 								</tr>
 								<?php } ?>
@@ -471,7 +470,7 @@
 									<td>
 										<button class="btn-sm btn m-1 table-action-btn action-view" data-toggle="modal" data-target="#viewClientRequest" data-transaction-id="<?php echo $transactionID; ?>" onclick="viewClientRequest(this);"><i class="material-icons table-action-icon">visibility</i></button>
 										<button class="btn-sm btn m-1 table-action-btn action-approve" onclick="reattemptPickup('<?php echo $client_name; ?>', '<?php echo $transactionID; ?>')"><i class="material-icons table-action-icon"><i class="material-icons table-action-icon">redo</i></button>
-										<button class="btn-sm btn m-1 table-action-btn action-deny" data-toggle="modal" data-target="#cancelTransaction" data-client-id="<?php echo $clientID; ?>" data-transaction-id="<?php echo $transactionID; ?>" data-clientname="<?php echo $client_name; ?>" onclick="costClientDetails(this)"><i class="material-icons table-action-icon">cancel</i></button>
+										<button class="btn-sm btn m-1 table-action-btn action-deny" data-toggle="modal" data-target="#cancelTransaction" data-client-id="<?php echo $clientID; ?>" data-transaction-id="<?php echo $transactionID; ?>" data-clientname="<?php echo $client_name; ?>" onclick="cancelClientDetails(this)"><i class="material-icons table-action-icon">cancel</i></button>
 									</td>
 								</tr>
 								<?php } ?>
@@ -500,9 +499,9 @@
 										<div class="row mb-3 ml-auto">
 											<p class="pop-up-heading">Please type in the reason for canceling this transaction:</p>
 											<input type="text" class="form-control" value="Multiple unsuccessful pickup attempts" name="rfctext" id="rfctext">
-											<input type="hidden" name="client_name" id="client_name">
-											<input type="hidden" name="client_id" id="client_id">
-											<input type="hidden" name="transaction_id" id="transaction_id">
+											<input type="hidden" name="cancel_client_name" id="cancel_client_name">
+											<input type="hidden" name="cancel_client_id" id="cancel_client_id">
+											<input type="hidden" name="cancel_transaction_id" id="cancel_transaction_id">
 										</div>
 										<input type="hidden" id="rfcInput" name="rfc">
 									</div>

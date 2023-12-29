@@ -70,7 +70,7 @@
 					<li><a href="requests.php">Requests</a></li>
 					<li><a href="cancellations.php">Cancellations</a></li>
 					<!-- Transport -->
-					<li class="divider" data-text="Transport"></li>
+					<li class="divider" data-text="Shipment"></li>
 					<li><a href="pickup.php">Pickup</a></li>
 					<li><a href="return.php">Return</a></li>
 					<!-- Payment -->
@@ -198,77 +198,10 @@
 			<!-- Breadcrumbs -->
 
 			<!-- Pickup -->
-			<!-- Pending Payments -->
-			<div class="card table-card">
-				<div class="card-body table-card-body">
-					<h4 class="card-title table-card-title">Pending Medical Assesments</h4>
-					<p class="card-description table-card-description">
-						Transactions from this record are pending for medical assesment, once medical assesment has been initiated, transfer transaction to on-going medical assesments.
-					</p>
-					<div class="table-search-dropdown">
-						<form action="#">
-							<div class="form-group" style="flex: 95;">
-								<input type="text" placeholder="Search" id="table-search">
-								<i class='bx bx-search icon'></i>
-							</div>
-						</form>
-					</div>
-					<div class="table-responsive">
-						<table class="table table-sm table-hover table-striped table-bordered table-light">
-							<thead>
-								<tr>
-									<th>Transaction ID</th>
-									<th>Client</th>
-									<th>Date Approved</th>
-									<th>Actions</th>
-								</tr>
-							</thead>
-							<tbody>
-								<?php while($get_for_medical_transactions_results = mysqli_fetch_assoc($get_for_medical_transactions)){
-									$transactionID = $get_for_medical_transactions_results['transaction_id'];
-									$clientID = $get_for_medical_transactions_results['client_id'];
-									$dateID = $get_for_medical_transactions_results['date_id'];
-									$locationID = $get_for_medical_transactions_results['location_id'];
-									$paymentID = $get_for_medical_transactions_results['payment_id'];
-
-									$get_pickup_location_id = mysqli_query($conn, "SELECT * FROM tbl_locations WHERE transaction_id = '$transactionID'");
-									$get_pickup_location_id_result = mysqli_fetch_assoc($get_pickup_location_id);
-									$pickup_location_id = $get_pickup_location_id_result['pickup_location_id'];
-									
-									$get_location_details = mysqli_query($conn, "SELECT * FROM tbl_profile_addresses WHERE address_id = '$pickup_location_id'");
-									$get_location_details_results = mysqli_fetch_assoc($get_location_details);
-
-									$get_clientRecords = mysqli_query($conn, "SELECT * FROM tbl_clients WHERE client_id = '$clientID'");
-									$get_clientRecords_result = mysqli_fetch_array($get_clientRecords);
-									$client_name = $get_clientRecords_result['first_name'];
-
-									$get_dateRecords = mysqli_query($conn, "SELECT * FROM tbl_transactions_dates WHERE date_id = '$dateID'");
-									$get_dateRecords_result = mysqli_fetch_array($get_dateRecords);
-
-									$get_date_data = mysqli_query($conn, "SELECT * FROM tbl_transactions_dates WHERE transaction_id = '$transactionID'");
-									$get_date_data_results = mysqli_fetch_array($get_date_data);
-								?>
-								<tr>
-									<td><?php echo $transactionID; ?></td>
-									<td class="table-image-text"><img src="data:image/jpeg;base64,<?php echo base64_encode($get_clientRecords_result['img_profile']); ?>" alt="Client Profile Image"> <span><?php echo $get_clientRecords_result['first_name']; ?></span></td>
-									<td> <?php echo $get_date_data_results['date_approved_for_medical']; ?> </td>
-									<td>
-										<button class="btn-sm btn m-1 table-action-btn action-view" data-toggle="modal" data-target="#viewClientRequest" data-transaction-id="<?php echo $transactionID; ?>" onclick="viewClientRequest(this);"><i class="material-icons table-action-icon">visibility</i></button>
-										<button class="btn-sm btn m-1 table-action-btn action-approve"  onclick="ongoingMedical('<?php echo $client_name; ?>', '<?php echo $transactionID; ?>')"><i class="material-icons table-action-icon">redo</i></button>
-									</td>
-								</tr>
-								<?php } ?>
-							</tbody>
-						</table>
-					</div>
-				</div>
-			</div>
-			<!-- Pending Payments -->
-
 			<!-- On Transit -->
 			<div class="card table-card">
 				<div class="card-body table-card-body">
-					<h4 class="card-title table-card-title">On-going Medical Assesment</h4>
+					<h4 class="card-title table-card-title">Ongoing Medical Assesment</h4>
 					<p class="card-description table-card-description">
 						Transactions from this record are on-going medical assesment, once medical assesment has been finished, transfer transaction to completed medical assesments.
 					</p>
@@ -321,84 +254,8 @@
 									<td> <?php echo $get_date_data_results['date_approved_for_medical']; ?> </td>
 									<td>
 										<button class="btn-sm btn m-1 table-action-btn action-view" data-toggle="modal" data-target="#viewClientRequest" data-transaction-id="<?php echo $transactionID; ?>" onclick="viewClientRequest(this);"><i class="material-icons table-action-icon">visibility</i></button>
-										<button class="btn-sm btn m-1 table-action-btn action-approve" data-toggle="modal" data-target="#addMedicalAttachments" data-client-id="<?php echo $clientID; ?>" data-transaction-id="<?php echo $transactionID; ?>" data-clientname="<?php echo $client_name; ?>" onclick="medicalClientDetails(this)"><i class="material-icons table-action-icon">redo</i></button>
-									</td>
-								</tr>
-								<?php } ?>
-							</tbody>
-						</table>
-					</div>
-				</div>
-			</div>
-			<!-- On Transit -->
-
-			<!-- On Transit -->
-			<div class="card table-card">
-				<div class="card-body table-card-body">
-					<h4 class="card-title table-card-title">Completed Medical Assesment</h4>
-					<p class="card-description table-card-description">
-						Transactions from this record are completed medical assesment, once medical assesment has been completed, transfer transaction to final payment or for transport.
-					</p>
-					<div class="table-search-dropdown">
-						<form action="#">
-							<div class="form-group" style="flex: 95;">
-								<input type="text" placeholder="Search" id="table-search">
-								<i class='bx bx-search icon'></i>
-							</div>
-						</form>
-					</div>
-					<div class="table-responsive">
-						<table class="table table-sm table-hover table-striped table-bordered table-light">
-							<thead>
-								<tr>
-									<th>Transaction ID</th>
-									<th>Client</th>
-									<th>Date Assesed</th>
-									<th>Actions</th>
-								</tr>
-							</thead>
-							<tbody>
-								<?php while($get_completed_medical_transactions_results = mysqli_fetch_assoc($get_completed_medical_transactions)){
-									$transactionID = $get_completed_medical_transactions_results['transaction_id'];
-									$clientID = $get_completed_medical_transactions_results['client_id'];
-									$dateID = $get_completed_medical_transactions_results['date_id'];
-									$locationID = $get_completed_medical_transactions_results['location_id'];
-									$paymentID = $get_completed_medical_transactions_results['payment_id'];
-
-									$get_payment_type = mysqli_query($conn, "SELECT * FROM tbl_payments WHERE transaction_id = '$transactionID'");
-									$get_payment_type_results = mysqli_fetch_assoc($get_payment_type);
-									$payment_type = $get_payment_type_results['payment_type'];
-
-									$get_pickup_location_id = mysqli_query($conn, "SELECT * FROM tbl_locations WHERE transaction_id = '$transactionID'");
-									$get_pickup_location_id_result = mysqli_fetch_assoc($get_pickup_location_id);
-									$pickup_location_id = $get_pickup_location_id_result['pickup_location_id'];
-									
-									$get_location_details = mysqli_query($conn, "SELECT * FROM tbl_profile_addresses WHERE address_id = '$pickup_location_id'");
-									$get_location_details_results = mysqli_fetch_assoc($get_location_details);
-
-									$get_clientRecords = mysqli_query($conn, "SELECT * FROM tbl_clients WHERE client_id = '$clientID'");
-									$get_clientRecords_result = mysqli_fetch_array($get_clientRecords);
-									$client_name = $get_clientRecords_result['first_name'];
-
-									$get_dateRecords = mysqli_query($conn, "SELECT * FROM tbl_transactions_dates WHERE date_id = '$dateID'");
-									$get_dateRecords_result = mysqli_fetch_array($get_dateRecords);
-
-									$get_date_data = mysqli_query($conn, "SELECT * FROM tbl_transactions_dates WHERE transaction_id = '$transactionID'");
-									$get_date_data_results = mysqli_fetch_array($get_date_data);
-								?>
-								<tr>
-									<td><?php echo $transactionID; ?></td>
-									<td class="table-image-text"><img src="data:image/jpeg;base64,<?php echo base64_encode($get_clientRecords_result['img_profile']); ?>" alt="Client Profile Image"> <span><?php echo $get_clientRecords_result['first_name']; ?></span></td>
-									<td> <?php echo $get_date_data_results['date_approved_for_medical']; ?> </td>
-									<td>
-										<?php
-											if($payment_type == "Down Payment"){ ?>
-												<button class="btn-sm btn m-1 table-action-btn action-view" data-toggle="modal" data-target="#viewClientRequest" data-transaction-id="<?php echo $transactionID; ?>" onclick="viewClientRequest(this);"><i class="material-icons table-action-icon">visibility</i></button>
-												<button class="btn-sm btn m-1 table-action-btn action-approve" data-toggle="modal" data-target="#addPayment" data-client-id="<?php echo $clientID; ?>" data-transaction-id="<?php echo $transactionID; ?>" data-clientname="<?php echo $client_name; ?>" onclick="costClientDetails(this)"><i class="material-icons table-action-icon">redo</i></button>
-											<?php }  else if($payment_type == "Full Payment"){ ?>
-												<button class="btn-sm btn m-1 table-action-btn action-view" data-toggle="modal" data-target="#viewClientRequest" data-transaction-id="<?php echo $transactionID; ?>" onclick="viewClientRequest(this);"><i class="material-icons table-action-icon">visibility</i></button>
-												<button class="btn-sm btn m-1 table-action-btn action-approve" onclick="proceedAfterMedical('<?php echo $client_name; ?>', '<?php echo $transactionID; ?>')"><i class="material-icons table-action-icon">redo</i></button>
-											<?php } ?>
+										<button class="btn-sm btn m-1 table-action-btn action-approve" data-toggle="modal" data-target="#addMedicalAttachments" data-client-id="<?php echo $clientID; ?>" data-transaction-id="<?php echo $transactionID; ?>" data-clientname="<?php echo $client_name; ?>" onclick="medicalClientDetails(this)"><i class="material-icons table-action-icon">thumb_up</i></button>
+										<button class="btn-sm btn m-1 table-action-btn action-deny" data-toggle="modal" data-target="#cancelTransaction" data-client-id="<?php echo $clientID; ?>" data-transaction-id="<?php echo $transactionID; ?>" data-clientname="<?php echo $client_name; ?>" onclick="cancelClientDetails(this)"><i class="material-icons table-action-icon">cancel</i></button>
 									</td>
 								</tr>
 								<?php } ?>
@@ -409,39 +266,6 @@
 			</div>
 			<!-- On Transit -->
 			<!-- Pickup -->
-			<!-- Input Cost -->
-			<div class="modal fade" id="addPayment" tabindex="-1" role="dialog" aria-hidden="true">
-				<div class="modal-dialog modal-dialog-centered" role="document">
-					<div class="modal-content popup">
-						<div class="modal-header">
-							<h5 class="modal-title popup-title" id="exampleModalCenterTitle">Final Payment Cost</h5>
-							<span aria-hidden="true" data-dismiss="modal" class="modal-exit">&times;</span>
-							</button>
-						</div>
-						<form id="insertFinalCostForm" action="medical.php" method="POST" autocomplete="off" enctype="multipart/form-data">
-							<input type="hidden" id="e_admin_id" name="e_admin_id">
-							<div class="modal-body" style="padding-bottom: 0px;">
-								<div class="row form-modal" style="padding-right: 20px;">
-									<div class="col col-md-12 ml-auto">
-										<div class="row mb-3 ml-auto">
-											<p class="pop-up-heading">Insert Payment Amount:</p>
-											<input type="text" class="form-control" required pattern="[a-zA-Z0-9\s]+" oninput="validatePaymentAmountPattern(this)" placeholder="Payment Cost..." name="f_payment_cost" id="f_payment_cost">
-											<input type="hidden" name="client_name" id="client_name">
-											<input type="hidden" name="client_id" id="client_id">
-											<input type="hidden" name="transaction_id" id="transaction_id">
-										</div>
-										<input type="hidden" id="insertFinalCostInput" name="insertFinalCost">
-									</div>
-									<div class="modal-footer popup-footer">
-										<button type="button" class="btn btn-secondary action-cancel" data-dismiss="modal">Close</button>
-										<button type="submit" id="insertFinalCostSubmit" class="btn action-view" name="insertFinalCost" onclick="proceedFinalPay(event)">Save Changes</button>
-									</div>
-								</div>
-							</div>
-						</form>
-					</div>
-				</div>
-			</div>
 
 			<!-- ADD MEDICAL ATTACHMENTS -->
 			<div class="modal fade" id="addMedicalAttachments" tabindex="-1" role="dialog" aria-hidden="true">
@@ -462,7 +286,7 @@
 											<input type="hidden" name="client_id" id="medical_cID">
 											<input type="hidden" name="transaction_id" id="medical_tID">
 											<label for="imageFile">Choose Image:</label>
-                                            <input type="file" id="imageFile" class="form-control-file" accept=".jpg, .jpeg, .png, .pdf, .docx, .xls, .xlsx" id="medicalAttachments" name="images[]" multiple>
+                                            <input type="file" class="form-control-file" accept=".jpg, .jpeg, .png, .pdf, .docx, .xls, .xlsx" id="medicalAttachments" name="images[]" multiple>
                                         </div>
 										<input type="hidden" id="insertMedicalAttachmentsInput" name="insertMedicalAttachments">
 									</div>
@@ -477,6 +301,42 @@
 				</div>
 			</div>
 			<!-- ADD MEDICAL ATTACHMENTS -->
+
+			<!-- Reason For Cancellation -->
+			<div class="modal fade" id="cancelTransaction" tabindex="-1" role="dialog" aria-hidden="true">
+				<div class="modal-dialog modal-dialog-centered" role="document">
+					<div class="modal-content popup">
+						<div class="modal-header">
+							<h5 class="modal-title popup-title" id="exampleModalCenterTitle">Cancel Transaction</h5>
+							<span aria-hidden="true" data-dismiss="modal" class="modal-exit">&times;</span>
+							</button>
+						</div>
+						<form id="insertRFC" action="pickup.php" method="POST" autocomplete="off" enctype="multipart/form-data">
+							<input type="hidden" id="e_admin_id" name="e_admin_id">
+							<div class="modal-body" style="padding-bottom: 0px;">
+								<div class="row form-modal" style="padding-right: 20px;">
+									<div class="col col-md-12 ml-auto">
+										<div class="pop-up-prompt" id="update_admin_error"></div>
+										<div class="row mb-3 ml-auto">
+											<p class="pop-up-heading">Please type in the reason for canceling this transaction:</p>
+											<input type="text" class="form-control" value="Multiple unsuccessful pickup attempts" name="rfctext" id="rfctext">
+											<input type="hidden" name="cancel_client_name" id="cancel_client_name">
+											<input type="hidden" name="cancel_client_id" id="cancel_client_id">
+											<input type="hidden" name="cancel_transaction_id" id="cancel_transaction_id">
+										</div>
+										<input type="hidden" id="rfcInput" name="rfc">
+									</div>
+									<div class="modal-footer popup-footer">
+										<button type="button" class="btn btn-secondary action-cancel" data-dismiss="modal">Close</button>
+										<button type="submit" id="rfcSubmit" class="btn action-view" name="rfc" onclick="cancelTransactionValidate(event)">Cancel Transaction</button>
+									</div>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+			<!-- Reason For Cancellation -->
 
 			<!-- MODAL TRANSACTION VIEWER -->
 			<div class="modal fade" id="viewClientRequest" tabindex="-1" role="dialog" aria-hidden="true">

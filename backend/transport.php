@@ -70,7 +70,7 @@
 					<li><a href="requests.php">Requests</a></li>
 					<li><a href="cancellations.php">Cancellations</a></li>
 					<!-- Transport -->
-					<li class="divider" data-text="Transport"></li>
+					<li class="divider" data-text="Shipment"></li>
 					<li><a href="pickup.php">Pickup</a></li>
 					<li><a href="return.php">Return</a></li>
 					<!-- Payment -->
@@ -255,6 +255,7 @@
 									<td>
 										<button class="btn-sm btn m-1 table-action-btn action-view" data-toggle="modal" data-target="#viewClientRequest" data-transaction-id="<?php echo $transactionID; ?>" onclick="viewClientRequest(this);"><i class="material-icons table-action-icon">visibility</i></button>
 										<button class="btn-sm btn m-1 table-action-btn action-approve" data-toggle="modal" data-target="#addTransportAttachments" data-client-id="<?php echo $clientID; ?>" data-transaction-id="<?php echo $transactionID; ?>" data-clientname="<?php echo $client_name; ?>" onclick="transportClientDetails(this)"><i class="material-icons table-action-icon">redo</i></button>
+										<button class="btn-sm btn m-1 table-action-btn action-deny" data-toggle="modal" data-target="#cancelTransaction" data-client-id="<?php echo $clientID; ?>" data-transaction-id="<?php echo $transactionID; ?>" data-clientname="<?php echo $client_name; ?>" onclick="cancelClientDetails(this)"><i class="material-icons table-action-icon">cancel</i></button>
 									</td>
 								</tr>
 							<?php } ?>
@@ -353,6 +354,18 @@
 											<input type="text" name="dropoff_location" id="dropoff_location" placeholder="Dropoff address..." required>
 										</div>
 										<hr>
+                                        <p class="pop-up-heading">Type in expected time of departure:</p>
+                                        <div class="form-group">
+                                            <label for="departureDateTime">Time of Departure:</label>
+                                            <input type="datetime-local" class="form-control" id="departureDateTime" name="departureDateTime" required>
+                                        </div>
+                                        <hr>
+                                        <p class="pop-up-heading">Type in expected time of arrival:</p>
+                                        <div class="form-group">
+                                            <label for="arrivalDateTime">Time of Arrival:</label>
+                                            <input type="datetime-local" class="form-control" id="arrivalDateTime" name="arrivalDateTime" required>
+                                        </div>
+                                        <hr>
 										<p class="pop-up-heading">Click the button to add shippment papers and/or attachments:</p>
 										<div class="form-group">
 											<label for="imageFile">Choose Image:</label>
@@ -363,7 +376,7 @@
 									</div>
 									<div class="modal-footer popup-footer">
 										<button type="button" class="btn btn-secondary action-cancel" data-dismiss="modal">Close</button>
-										<button type="submit" id="shippingAttachmentsSubmit" class="btn action-view" name="insertShipmentAttachments" onclick="uploadTransportAttachments(event)">Proceed</button>
+										<button type="submit" id="shippingAttachmentsSubmit" class="btn action-view" name="insertShipmentAttachments" onclick="uploadBookingAttachments(event)">Proceed</button>
 									</div>
 								</div>
 							</div>
@@ -372,6 +385,42 @@
 				</div>
 			</div>
 			<!-- ADD TRANSPORT ATTACHMENTS -->
+
+			<!-- Reason For Cancellation -->
+			<div class="modal fade" id="cancelTransaction" tabindex="-1" role="dialog" aria-hidden="true">
+				<div class="modal-dialog modal-dialog-centered" role="document">
+					<div class="modal-content popup">
+						<div class="modal-header">
+							<h5 class="modal-title popup-title" id="exampleModalCenterTitle">Cancel Transaction</h5>
+							<span aria-hidden="true" data-dismiss="modal" class="modal-exit">&times;</span>
+							</button>
+						</div>
+						<form id="insertRFC" action="pickup.php" method="POST" autocomplete="off" enctype="multipart/form-data">
+							<input type="hidden" id="e_admin_id" name="e_admin_id">
+							<div class="modal-body" style="padding-bottom: 0px;">
+								<div class="row form-modal" style="padding-right: 20px;">
+									<div class="col col-md-12 ml-auto">
+										<div class="pop-up-prompt" id="update_admin_error"></div>
+										<div class="row mb-3 ml-auto">
+											<p class="pop-up-heading">Please type in the reason for canceling this transaction:</p>
+											<input type="text" class="form-control" value="Multiple unsuccessful pickup attempts" name="rfctext" id="rfctext">
+											<input type="hidden" name="cancel_client_name" id="cancel_client_name">
+											<input type="hidden" name="cancel_client_id" id="cancel_client_id">
+											<input type="hidden" name="cancel_transaction_id" id="cancel_transaction_id">
+										</div>
+										<input type="hidden" id="rfcInput" name="rfc">
+									</div>
+									<div class="modal-footer popup-footer">
+										<button type="button" class="btn btn-secondary action-cancel" data-dismiss="modal">Close</button>
+										<button type="submit" id="rfcSubmit" class="btn action-view" name="rfc" onclick="cancelTransactionValidate(event)">Cancel Transaction</button>
+									</div>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+			<!-- Reason For Cancellation -->
 
 			<!-- MODAL TRANSACTION VIEWER -->
 			<div class="modal fade" id="viewClientRequest" tabindex="-1" role="dialog" aria-hidden="true">

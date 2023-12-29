@@ -60,7 +60,7 @@
 					<li><a href="requests.php">Requests</a></li>
 					<li><a href="cancellations.php">Cancellations</a></li>
 					<!-- Transport -->
-					<li class="divider" data-text="Transport"></li>
+					<li class="divider" data-text="Shipment"></li>
 					<li><a href="pickup.php">Pickup</a></li>
 					<li><a href="return.php">Return</a></li>
 					<!-- Payment -->

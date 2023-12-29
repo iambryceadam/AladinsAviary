@@ -845,15 +845,17 @@ thead {
 	height: 0px;
 }
 .table-image-text img {
-	width: 35px; /* Ensure the image takes the full width of the container */
-    height: 35px; /* Ensure the image takes the full height of the container */
+	width: 30px; /* Ensure the image takes the full width of the container */
+    height: 30px; /* Ensure the image takes the full height of the container */
     object-fit: cover; /* Crop the image to cover the entire container */
     border-radius: 50%; /* Make the image circular */
     transition: filter 0.3s;
-}
-
-.table-image-text span{
-	margin-left: 10px;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	text-align: center;
+	margin: auto;
 }
 
 .action-approve {

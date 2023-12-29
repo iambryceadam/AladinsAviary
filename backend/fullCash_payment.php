@@ -70,7 +70,7 @@
 					<li><a href="requests.php">Requests</a></li>
 					<li><a href="cancellations.php">Cancellations</a></li>
 					<!-- Transport -->
-					<li class="divider" data-text="Transport"></li>
+					<li class="divider" data-text="Shipment"></li>
 					<li><a href="pickup.php">Pickup</a></li>
 					<li><a href="return.php">Return</a></li>
 					<!-- Payment -->
@@ -320,13 +320,13 @@
 								</tr>
 							</thead>
 							<tbody>
-							<?php while($get_paid_final_payments_result =  mysqli_fetch_array($get_completed_final_payments)){
-									$transactionID = $get_paid_final_payments_result['transaction_id'];
-									$clientID = $get_paid_final_payments_result['client_id'];
-									$dateID = $get_paid_final_payments_result['date_id'];
-									$animalID = $get_paid_final_payments_result['animal_id'];
-									$paymentID = $get_paid_final_payments_result['payment_id'];
-									$paymentMethod = $get_paid_final_payments_result['payment_method'];
+							<?php while($get_completed_final_payments_result =  mysqli_fetch_array($get_completed_final_payments)){
+									$transactionID = $get_completed_final_payments_result['transaction_id'];
+									$clientID = $get_completed_final_payments_result['client_id'];
+									$dateID = $get_completed_final_payments_result['date_id'];
+									$animalID = $get_completed_final_payments_result['animal_id'];
+									$paymentID = $get_completed_final_payments_result['payment_id'];
+									$paymentMethod = $get_completed_final_payments_result['payment_method'];
 
 									$get_breed_id = mysqli_query($conn, "SELECT breed_id FROM tbl_animals WHERE transaction_id = '$transactionID'");
 									$breed_id_result = mysqli_fetch_assoc($get_breed_id);
@@ -363,6 +363,7 @@
 									<td>
 										<button class="btn-sm btn m-1 table-action-btn action-view" data-toggle="modal" data-target="#viewClientRequest" data-transaction-id="<?php echo $transactionID; ?>" onclick="viewClientRequest(this);"><i class="material-icons table-action-icon">visibility</i></button>
 										<button class="btn-sm btn m-1 table-action-btn action-approve" onclick="approvePayment('<?php echo $client_name ?>' , '<?php echo $transactionID; ?>')"><i class="material-icons table-action-icon">thumb_up</i></button>
+										<button class="btn-sm btn m-1 table-action-btn action-deny" data-client-id="<?php echo $clientID; ?>" data-transaction-id="<?php echo $transactionID; ?>" data-clientname="<?php echo $client_name; ?>" onclick="rejectFullPayment('<?php echo $client_name; ?>', '<?php echo $transactionID; ?>')"><i class="material-icons table-action-icon">thumb_down</i></button>
 									</td>
 								</tr>
 							<?php } ?>
@@ -372,6 +373,95 @@
 				</div>
 			</div>
 			<!-- On Transit -->
+
+			<!-- Reattempt Payments -->
+			<div class="card table-card">
+				<div class="card-body table-card-body">
+					<h4 class="card-title table-card-title">Payment Reattempt</h4>
+					<p class="card-description table-card-description">
+						Transactions from this record are inavlid payments, once payment has been successful, transaction will be transferred to successful payments.
+					</p>
+					<div class="table-search-dropdown">
+						<form action="#">
+							<div class="form-group" style="flex: 95;">
+								<input type="text" placeholder="Search" id="table-search">
+								<i class='bx bx-search icon'></i>
+							</div>
+						</form>
+						<div class="input-group mb-3" style="flex: 5;">
+							<select class="custom-select payment-method" id="inputGroupSelect01">
+								<option selected>Payment Method</option>
+								<option value="1">Cash</option>
+								<option value="2">GCash</option>
+								<option value="3">Bank transfer</option>
+							</select>
+						</div>
+					</div>
+					<div class="table-responsive">
+						<table class="table table-sm table-hover table-striped table-bordered table-light">
+							<thead>
+								<tr>
+									<th>Transaction ID</th>
+									<th>Client</th>
+									<th>Payment Method</th>
+									<th>Date Payment</th>
+									<th>Actions</th>
+								</tr>
+							</thead>
+							<tbody>
+							<?php while($get_rejected_full_final_payments_result =  mysqli_fetch_array($get_rejected_full_final_payments)){
+									$transactionID = $get_rejected_full_final_payments_result['transaction_id'];
+									$clientID = $get_rejected_full_final_payments_result['client_id'];
+									$dateID = $get_rejected_full_final_payments_result['date_id'];
+									$animalID = $get_rejected_full_final_payments_result['animal_id'];
+									$paymentID = $get_rejected_full_final_payments_result['payment_id'];
+									$paymentType = $get_rejected_full_final_payments_result['payment_type'];
+									$paymentMethod = $get_rejected_full_final_payments_result['payment_method'];
+
+									$get_breed_id = mysqli_query($conn, "SELECT breed_id FROM tbl_animals WHERE transaction_id = '$transactionID'");
+									$breed_id_result = mysqli_fetch_assoc($get_breed_id);
+									$breedID = $breed_id_result['breed_id'];
+
+									$get_breed_data = mysqli_query($conn, "SELECT species_id, description FROM tbl_breeds WHERE breed_id = '$breedID'");
+									$breed_data_result = mysqli_fetch_assoc($get_breed_data);
+									$breed_name = $breed_data_result['description'];
+									$speciesID = $breed_data_result['species_id'];
+
+									$get_species_name = mysqli_query($conn, "SELECT description FROM tbl_species WHERE species_id = '$speciesID'");
+									$species_name_result = mysqli_fetch_assoc($get_species_name);
+									$species_name = $species_name_result['description'];
+
+									$get_clientRecords = mysqli_query($conn, "SELECT * FROM tbl_clients WHERE client_id = '$clientID'");
+									$get_clientRecords_result = mysqli_fetch_array($get_clientRecords);
+									$client_name = $get_clientRecords_result['first_name'];
+
+									$get_dateRecords = mysqli_query($conn, "SELECT * FROM tbl_transactions_dates WHERE date_id = '$dateID'");
+									$get_dateRecords_result = mysqli_fetch_array($get_dateRecords);
+
+									$get_animalRecords = mysqli_query($conn, "SELECT * FROM tbl_animals WHERE animal_id = '$animalID'");
+									$get_animalRecords_result = mysqli_fetch_array($get_animalRecords);
+
+									$get_date_data = mysqli_query($conn, "SELECT * FROM tbl_transactions_dates WHERE transaction_id = '$transactionID'");
+									$get_date_data_results = mysqli_fetch_array($get_date_data);
+								
+								?>
+								<tr>
+									<td><?php echo $transactionID; ?></td>
+									<td class="table-image-text"><img src="data:image/jpeg;base64,<?php echo base64_encode($get_clientRecords_result['img_profile']); ?>" alt="Client Profile Image"> <span><?php echo $get_clientRecords_result['first_name']; ?></span></td>
+									<td><?php echo $paymentMethod; ?></td>
+									<td><?php echo $get_date_data_results['date_approved'] ?></td>
+									<td>
+										<button class="btn-sm btn m-1 table-action-btn action-view" data-toggle="modal" data-target="#viewClientRequest" data-transaction-id="<?php echo $transactionID; ?>" onclick="viewClientRequest(this);"><i class="material-icons table-action-icon">visibility</i></button>
+										<button class="btn-sm btn m-1 table-action-btn action-deny" data-toggle="modal" data-target="#cancelTransaction" data-client-id="<?php echo $clientID; ?>" data-transaction-id="<?php echo $transactionID; ?>" data-clientname="<?php echo $client_name; ?>" onclick="cancelClientDetails(this)"><i class="material-icons table-action-icon">cancel</i></button>
+									</td>
+								</tr>
+							<?php } ?>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+			<!-- Reattempt Payments -->
 			<!-- Pickup -->
 			<!-- MODAL TRANSACTION VIEWER -->
 			<div class="modal fade" id="viewClientRequest" tabindex="-1" role="dialog" aria-hidden="true">
