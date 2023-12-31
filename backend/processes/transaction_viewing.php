@@ -46,7 +46,6 @@ if (isset($_GET['transaction_id'])) {
     $find_puLoc_id_result = mysqli_query($conn, $find_puLoc_id);
     $puLoc_id_row = mysqli_fetch_assoc($find_puLoc_id_result);
     $puLoc_id_value = $puLoc_id_row['pickup_location_id'];
-    $doLoc_id_value = $puLoc_id_row['dropoff_location_id'];
     if($puLoc_id_row['dropoff_address'] == NULL || $puLoc_id_row['dropoff_address'] == ""){
         $dropoff_location = "Not Yet Decided";
     } else{
@@ -134,7 +133,6 @@ if (isset($_GET['transaction_id'])) {
         'receiver_email' => $rEmail_id_value,
         'receiver_address_id' => $rAddress_id_value,
         'pickup_location_id' => $puLoc_id_value,
-        'dropoff_location_id' => $doLoc_id_value,
         'dropoff_location' => $dropoff_location,
         'pickup_region' => $puRegion,
         'pickup_province' => $puProvince,

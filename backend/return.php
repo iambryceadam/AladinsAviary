@@ -217,56 +217,48 @@
 								<tr>
 									<th>Transaction ID</th>
 									<th>Client</th>
-									<th>Return Address</th>
+									<th>Return Location</th>
 									<th>Date Approved</th>
 									<th>Actions</th>
 								</tr>
 							</thead>
 							<tbody>
+							<?php 
+								while($get_pending_return_results = mysqli_fetch_assoc($get_pending_return)){
+									$transactionID = $get_pending_return_results['transaction_id'];
+									$clientID = $get_pending_return_results['client_id'];
+									$dateID = $get_pending_return_results['date_id'];
+									$locationID = $get_pending_return_results['location_id'];
+									$paymentID = $get_pending_return_results['payment_id'];
+
+									$get_pickup_location_id = mysqli_query($conn, "SELECT * FROM tbl_locations WHERE transaction_id = '$transactionID'");
+									$get_pickup_location_id_result = mysqli_fetch_assoc($get_pickup_location_id);
+									$pickup_location_id = $get_pickup_location_id_result['pickup_location_id'];
+									
+									$get_location_details = mysqli_query($conn, "SELECT * FROM tbl_locations WHERE transaction_id = '$transactionID'");
+									$get_location_details_results = mysqli_fetch_assoc($get_location_details);
+
+									$get_clientRecords = mysqli_query($conn, "SELECT * FROM tbl_clients WHERE client_id = '$clientID'");
+									$get_clientRecords_result = mysqli_fetch_array($get_clientRecords);
+									$client_name = $get_clientRecords_result['first_name'];
+
+									$get_dateRecords = mysqli_query($conn, "SELECT * FROM tbl_transactions_dates WHERE date_id = '$dateID'");
+									$get_dateRecords_result = mysqli_fetch_array($get_dateRecords);
+
+									$get_date_data = mysqli_query($conn, "SELECT * FROM tbl_transactions_dates WHERE transaction_id = '$transactionID'");
+									$get_date_data_results = mysqli_fetch_array($get_date_data);
+								?>
 								<tr>
-									<td>ORD2023ABC5678</td>
-									<td class="table-image-text"><img src="images/profile_icon.jpg" alt="Profile Icon"> Bryce Adam</td>
-									<td>326 Arandia Street Tunasan Muntinlupa City</td>
-									<td>05-17-23</td>
+									<td><?php echo $transactionID ?></td>
+									<td class="table-image-text"><img src="data:image/jpeg;base64,<?php echo base64_encode($get_clientRecords_result['img_profile']); ?>" alt="Client Profile Image"> <span><?php echo $get_clientRecords_result['first_name']; ?></span></td>
+									<td><?php echo $get_location_details_results['return_location']; ?></td>
+									<td><?php echo $get_date_data_results['date_filed_request']; ?></td>
 									<td>
-										<button class="btn-sm btn m-1 table-action-btn action-view"><i class="material-icons table-action-icon">visibility</i></button>
-										<button class="btn-sm btn m-1 table-action-btn action-approve"><i class="material-icons table-action-icon">thumb_up</i></button>
-										<button class="btn-sm btn m-1 table-action-btn action-deny"><i class="material-icons table-action-icon">thumb_down</i></button>
+										<button class="btn-sm btn m-1 table-action-btn action-view" data-toggle="modal" data-target="#viewClientRequest" data-transaction-id="<?php echo $transactionID; ?>" onclick="viewClientRequest(this);"><i class="material-icons table-action-icon">visibility</i></button>
+										<button class="btn-sm btn m-1 table-action-btn action-approve" onclick="proceedForReturn('<?php echo $client_name; ?>', '<?php echo $transactionID; ?>')"><i class="material-icons table-action-icon">thumb_up</i></button>
 									</td>
 								</tr>
-								<tr>
-									<td>ORD2023ABC5678</td>
-									<td class="table-image-text"><img src="images/profile_icon.jpg" alt="Profile Icon"> Bryce Adam</td>
-									<td>326 Arandia Street Tunasan Muntinlupa City</td>
-									<td>05-17-23</td>
-									<td>
-										<button class="btn-sm btn m-1 table-action-btn action-view"><i class="material-icons table-action-icon">visibility</i></button>
-										<button class="btn-sm btn m-1 table-action-btn action-approve"><i class="material-icons table-action-icon">thumb_up</i></button>
-										<button class="btn-sm btn m-1 table-action-btn action-deny"><i class="material-icons table-action-icon">thumb_down</i></button>
-									</td>
-								</tr>
-								<tr>
-									<td>ORD2023ABC5678</td>
-									<td class="table-image-text"><img src="images/profile_icon.jpg" alt="Profile Icon"> Bryce Adam</td>
-									<td>326 Arandia Street Tunasan Muntinlupa City</td>
-									<td>05-17-23</td>
-									<td>
-										<button class="btn-sm btn m-1 table-action-btn action-view"><i class="material-icons table-action-icon">visibility</i></button>
-										<button class="btn-sm btn m-1 table-action-btn action-approve"><i class="material-icons table-action-icon">thumb_up</i></button>
-										<button class="btn-sm btn m-1 table-action-btn action-deny"><i class="material-icons table-action-icon">thumb_down</i></button>
-									</td>
-								</tr>
-								<tr>
-									<td>ORD2023ABC5678</td>
-									<td class="table-image-text"><img src="images/profile_icon.jpg" alt="Profile Icon"> Bryce Adam</td>
-									<td>326 Arandia Street Tunasan Muntinlupa City</td>
-									<td>05-17-23</td>
-									<td>
-										<button class="btn-sm btn m-1 table-action-btn action-view"><i class="material-icons table-action-icon">visibility</i></button>
-										<button class="btn-sm btn m-1 table-action-btn action-approve"><i class="material-icons table-action-icon">thumb_up</i></button>
-										<button class="btn-sm btn m-1 table-action-btn action-deny"><i class="material-icons table-action-icon">thumb_down</i></button>
-									</td>
-								</tr>
+								<?php } ?>
 							</tbody>
 						</table>
 					</div>
@@ -293,61 +285,47 @@
 								<tr>
 									<th>Transaction ID</th>
 									<th>Client</th>
-									<th>Return Address</th>
+									<th>Return Location</th>
 									<th>Actions</th>
 								</tr>
 							</thead>
 							<tbody>
+							<?php 
+								while($get_for_return_results = mysqli_fetch_assoc($get_for_return)){
+									$transactionID = $get_for_return_results['transaction_id'];
+									$clientID = $get_for_return_results['client_id'];
+									$dateID = $get_for_return_results['date_id'];
+									$locationID = $get_for_return_results['location_id'];
+									$paymentID = $get_for_return_results['payment_id'];
+
+									$get_pickup_location_id = mysqli_query($conn, "SELECT * FROM tbl_locations WHERE transaction_id = '$transactionID'");
+									$get_pickup_location_id_result = mysqli_fetch_assoc($get_pickup_location_id);
+									$pickup_location_id = $get_pickup_location_id_result['pickup_location_id'];
+									
+									$get_location_details = mysqli_query($conn, "SELECT * FROM tbl_locations WHERE transaction_id = '$transactionID'");
+									$get_location_details_results = mysqli_fetch_assoc($get_location_details);
+
+									$get_clientRecords = mysqli_query($conn, "SELECT * FROM tbl_clients WHERE client_id = '$clientID'");
+									$get_clientRecords_result = mysqli_fetch_array($get_clientRecords);
+									$client_name = $get_clientRecords_result['first_name'];
+
+									$get_dateRecords = mysqli_query($conn, "SELECT * FROM tbl_transactions_dates WHERE date_id = '$dateID'");
+									$get_dateRecords_result = mysqli_fetch_array($get_dateRecords);
+
+									$get_date_data = mysqli_query($conn, "SELECT * FROM tbl_transactions_dates WHERE transaction_id = '$transactionID'");
+									$get_date_data_results = mysqli_fetch_array($get_date_data);
+								?>
 								<tr>
-									<td>ORD2023ABC5678</td>
-									<td class="table-image-text"><img src="images/profile_icon.jpg" alt="Profile Icon"> Bryce Adam</td>
-									<td>326 Arandia Street Tunasan Muntinlupa City</td>
+									<td><?php echo $transactionID ?></td>
+									<td class="table-image-text"><img src="data:image/jpeg;base64,<?php echo base64_encode($get_clientRecords_result['img_profile']); ?>" alt="Client Profile Image"> <span><?php echo $get_clientRecords_result['first_name']; ?></span></td>
+									<td><?php echo $get_location_details_results['return_location']; ?></td>
 									<td>
-										<button class="btn-sm btn m-1 table-action-btn action-view"><i class="material-icons table-action-icon">visibility</i></button>
-										<button class="btn-sm btn m-1 table-action-btn action-approve"><i class="material-icons table-action-icon">thumb_up</i></button>
-										<button class="btn-sm btn m-1 table-action-btn action-deny"><i class="material-icons table-action-icon">thumb_down</i></button>
+										<button class="btn-sm btn m-1 table-action-btn action-view" data-toggle="modal" data-target="#viewClientRequest" data-transaction-id="<?php echo $transactionID; ?>" onclick="viewClientRequest(this);"><i class="material-icons table-action-icon">visibility</i></button>
+										<button class="btn-sm btn m-1 table-action-btn action-approve" onclick="confirmReturn('<?php echo $client_name; ?>', '<?php echo $transactionID; ?>')"><i class="material-icons table-action-icon">thumb_up</i></button>
+										<!-- <button class="btn-sm btn m-1 table-action-btn action-deny"><i class="material-icons table-action-icon">thumb_down</i></button> -->
 									</td>
 								</tr>
-								<tr>
-									<td>ORD2023ABC5678</td>
-									<td class="table-image-text"><img src="images/profile_icon.jpg" alt="Profile Icon"> Bryce Adam</td>
-									<td>326 Arandia Street Tunasan Muntinlupa City</td>
-									<td>
-										<button class="btn-sm btn m-1 table-action-btn action-view"><i class="material-icons table-action-icon">visibility</i></button>
-										<button class="btn-sm btn m-1 table-action-btn action-approve"><i class="material-icons table-action-icon">thumb_up</i></button>
-										<button class="btn-sm btn m-1 table-action-btn action-deny"><i class="material-icons table-action-icon">thumb_down</i></button>
-									</td>
-								</tr>
-								<tr>
-									<td>ORD2023ABC5678</td>
-									<td class="table-image-text"><img src="images/profile_icon.jpg" alt="Profile Icon"> Bryce Adam</td>
-									<td>326 Arandia Street Tunasan Muntinlupa City</td>
-									<td>
-										<button class="btn-sm btn m-1 table-action-btn action-view"><i class="material-icons table-action-icon">visibility</i></button>
-										<button class="btn-sm btn m-1 table-action-btn action-approve"><i class="material-icons table-action-icon">thumb_up</i></button>
-										<button class="btn-sm btn m-1 table-action-btn action-deny"><i class="material-icons table-action-icon">thumb_down</i></button>
-									</td>
-								</tr>
-								<tr>
-									<td>ORD2023ABC5678</td>
-									<td class="table-image-text"><img src="images/profile_icon.jpg" alt="Profile Icon"> Bryce Adam</td>
-									<td>326 Arandia Street Tunasan Muntinlupa City</td>
-									<td>
-										<button class="btn-sm btn m-1 table-action-btn action-view"><i class="material-icons table-action-icon">visibility</i></button>
-										<button class="btn-sm btn m-1 table-action-btn action-approve"><i class="material-icons table-action-icon">thumb_up</i></button>
-										<button class="btn-sm btn m-1 table-action-btn action-deny"><i class="material-icons table-action-icon">thumb_down</i></button>
-									</td>
-								</tr>
-								<tr>
-									<td>ORD2023ABC5678</td>
-									<td class="table-image-text"><img src="images/profile_icon.jpg" alt="Profile Icon"> Bryce Adam</td>
-									<td>326 Arandia Street Tunasan Muntinlupa City</td>
-									<td>
-										<button class="btn-sm btn m-1 table-action-btn action-view"><i class="material-icons table-action-icon">visibility</i></button>
-										<button class="btn-sm btn m-1 table-action-btn action-approve"><i class="material-icons table-action-icon">thumb_up</i></button>
-										<button class="btn-sm btn m-1 table-action-btn action-deny"><i class="material-icons table-action-icon">thumb_down</i></button>
-									</td>
-								</tr>
+							<?php } ?>
 							</tbody>
 						</table>
 					</div>
@@ -358,9 +336,9 @@
 			<!-- Unsuccessful Returns -->
 			<div class="card table-card">
 				<div class="card-body table-card-body">
-					<h4 class="card-title table-card-title">Unsuccessful Returns</h4>
+					<h4 class="card-title table-card-title">Return Confirmation</h4>
 					<p class="card-description table-card-description">
-						Transactions from this record are unsuccessful returns, redistribute transaction to reattempt return.
+						Transactions from this record are awaiting proof of returned animals from the receiving end.
 					</p>
 					<form action="#">
 						<div class="form-group">
@@ -379,62 +357,130 @@
 								</tr>
 							</thead>
 							<tbody>
+							<?php 
+								while($get_confirmation_return_results = mysqli_fetch_assoc($get_confirmation_return)){
+									$transactionID = $get_confirmation_return_results['transaction_id'];
+									$clientID = $get_confirmation_return_results['client_id'];
+									$dateID = $get_confirmation_return_results['date_id'];
+									$locationID = $get_confirmation_return_results['location_id'];
+									$paymentID = $get_confirmation_return_results['payment_id'];
+
+									$get_pickup_location_id = mysqli_query($conn, "SELECT * FROM tbl_locations WHERE transaction_id = '$transactionID'");
+									$get_pickup_location_id_result = mysqli_fetch_assoc($get_pickup_location_id);
+									$pickup_location_id = $get_pickup_location_id_result['pickup_location_id'];
+									
+									$get_location_details = mysqli_query($conn, "SELECT * FROM tbl_locations WHERE transaction_id = '$transactionID'");
+									$get_location_details_results = mysqli_fetch_assoc($get_location_details);
+
+									$get_clientRecords = mysqli_query($conn, "SELECT * FROM tbl_clients WHERE client_id = '$clientID'");
+									$get_clientRecords_result = mysqli_fetch_array($get_clientRecords);
+									$client_name = $get_clientRecords_result['first_name'];
+
+									$get_dateRecords = mysqli_query($conn, "SELECT * FROM tbl_transactions_dates WHERE date_id = '$dateID'");
+									$get_dateRecords_result = mysqli_fetch_array($get_dateRecords);
+
+									$get_date_data = mysqli_query($conn, "SELECT * FROM tbl_transactions_dates WHERE transaction_id = '$transactionID'");
+									$get_date_data_results = mysqli_fetch_array($get_date_data);
+								?>
 								<tr>
-									<td>ORD2023ABC5678</td>
-									<td class="table-image-text"><img src="images/profile_icon.jpg" alt="Profile Icon"> Bryce Adam</td>
-									<td>326 Arandia Street Tunasan Muntinlupa City</td>
+									<td><?php echo $transactionID ?></td>
+									<td class="table-image-text"><img src="data:image/jpeg;base64,<?php echo base64_encode($get_clientRecords_result['img_profile']); ?>" alt="Client Profile Image"> <span><?php echo $get_clientRecords_result['first_name']; ?></span></td>
+									<td><?php echo $get_location_details_results['return_location']; ?></td>
 									<td>
-										<button class="btn-sm btn m-1 table-action-btn action-view"><i class="material-icons table-action-icon">visibility</i></button>
-										<button class="btn-sm btn m-1 table-action-btn action-approve"><i class="material-icons table-action-icon">redo</i></button>
-										<button class="btn-sm btn m-1 table-action-btn action-deny"><i class="material-icons table-action-icon">cancel</i></button>
+										<button class="btn-sm btn m-1 table-action-btn action-view" data-toggle="modal" data-target="#viewClientRequest" data-transaction-id="<?php echo $transactionID; ?>" onclick="viewClientRequest(this);"><i class="material-icons table-action-icon">visibility</i></button>
+										<!-- <button class="btn-sm btn m-1 table-action-btn action-approve" onclick=""><i class="material-icons table-action-icon">thumb_up</i></button> -->
+										<!-- <button class="btn-sm btn m-1 table-action-btn action-deny"><i class="material-icons table-action-icon">thumb_down</i></button> -->
 									</td>
 								</tr>
-								<tr>
-									<td>ORD2023ABC5678</td>
-									<td class="table-image-text"><img src="images/profile_icon.jpg" alt="Profile Icon"> Bryce Adam</td>
-									<td>326 Arandia Street Tunasan Muntinlupa City</td>
-									<td>
-										<button class="btn-sm btn m-1 table-action-btn action-view"><i class="material-icons table-action-icon">visibility</i></button>
-										<button class="btn-sm btn m-1 table-action-btn action-approve"><i class="material-icons table-action-icon">redo</i></button>
-										<button class="btn-sm btn m-1 table-action-btn action-deny"><i class="material-icons table-action-icon">cancel</i></button>
-									</td>
-								</tr>
-								<tr>
-									<td>ORD2023ABC5678</td>
-									<td class="table-image-text"><img src="images/profile_icon.jpg" alt="Profile Icon"> Bryce Adam</td>
-									<td>326 Arandia Street Tunasan Muntinlupa City</td>
-									<td>
-										<button class="btn-sm btn m-1 table-action-btn action-view"><i class="material-icons table-action-icon">visibility</i></button>
-										<button class="btn-sm btn m-1 table-action-btn action-approve"><i class="material-icons table-action-icon">redo</i></button>
-										<button class="btn-sm btn m-1 table-action-btn action-deny"><i class="material-icons table-action-icon">cancel</i></button>
-									</td>
-								</tr>
-								<tr>
-									<td>ORD2023ABC5678</td>
-									<td class="table-image-text"><img src="images/profile_icon.jpg" alt="Profile Icon"> Bryce Adam</td>
-									<td>326 Arandia Street Tunasan Muntinlupa City</td>
-									<td>
-										<button class="btn-sm btn m-1 table-action-btn action-view"><i class="material-icons table-action-icon">visibility</i></button>
-										<button class="btn-sm btn m-1 table-action-btn action-approve"><i class="material-icons table-action-icon">redo</i></button>
-										<button class="btn-sm btn m-1 table-action-btn action-deny"><i class="material-icons table-action-icon">cancel</i></button>
-									</td>
-								</tr>
-								<tr>
-									<td>ORD2023ABC5678</td>
-									<td class="table-image-text"><img src="images/profile_icon.jpg" alt="Profile Icon"> Bryce Adam</td>
-									<td>326 Arandia Street Tunasan Muntinlupa City</td>	
-									<td>
-										<button class="btn-sm btn m-1 table-action-btn action-view"><i class="material-icons table-action-icon">visibility</i></button>
-										<button class="btn-sm btn m-1 table-action-btn action-approve"><i class="material-icons table-action-icon">redo</i></button>
-										<button class="btn-sm btn m-1 table-action-btn action-deny"><i class="material-icons table-action-icon">cancel</i></button>
-									</td>
-								</tr>
+							<?php } ?>
 							</tbody>
 						</table>
 					</div>
 				</div>
 			</div>
 			<!-- Unsuccessful Returns -->
+
+			<div class="card table-card">
+				<div class="card-body table-card-body">
+					<h4 class="card-title table-card-title">Successful Return</h4>
+					<p class="card-description table-card-description">
+						Transactions from this record has been successfully returned by the receiving end. Awaiting approval to cancel the transaction
+					</p>
+					<form action="#">
+						<div class="form-group">
+							<input type="text" placeholder="Search" id="table-search">
+							<i class='bx bx-search icon'></i>
+						</div>
+					</form>
+					<div class="table-responsive">
+						<table class="table table-sm table-hover table-striped table-bordered table-light">
+							<thead>
+								<tr>
+									<th>Transaction ID</th>
+									<th>Client</th>
+									<th>Pickup From</th>
+									<th>Actions</th>
+								</tr>
+							</thead>
+							<tbody>
+							<?php 
+								while($get_return_confirmed_results = mysqli_fetch_assoc($get_return_confirmed)){
+									$transactionID = $get_return_confirmed_results['transaction_id'];
+									$clientID = $get_return_confirmed_results['client_id'];
+									$dateID = $get_return_confirmed_results['date_id'];
+									$locationID = $get_return_confirmed_results['location_id'];
+									$paymentID = $get_return_confirmed_results['payment_id'];
+
+									$get_pickup_location_id = mysqli_query($conn, "SELECT * FROM tbl_locations WHERE transaction_id = '$transactionID'");
+									$get_pickup_location_id_result = mysqli_fetch_assoc($get_pickup_location_id);
+									$pickup_location_id = $get_pickup_location_id_result['pickup_location_id'];
+									
+									$get_location_details = mysqli_query($conn, "SELECT * FROM tbl_locations WHERE transaction_id = '$transactionID'");
+									$get_location_details_results = mysqli_fetch_assoc($get_location_details);
+
+									$get_clientRecords = mysqli_query($conn, "SELECT * FROM tbl_clients WHERE client_id = '$clientID'");
+									$get_clientRecords_result = mysqli_fetch_array($get_clientRecords);
+									$client_name = $get_clientRecords_result['first_name'];
+
+									$get_dateRecords = mysqli_query($conn, "SELECT * FROM tbl_transactions_dates WHERE date_id = '$dateID'");
+									$get_dateRecords_result = mysqli_fetch_array($get_dateRecords);
+
+									$get_date_data = mysqli_query($conn, "SELECT * FROM tbl_transactions_dates WHERE transaction_id = '$transactionID'");
+									$get_date_data_results = mysqli_fetch_array($get_date_data);
+								?>
+								<tr>
+									<td><?php echo $transactionID ?></td>
+									<td class="table-image-text"><img src="data:image/jpeg;base64,<?php echo base64_encode($get_clientRecords_result['img_profile']); ?>" alt="Client Profile Image"> <span><?php echo $get_clientRecords_result['first_name']; ?></span></td>
+									<td><?php echo $get_location_details_results['return_location']; ?></td>
+									<td>
+										<button class="btn-sm btn m-1 table-action-btn action-view" data-toggle="modal" data-target="#viewClientRequest" data-transaction-id="<?php echo $transactionID; ?>" onclick="viewClientRequest(this);"><i class="material-icons table-action-icon">visibility</i></button>
+										<button class="btn-sm btn m-1 table-action-btn action-approve" onclick="finishReturn('<?php echo $client_name; ?>', '<?php echo $transactionID; ?>')"><i class="material-icons table-action-icon">thumb_up</i></button>
+										<!-- <button class="btn-sm btn m-1 table-action-btn action-deny"><i class="material-icons table-action-icon">thumb_down</i></button> -->
+									</td>
+								</tr>
+							<?php } ?>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+
+			<!-- MODAL TRANSACTION VIEWER -->
+			<div class="modal fade" id="viewClientRequest" tabindex="-1" role="dialog" aria-hidden="true">
+				<div class="modal-dialog custom-modal-dialog" role="document">
+					<div class="modal-content popup transaction-modal">
+						<div class="modal-header transaction-modal">
+							<h5 class="modal-title popup-title" id="exampleModalCenterTitle">Client Request</h5>
+							<span aria-hidden="true" data-dismiss="modal" class="modal-exit">&times;</span>
+							</button>
+						</div>
+						<div class="transactions-details-container">
+							<?php include ('admin_transaction_viewer.php');?>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- MODAL TRANSACTION VIEWER -->
 
 			<!-- Pickup -->
 		</main>

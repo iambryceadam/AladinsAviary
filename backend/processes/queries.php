@@ -326,16 +326,8 @@
   
       $customTransactionID = "TRAT" . $currentDate . $transactionNumber;
       return $customTransactionID;
-  }
-    /*
-    if(isset($_GET['completeMedical'])){
-      $tID = $_GET['completeMedical'];
 
-      mysqli_query($conn, "UPDATE tbl_transactions SET status = 'completed-medical' WHERE transaction_id = '$tID'");
-      $complete_medical = "Successfully proceeded to next step (Completed Medical))";
-      header("Location: ../medical.php?complete_medical=" . urldecode($complete_medical));
     }
-    */
     
     if(isset($_GET['proceedAfterMedical'])){
       $tID = $_GET['proceedAfterMedical'];
@@ -391,7 +383,81 @@
       $tID = $_GET['approveCancel'];
       mysqli_query($conn, "UPDATE tbl_transactions SET status = 'cancelled' WHERE transaction_id = '$tID'");
       $cancelled_transaction_success = "Transaction has been successfully cancelled";
-      header("Location: ../cancelled.php?cancelled_transaction_success=" . urldecode($cancelled_transaction_success));
+      header("Location: ../cancellations.php?cancelled_transaction_success=" . urldecode($cancelled_transaction_success));
+    }
+
+    if(isset($_GET['finishReturn'])){
+      $tID = $_GET['finishReturn'];
+      mysqli_query($conn, "UPDATE tbl_transactions SET status = 'cancelled' WHERE transaction_id = '$tID'");
+      $cancelled_transaction_success = "Transaction has been successfully cancelled";
+      header("Location: ../return.php?cancelled_transaction_success=" . urldecode($cancelled_transaction_success));
+    }
+
+    if(isset($_GET['cancelToReturn'])){
+      $tID = $_GET['cancelToReturn'];
+      mysqli_query($conn, "UPDATE tbl_transactions SET status = 'pending-return' WHERE transaction_id = '$tID'");
+      $to_return = "Transaction is now pending for return";
+      header("Location: ../cancellations.php?cancelled_transaction_success=" . urldecode($to_return));
+    }
+
+    if(isset($_GET['proceedForReturn'])){
+      $tID = $_GET['proceedForReturn'];
+      mysqli_query($conn, "UPDATE tbl_transactions SET status = 'for-return' WHERE transaction_id = '$tID'");
+      $to_return = "Transaction is now on its way to the receiving party";
+      header("Location: ../return.php?cancelled_transaction_success=" . urldecode($to_return));
+    }
+
+    if(isset($_GET['confirmReturn'])){
+      $tID = $_GET['confirmReturn'];
+      mysqli_query($conn, "UPDATE tbl_transactions SET status = 'confirmation-return' WHERE transaction_id = '$tID'");
+      $to_return = "Awaiting Return Proof";
+      header("Location: ../return.php?cancelled_transaction_success=" . urldecode($to_return));
+    }
+
+    if(isset($_POST['addReturnLocation'])){
+      $transaction_id = mysqli_real_escape_string($conn, $_POST['transaction_id']);
+      $dropoff_location = mysqli_real_escape_string($conn, $_POST['dropoff_location']);
+      $currentDate = date('mdY');
+      $dropoff_location = mysqli_real_escape_string($conn, $_POST['dropoff_location']);
+      $departureDateTime = mysqli_real_escape_string($conn, $_POST['departureDateTime']);
+      $arrivalDateTime = mysqli_real_escape_string($conn, $_POST['arrivalDateTime']);
+      mysqli_query($conn, "UPDATE tbl_transactions SET status = 'pending-return' WHERE transaction_id = '$transaction_id'");
+      mysqli_query($conn, "UPDATE tbl_locations SET return_location = '$dropoff_location' WHERE transaction_id = '$transaction_id'");
+      mysqli_query($conn, "UPDATE tbl_transactions_dates SET time_departure = '$departureDateTime', time_arrival = '$arrivalDateTime'  WHERE transaction_id = '$transaction_id'");
+
+      if (!empty($_FILES['images']['name'][0])) {
+          $fileNames = $_FILES['images']['name'];
+          $fileTmpNames = $_FILES['images']['tmp_name'];
+  
+          for ($i = 0; $i < count($fileNames); $i++) {
+              $fileName = mysqli_real_escape_string($conn, $fileNames[$i]);
+              $fileTmpName = $fileTmpNames[$i];
+              $attachmentTag = "Return Attachments";
+  
+              $fileContent = file_get_contents($fileTmpName);
+              $fileContent = mysqli_real_escape_string($conn, $fileContent);
+
+              $customAttachmentsID = generateCustomAttachmentsID($conn, $currentDate);
+  
+              $insertQuery = "INSERT INTO tbl_transactions_attachments (attachment_id, transaction_id, attachment, attachment_tag) VALUES ('$customAttachmentsID', '$transaction_id', '$fileContent', '$attachmentTag')";
+              mysqli_query($conn, $insertQuery);
+          }
+      }
+      $reject_cancel = "Transaction is now pending for return";
+      header("Location: ?reject_cancel=" . urldecode($reject_cancel));
+    }
+
+    if(isset($_GET['rejectCancellation'])){
+      $tID = $_GET['rejectCancellation'];
+
+      $get_previous_status = mysqli_query($conn, "SELECT * FROM tbl_cancelled_transactions WHERE transaction_id = '$tID'");
+      $get_previous_status_result = mysqli_fetch_array($get_previous_status);
+      $previous_status = $get_previous_status_result['previous_status'];
+
+      mysqli_query($conn, "UPDATE tbl_transactions SET status = '$previous_status' WHERE transaction_id = '$tID'");
+      mysqli_query($conn, "DELETE FROM tbl_cancelled_transactions WHERE transaction_id = '$tID'");
+      $reject_cancel = "Transaction has been successfully moved back to its previous status";
+      header("Location: ../cancelled.php?reject_cancel=" . urldecode($reject_cancel));
     }
 
     if(isset($_POST['rfc'])){
@@ -985,11 +1051,20 @@
     // FETCH pending cancellation
     $get_for_cancellation_transactions = mysqli_query($conn, "SELECT * FROM tbl_transactions WHERE status='for-cancellation'");
 
-    // FETCH pending cancellation
-    $get_cancelled_transactions = mysqli_query($conn, "SELECT * FROM tbl_transactions WHERE status='cancelled'");
+    // FETCH Pending Returns
+    $get_pending_return = mysqli_query($conn, "SELECT * FROM tbl_transactions WHERE status= 'pending-return'");
+
+    // FETCH For Returns
+    $get_for_return = mysqli_query($conn, "SELECT * FROM tbl_transactions WHERE status='for-return'");
+
+    // FETCH Confirmation Returns
+    $get_confirmation_return = mysqli_query($conn, "SELECT * FROM tbl_transactions WHERE status='confirmation-return'");
+
+    // FETCH Confirmation Returns
+    $get_return_confirmed = mysqli_query($conn, "SELECT * FROM tbl_transactions WHERE status='return-confirmed'");
 
     // FETCH pending cancellation
-    $get_rejected_transactions = mysqli_query($conn, "SELECT * FROM tbl_transactions WHERE status='rejected'");
+    $get_cancelled_transactions = mysqli_query($conn, "SELECT * FROM tbl_transactions WHERE status='cancelled'");
 
     // FETCH Client Completed
     $get_clientCompleted = mysqli_query($conn, "SELECT * FROM tbl_transactions WHERE status");

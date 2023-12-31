@@ -229,6 +229,7 @@
 									$getReasonForCancellation = mysqli_query($conn, "SELECT * FROM tbl_cancelled_transactions WHERE transaction_id = '$transactionID'");
 									$reasonForCancellationResult = mysqli_fetch_array($getReasonForCancellation);
 									$reason_for_cancellation = $reasonForCancellationResult['reason_for_cancellation'];
+									$previous_status = $reasonForCancellationResult['previous_status'];
 
 									$get_clientRecords = mysqli_query($conn, "SELECT * FROM tbl_clients WHERE client_id = '$clientID'");
 									$get_clientRecords_result = mysqli_fetch_array($get_clientRecords);
@@ -241,12 +242,16 @@
 										<td><?php echo $transactionID; ?></td>
 										<td class="table-image-text"><img src="data:image/jpeg;base64,<?php echo base64_encode($get_clientRecords_result['img_profile']); ?>" alt="Client Profile Image"> <span><?php echo $get_clientRecords_result['first_name']; ?></span></td>
 										<td><?php echo $reason_for_cancellation ?></td>
-										<td>For Pickup</td>
+										<td><?php echo $previous_status; ?></td>
 										<td><?php echo $get_dateRecords_result['date_filed_request']; ?></td>
 										<td>
 											<button class="btn-sm btn m-1 table-action-btn action-view" data-toggle="modal" data-target="#viewClientRequest" data-transaction-id="<?php echo $transactionID; ?>" onclick="viewClientRequest(this);"><i class="material-icons table-action-icon">visibility</i></button>
-											<button class="btn-sm btn m-1 table-action-btn action-approve"  onclick="approveCancel('<?php echo $client_name; ?>', '<?php echo $transactionID; ?>')"><i class="material-icons table-action-icon">redo</i></button>
-											<button class="btn-sm btn m-1 table-action-btn action-deny"><i class="material-icons table-action-icon">thumb_down</i></button>
+											<?php if($previous_status == 'for-approval' || $previous_status == 'for-downpayment' || $previous_status == 'i-receipt-submitted' || $previous_status == 'i-receipt-reattempt' || $previous_status == 'processing-documents' || $previous_status == 'for-booking'){ ?>
+												<button class="btn-sm btn m-1 table-action-btn action-approve" onclick="approveCancel('<?php echo $client_name; ?>', '<?php echo $transactionID; ?>')"><i class="material-icons table-action-icon">redo</i></button>
+											<?php } else if ($previous_status == 'for-payment' || $previous_status == 'f-receipt-submitted' || $previous_status == 'f-receipt-reattempt' || $previous_status == 'pending-pickup' || $previous_status == 'for-pickup' || $previous_status == 'pickup-success' || $previous_status == 'pickup-unsuccessful' || $previous_status == 'ongoing-medical' || $previous_status == 'pending-transport'){ ?>
+												<button class="btn-sm btn m-1 table-action-btn action-approve" data-toggle="modal" data-target="#addReturnLocationForm" data-client-id="<?php echo $clientID; ?>" data-transaction-id="<?php echo $transactionID; ?>" data-clientname="<?php echo $client_name; ?>" onclick="transportClientDetails(this)"><i class="material-icons table-action-icon">redo</i></button>
+											<?php } ?>
+											<button class="btn-sm btn m-1 table-action-btn action-deny" onclick="rejectCancel('<?php echo $client_name; ?>', '<?php echo $transactionID; ?>')"><i class="material-icons table-action-icon">thumb_down</i></button>
 										</td>
 									</tr>
 								<?php } ?>
@@ -256,6 +261,57 @@
 				</div>
 			</div>
 			<!-- Cancellations -->
+
+			<!-- ADD TRANSPORT ATTACHMENTS -->
+			<div class="modal fade" id="addReturnLocationForm" tabindex="-1" role="dialog" aria-hidden="true">
+				<div class="modal-dialog modal-dialog-centered" role="document">
+					<div class="modal-content popup">
+						<div class="modal-header">
+							<h5 class="modal-title popup-title" id="exampleModalCenterTitle">Add Return Location</h5>
+							<span aria-hidden="true" data-dismiss="modal" class="modal-exit">&times;</span>
+						</div>
+						<form id="returnLocationForm" action="cancellations.php" method="POST" autocomplete="off" enctype="multipart/form-data">
+							<div class="modal-body" style="padding-bottom: 0px;">
+								<div class="row form-modal" style="padding-right: 20px;">
+									<div class="col col-md-12 ml-auto">
+										<p class="pop-up-heading">Specify the return location:</p>
+										<div class="form-group">
+											<input type="hidden" name="client_name" id="client_name">
+											<input type="hidden" name="client_id" id="client_id">
+											<input type="hidden" name="transaction_id" id="transaction_id">
+											<input type="text" name="dropoff_location" id="dropoff_location" placeholder="Dropoff address..." required>
+										</div>
+										<hr>
+                                        <p class="pop-up-heading">Type in expected time of departure:</p>
+                                        <div class="form-group">
+                                            <label for="departureDateTime">Time of Departure:</label>
+                                            <input type="datetime-local" class="form-control" id="departureDateTime" name="departureDateTime" required>
+                                        </div>
+                                        <hr>
+                                        <p class="pop-up-heading">Type in expected time of arrival:</p>
+                                        <div class="form-group">
+                                            <label for="arrivalDateTime">Time of Arrival:</label>
+                                            <input type="datetime-local" class="form-control" id="arrivalDateTime" name="arrivalDateTime" required>
+                                        </div>
+                                        <hr>
+										<p class="pop-up-heading">Click the button to add attachments (if necessary):</p>
+										<div class="form-group">
+											<label for="transportAttachments">Choose Image:</label>
+                                            <input type="file" class="form-control-file" accept=".jpg, .jpeg, .png, .pdf, .docx, .xls, .xlsx" id="transportAttachments" name="images[]" multiple>
+                                        </div>
+										<input type="hidden" id="addReturnLocationInput" name="addReturnLocation">
+									</div>
+									<div class="modal-footer popup-footer">
+										<button type="button" class="btn btn-secondary action-cancel" data-dismiss="modal">Close</button>
+										<button type="submit" id="addReturnLocationSubmit" class="btn action-view" name="addReturnLocation" onclick="returnLocation(event)">Proceed</button>
+									</div>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+			<!-- ADD TRANSPORT ATTACHMENTS -->
 
 			<!-- MODAL TRANSACTION VIEWER -->
 			<div class="modal fade" id="viewClientRequest" tabindex="-1" role="dialog" aria-hidden="true">

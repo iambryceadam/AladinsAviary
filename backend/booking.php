@@ -377,7 +377,7 @@
 									</div>
 									<div class="modal-footer popup-footer">
 										<button type="button" class="btn btn-secondary action-cancel" data-dismiss="modal">Close</button>
-										<button type="submit" id="shippingAttachmentsSubmit" class="btn action-view" name="insertBookingAttachments" onclick="uploadBookingAttachments(event)">Proceed</button>
+										<button type="submit" id="shippingAttachmentsSubmit" class="btn action-view" name="insertBookingAttachments" onclick="uploadTransportAttachments(event)">Proceed</button>
 									</div>
 								</div>
 							</div>

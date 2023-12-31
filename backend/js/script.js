@@ -869,6 +869,69 @@ function transportClientDetails(button){
 	document.getElementById('transaction_id').value = tID;
 }
 
+function returnLocation(event){
+	var transportAttachments = document.getElementById("transportAttachments").files;
+	var client_name = document.getElementById("client_name").value;
+	var transaction_id = document.getElementById("transaction_id").value;
+	var dropoff_location = document.getElementById("dropoff_location").value;
+
+    if (dropoff_location == ""){
+		Swal.fire({
+            icon: "warning",
+            html: 'Please add a dropoff address for ' + client_name + '\'s animal',
+            showCancelButton: false,
+            confirmButtonColor: '#8D8D8D',
+            confirmButtonText: 'Ok',
+            width: '380px',
+            customClass: {
+                popup: 'swal-popup',
+                confirmButton: 'swal-btn',
+            }
+        })
+	} else if (transportAttachments.length === 0) {
+		event.preventDefault();
+        Swal.fire({
+            icon: "warning",
+            html: 'Confirm return details?',
+            showCancelButton: true,
+            confirmButtonColor: '#f7941d',
+            cancelButtonColor: '#8D8D8D',
+            confirmButtonText: 'Yes',
+            cancelButtonText: 'No',
+            width: '380px',
+            customClass: {
+                popup: 'swal-popup',
+                confirmButton: 'swal-btn',
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                var form = document.getElementById("returnLocationForm").submit();
+            }
+        });
+	} 
+    else {
+        event.preventDefault();
+        Swal.fire({
+            icon: "warning",
+            html: 'Confirm return details?',
+            showCancelButton: true,
+            confirmButtonColor: '#f7941d',
+            cancelButtonColor: '#8D8D8D',
+            confirmButtonText: 'Yes',
+            cancelButtonText: 'No',
+            width: '380px',
+            customClass: {
+                popup: 'swal-popup',
+                confirmButton: 'swal-btn',
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                var form = document.getElementById("returnLocationForm").submit();
+            }
+        });
+    }
+}
+
 function transportClientDetails_down(button){
 	var cName = button.getAttribute('data-clientname');
 	var cID = button.getAttribute('data-client-id');
@@ -1061,7 +1124,7 @@ function uploadBookingAttachments(event){
             }
         }).then((result) => {
             if (result.isConfirmed) {
-                var form = document.getElementById("transportAttachmentsForm").submit();
+                var form = document.getElementById("addBookingAttachments").submit();
             }
         });
     }
@@ -1151,6 +1214,90 @@ function approveCancel(name, tID){
 	});
 }
 
+function finishReturn(name, tID){
+	Swal.fire({
+		icon: "warning",
+		html: 'Are you sure you want to cancel ' + name + '\'s animal transportation request?',
+		showCancelButton: true,
+		confirmButtonColor: '#f7941d',
+		cancelButtonColor: '#8D8D8D',
+		confirmButtonText: 'Yes',
+		cancelButtonText: 'No',
+		width: '380px',
+		customClass: {
+		  popup: 'swal-popup',
+		  confirmButton: 'swal-btn',
+		}
+	}).then((result) => {
+		if (result.isConfirmed) {
+			window.location.href='processes/queries.php?finishReturn=' + tID;
+		}
+	});
+}
+
+function cancelToReturn(name, tID){
+	Swal.fire({
+		icon: "warning",
+		html: 'Are you sure you want to cancel ' + name + '\'s animal transportation request?',
+		showCancelButton: true,
+		confirmButtonColor: '#f7941d',
+		cancelButtonColor: '#8D8D8D',
+		confirmButtonText: 'Yes',
+		cancelButtonText: 'No',
+		width: '380px',
+		customClass: {
+		  popup: 'swal-popup',
+		  confirmButton: 'swal-btn',
+		}
+	}).then((result) => {
+		if (result.isConfirmed) {
+			window.location.href='processes/queries.php?cancelToReturn=' + tID;
+		}
+	});
+}
+
+function proceedForReturn(name, tID){
+	Swal.fire({
+		icon: "warning",
+		html: 'Proceed to for return?',
+		showCancelButton: true,
+		confirmButtonColor: '#f7941d',
+		cancelButtonColor: '#8D8D8D',
+		confirmButtonText: 'Yes',
+		cancelButtonText: 'No',
+		width: '380px',
+		customClass: {
+		  popup: 'swal-popup',
+		  confirmButton: 'swal-btn',
+		}
+	}).then((result) => {
+		if (result.isConfirmed) {
+			window.location.href='processes/queries.php?proceedForReturn=' + tID;
+		}
+	});
+}
+
+function confirmReturn (name, tID){
+	Swal.fire({
+		icon: "warning",
+		html: 'Proceed to confirm return?',
+		showCancelButton: true,
+		confirmButtonColor: '#f7941d',
+		cancelButtonColor: '#8D8D8D',
+		confirmButtonText: 'Yes',
+		cancelButtonText: 'No',
+		width: '380px',
+		customClass: {
+		  popup: 'swal-popup',
+		  confirmButton: 'swal-btn',
+		}
+	}).then((result) => {
+		if (result.isConfirmed) {
+			window.location.href='processes/queries.php?confirmReturn=' + tID;
+		}
+	});
+}
+
 function rejectRequest(name, tID){
 	Swal.fire({
 		icon: "warning",
@@ -1193,11 +1340,10 @@ function pickupUnsuccessful(name, tID){
 	});
 }
 
-/*
-function approveTransportRequest(name){
+function rejectCancel(name, tID){
 	Swal.fire({
 		icon: "warning",
-		html: 'Are you sure you want<br>to approve request from ' + name + '?',
+		html: 'Reject ' + name + '\'s<br> request for cancellation?',
 		showCancelButton: true,
 		confirmButtonColor: '#f7941d',
 		cancelButtonColor: '#8D8D8D',
@@ -1210,11 +1356,10 @@ function approveTransportRequest(name){
 		}
 	}).then((result) => {
 		if (result.isConfirmed) {
-			window.location.href='processes/queries.php?archiveAdmin=' + true;
+			window.location.href='processes/queries.php?rejectCancellation=' + tID;
 		}
 	});
 }
-*/
 
 // VALIDATE ADD FUNCTIONS
 // Administrator
@@ -1943,8 +2088,34 @@ window.onload = function() {
 	const complete_documents = urlParams.get('complete_documents');
 	const booking_success = urlParams.get('booking_success');
 	const full_payment_reject_success = urlParams.get('full_payment_reject_success');
+	const reject_cancel = urlParams.get('reject_cancel');
+	const to_return = urlParams.get('to_return');
 
-	if(full_payment_reject_success){
+	if(to_return){
+		Swal.fire({
+			text: to_return,
+			icon: 'success',
+			showConfirmButton: false,
+			timer: 2000,
+			customClass: {
+				popup: 'swal-popup',
+				confirmButton: 'swal-btn',
+		  }
+		});
+	}
+	else if(reject_cancel){
+		Swal.fire({
+			text: reject_cancel,
+			icon: 'success',
+			showConfirmButton: false,
+			timer: 2000,
+			customClass: {
+				popup: 'swal-popup',
+				confirmButton: 'swal-btn',
+		  }
+		});
+	}
+	else if(full_payment_reject_success){
 		Swal.fire({
 			text: full_payment_reject_success,
 			icon: 'success',
