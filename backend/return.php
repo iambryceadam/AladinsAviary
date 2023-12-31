@@ -220,7 +220,7 @@
 									<th>Return Location</th>
 									<th>Date Approved</th>
 									<th>Actions</th>
-								</tr>
+								</tr> 
 							</thead>
 							<tbody>
 							<?php 

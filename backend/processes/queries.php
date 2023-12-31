@@ -78,7 +78,7 @@
     if(isset($_GET['approveInitialPayment'])){
       $tID = $_GET['approveInitialPayment'];
 
-      mysqli_query($conn, "UPDATE tbl_transactions SET status = 'processing-documents' WHERE transaction_id = '$tID'");
+      mysqli_query($conn, "UPDATE tbl_transactions SET status = 'pending-pickup' WHERE transaction_id = '$tID'");
       $initial_payment_approved_success = "Successfully approved initial payment";
       header("Location: ../initial_payment.php?initial_payment_approved_success=" . urldecode($initial_payment_approved_success));
     }
@@ -86,7 +86,7 @@
     if(isset($_GET['approvePayment'])){
       $tID = $_GET['approvePayment'];
 
-      mysqli_query($conn, "UPDATE tbl_transactions SET status = 'processing-documents' WHERE transaction_id = '$tID'");
+      mysqli_query($conn, "UPDATE tbl_transactions SET status = 'pending-pickup' WHERE transaction_id = '$tID'");
       $payment_approved_success = "Successfully approved Payment";
       header("Location: ../fullCash_payment.php?payment_approved_success=" . urldecode($payment_approved_success));
     }
@@ -115,13 +115,67 @@
       header("Location: ../fullCash_payment.php?full_payment_reject_success=" . urldecode($full_payment_reject_success));
     }
 
-    if(isset($_GET['initiatePickup'])){
-      $tID = $_GET['initiatePickup'];
+    if(isset($_POST['initiatePickup'])){
+      $tID = $_POST['transaction_id'];
+
+      mysqli_query($conn, "UPDATE tbl_transactions SET status = 'for-pickup' WHERE transaction_id = '$tID'");
+      $moved_for_pickup_success = "Successfully moved transaction to for pick up";
+      header("Location: ../pickup.php?moved_for_pickup_success=" . urldecode($moved_for_pickup_success));
+    }
+
+    if(isset($_GET['reattemptPickup'])){
+      $tID = $_GET['reattemptPickup'];
 
       mysqli_query($conn, "UPDATE tbl_transactions SET status = 'for-pickup' WHERE transaction_id = '$tID'");
       $moved_for_pickup_success = "Successfully moved transaction for pick up";
       header("Location: ../pickup.php?moved_for_pickup_success=" . urldecode($moved_for_pickup_success));
     }
+
+    if(isset($_POST['customPickup'])){
+      $tID = mysqli_real_escape_string($conn, $_POST['transaction_id']);
+      $region = mysqli_real_escape_string($conn, $_POST['region']);
+      $province = mysqli_real_escape_string($conn, $_POST['province']);
+      $city = mysqli_real_escape_string($conn, $_POST['city']);
+      $barangay = mysqli_real_escape_string($conn, $_POST['barangay']);
+      $street = mysqli_real_escape_string($conn, $_POST['street_text']);
+      $house_num = mysqli_real_escape_string($conn, $_POST['house_number']);
+      $currentDate = date('mdY');
+      $customPickupLocationId = generateCustomPickupID($conn, $currentDate);
+      echo $tID . 'TID' . $region . 'regiooon' . $customPickupLocationId .'';
+
+      mysqli_query($conn, "INSERT INTO tbl_custom_pickup_locations (custom_pickup_id, transaction_id, region, province, city, barangay, street, house_number) VALUES ('$customPickupLocationId', '$tID', '$region', '$province', '$city', '$barangay', '$street', '$house_num')");
+      mysqli_query($conn, "UPDATE tbl_locations SET custom_pickup_id = '$customPickupLocationId' WHERE transaction_id = '$tID'");
+      mysqli_query($conn, "UPDATE tbl_transactions SET status = 'for-pickup' WHERE transaction_id = '$tID'");
+      $moved_for_pickup_success = "Successfully moved transaction to for pick up";
+      header("Location: ../pickup.php?moved_for_pickup_success=" . urldecode($moved_for_pickup_success));
+    }
+
+    function generateCustomPickupID($conn, $currentDate) {
+      // Get the maximum location number from the database
+      $checkLocation = "SELECT MAX(CAST(SUBSTRING(custom_pickup_id, 13) AS UNSIGNED)) AS max_location FROM tbl_custom_pickup_locations";
+      $result = mysqli_query($conn, $checkLocation);
+  
+      if ($result && $row = mysqli_fetch_assoc($result)) {
+          $maxLocation = $row['max_location'];
+  
+          if (!is_null($maxLocation)) {
+              $locationID = (int)$maxLocation + 1;
+          } else {
+              $locationID = 1;
+          }
+      } else {
+          $locationID = 1;
+      }
+  
+      // Determine the number of digits in the location ID
+      $numDigits = strlen((string)$locationID);
+  
+      // Create a formatted location ID with leading zeros
+      $formattedLocationID = $locationID;
+  
+      $customLocationID = "CSPU" . $currentDate . $formattedLocationID;
+      return $customLocationID;
+  }
     
 
     if(isset($_GET['successPickup'])){
@@ -155,10 +209,10 @@
       header("Location: ../medical.php?ongoing_medical=" . urldecode($ongoing_medical));
     }
 
-    if (isset($_POST['insertMedicalAttachments'])) {
+    if (isset($_POST['insertMedicalAttachmentswPrice'])) {
         $transaction_id = mysqli_real_escape_string($conn, $_POST['transaction_id']);
+        $f_payment_cost = mysqli_real_escape_string($conn, $_POST['f_payment_cost']);
         $currentDate = date('mdY');
-        mysqli_query($conn, "UPDATE tbl_transactions SET status = 'pending-transport' WHERE transaction_id = '$transaction_id'");
     
         if (!empty($_FILES['images']['name'][0])) {
             $fileNames = $_FILES['images']['name'];
@@ -178,9 +232,39 @@
                 mysqli_query($conn, $insertQuery);
             }
         }
-        $complete_medical = "Successfully proceeded to the next step (Completed Medical)";
+        mysqli_query($conn, "UPDATE tbl_transactions SET status = 'for-payment' WHERE transaction_id = '$transaction_id'");
+        mysqli_query($conn, "UPDATE tbl_payments SET final_payment_cost = '$f_payment_cost' WHERE transaction_id = '$transaction_id'");
+
+        $complete_medical = "Successfully proceeded to the next step (For Payment)";
         header("Location: ?complete_medical=" . urldecode($complete_medical));
     }
+
+    if (isset($_POST['insertMedicalAttachments'])) {
+      $transaction_id = mysqli_real_escape_string($conn, $_POST['transaction_id']);
+      $currentDate = date('mdY');
+  
+      if (!empty($_FILES['images']['name'][0])) {
+          $fileNames = $_FILES['images']['name'];
+          $fileTmpNames = $_FILES['images']['tmp_name'];
+  
+          for ($i = 0; $i < count($fileNames); $i++) {
+              $fileName = mysqli_real_escape_string($conn, $fileNames[$i]);
+              $fileTmpName = $fileTmpNames[$i];
+              $attachmentTag = "Medical";
+  
+              $fileContent = file_get_contents($fileTmpName);
+              $fileContent = mysqli_real_escape_string($conn, $fileContent);
+
+              $customAttachmentsID = generateCustomAttachmentsID($conn, $currentDate);
+  
+              $insertQuery = "INSERT INTO tbl_transactions_attachments (attachment_id, transaction_id, attachment, attachment_tag) VALUES ('$customAttachmentsID', '$transaction_id', '$fileContent', '$attachmentTag')";
+              mysqli_query($conn, $insertQuery);
+          }
+      }
+      mysqli_query($conn, "UPDATE tbl_transactions SET status = 'for-booking' WHERE transaction_id = '$transaction_id'");
+      $complete_medical = "Successfully proceeded to the next step (For Booking)";
+      header("Location: ?complete_medical=" . urldecode($complete_medical));
+  }
 
     if (isset($_POST['submitDocumentsAttachments'])) {
       $transaction_id = mysqli_real_escape_string($conn, $_POST['transaction_id']);
@@ -244,40 +328,6 @@
       header("Location: ?booking_success=" . urldecode($booking_success));
     }
 
-    if(isset($_POST['insertBookingAttachmentsDown'])){
-      $transaction_id = mysqli_real_escape_string($conn, $_POST['transaction_id']);
-      $dropoff_location = mysqli_real_escape_string($conn, $_POST['dropoff_location']);
-      $f_payment_cost = mysqli_real_escape_string($conn, $_POST['f_payment_cost']);
-      $currentDate = date('mdY');
-      $departureDateTime = mysqli_real_escape_string($conn, $_POST['departureDateTime']);
-      $arrivalDateTime = mysqli_real_escape_string($conn, $_POST['arrivalDateTime']);
-      mysqli_query($conn, "UPDATE tbl_transactions SET status = 'for-payment' WHERE transaction_id = '$transaction_id'");
-      mysqli_query($conn, "UPDATE tbl_payments SET final_payment_cost = '$f_payment_cost' WHERE transaction_id = '$transaction_id'");
-      mysqli_query($conn, "UPDATE tbl_locations SET dropoff_address = '$dropoff_location' WHERE transaction_id = '$transaction_id'");
-      mysqli_query($conn, "UPDATE tbl_transactions_dates SET time_departure = '$departureDateTime', time_arrival = '$arrivalDateTime'  WHERE transaction_id = '$transaction_id'");
-
-      if (!empty($_FILES['images']['name'][0])) {
-          $fileNames = $_FILES['images']['name'];
-          $fileTmpNames = $_FILES['images']['tmp_name'];
-  
-          for ($i = 0; $i < count($fileNames); $i++) {
-              $fileName = mysqli_real_escape_string($conn, $fileNames[$i]);
-              $fileTmpName = $fileTmpNames[$i];
-              $attachmentTag = "Transport";
-  
-              $fileContent = file_get_contents($fileTmpName);
-              $fileContent = mysqli_real_escape_string($conn, $fileContent);
-
-              $customAttachmentsID = generateCustomAttachmentsID($conn, $currentDate);
-  
-              $insertQuery = "INSERT INTO tbl_transactions_attachments (attachment_id, transaction_id, attachment, attachment_tag) VALUES ('$customAttachmentsID', '$transaction_id', '$fileContent', '$attachmentTag')";
-              mysqli_query($conn, $insertQuery);
-          }
-      }
-      $booking_success = "Successfully booked animal for transport";
-      header("Location: ?booking_success=" . urldecode($booking_success));
-  }
-
     if(isset($_POST['insertBookingAttachments'])){
       $transaction_id = mysqli_real_escape_string($conn, $_POST['transaction_id']);
       $dropoff_location = mysqli_real_escape_string($conn, $_POST['dropoff_location']);
@@ -285,7 +335,7 @@
       $dropoff_location = mysqli_real_escape_string($conn, $_POST['dropoff_location']);
       $departureDateTime = mysqli_real_escape_string($conn, $_POST['departureDateTime']);
       $arrivalDateTime = mysqli_real_escape_string($conn, $_POST['arrivalDateTime']);
-      mysqli_query($conn, "UPDATE tbl_transactions SET status = 'pending-pickup' WHERE transaction_id = '$transaction_id'");
+      mysqli_query($conn, "UPDATE tbl_transactions SET status = 'for-transport' WHERE transaction_id = '$transaction_id'");
       mysqli_query($conn, "UPDATE tbl_locations SET dropoff_address = '$dropoff_location' WHERE transaction_id = '$transaction_id'");
       mysqli_query($conn, "UPDATE tbl_transactions_dates SET time_departure = '$departureDateTime', time_arrival = '$arrivalDateTime'  WHERE transaction_id = '$transaction_id'");
 
@@ -353,8 +403,8 @@
 
     if(isset($_GET['approveFinalPayment'])){
       $tID = $_GET['approveFinalPayment'];
-      mysqli_query($conn, "UPDATE tbl_transactions SET status = 'pending-pickup' WHERE transaction_id = '$tID'");
-      $for_transport_success = "Successfully proceeded to next step (Pending Pickup)";
+      mysqli_query($conn, "UPDATE tbl_transactions SET status = 'for-booking' WHERE transaction_id = '$tID'");
+      $for_transport_success = "Successfully proceeded to next step (Booking Transportation)";
       header("Location: ../final_payment.php?for_transport_success=" . urldecode($for_transport_success));
     }
 

@@ -259,14 +259,8 @@
 									<td class="table-image-text"><img src="data:image/jpeg;base64,<?php echo base64_encode($get_clientRecords_result['img_profile']); ?>" alt="Client Profile Image"> <span><?php echo $get_clientRecords_result['first_name']; ?></span></td>
 									<td> <?php echo $get_date_data_results['date_approved_transport']; ?> </td>
 									<td>
-										<?php
-											if($payment_type == "Down Payment"){ ?>
-												<button class="btn-sm btn m-1 table-action-btn action-view" data-toggle="modal" data-target="#viewClientRequest" data-transaction-id="<?php echo $transactionID; ?>" onclick="viewClientRequest(this);"><i class="material-icons table-action-icon">visibility</i></button>
-												<button class="btn-sm btn m-1 table-action-btn action-approve" data-toggle="modal" data-target="#bookingAttachmentswPrice" data-client-id="<?php echo $clientID; ?>" data-transaction-id="<?php echo $transactionID; ?>" data-clientname="<?php echo $client_name; ?>" onclick="transportClientDetails_down(this)"><i class="material-icons table-action-icon">redo</i></button>
-								   <?php }  else if($payment_type == "Full Payment"){ ?>
-												<button class="btn-sm btn m-1 table-action-btn action-view" data-toggle="modal" data-target="#viewClientRequest" data-transaction-id="<?php echo $transactionID; ?>" onclick="viewClientRequest(this);"><i class="material-icons table-action-icon">visibility</i></button>
-												<button class="btn-sm btn m-1 table-action-btn action-approve" data-toggle="modal" data-target="#addBookingAttachments" data-client-id="<?php echo $clientID; ?>" data-transaction-id="<?php echo $transactionID; ?>" data-clientname="<?php echo $client_name; ?>" onclick="transportClientDetails(this)"><i class="material-icons table-action-icon">redo</i></button>
-										<?php } ?>
+										<button class="btn-sm btn m-1 table-action-btn action-view" data-toggle="modal" data-target="#viewClientRequest" data-transaction-id="<?php echo $transactionID; ?>" onclick="viewClientRequest(this);"><i class="material-icons table-action-icon">visibility</i></button>
+										<button class="btn-sm btn m-1 table-action-btn action-approve" data-toggle="modal" data-target="#addBookingAttachments" data-client-id="<?php echo $clientID; ?>" data-transaction-id="<?php echo $transactionID; ?>" data-clientname="<?php echo $client_name; ?>" onclick="transportClientDetails(this)"><i class="material-icons table-action-icon">redo</i></button>
 									</td>
 								</tr>
 							<?php } ?>
@@ -276,63 +270,6 @@
 				</div>
 			</div>
 			<!-- Pending Payments -->
-
-			<!-- ADD TRANSPORT ATTACHMENTS -->
-			<div class="modal fade" id="bookingAttachmentswPrice" tabindex="-1" role="dialog" aria-hidden="true">
-				<div class="modal-dialog modal-dialog-centered" role="document">
-					<div class="modal-content popup">
-						<div class="modal-header">
-							<h5 class="modal-title popup-title" id="exampleModalCenterTitle">Add Shipping Attachments</h5>
-							<span aria-hidden="true" data-dismiss="modal" class="modal-exit">&times;</span>
-							</button>
-						</div>
-						<form id="addBookingAttachmentsDown" action="booking.php" method="POST" autocomplete="off" enctype="multipart/form-data">
-							<div class="modal-body" style="padding-bottom: 0px;">
-								<div class="row form-modal" style="padding-right: 20px;">
-									<div class="col col-md-12 ml-auto">
-										<p class="pop-up-heading">Insert Payment Amount:</p>
-										<div class="form-group">
-											<input type="hidden" name="client_name" id="down_client_name">
-											<input type="hidden" name="client_id" id="down_client_id">
-											<input type="hidden" name="transaction_id" id="down_transaction_id">
-											<input type="text" class="form-control" required pattern="[a-zA-Z0-9\s]+" oninput="validatePaymentAmountPattern(this)" placeholder="Payment Cost..." name="f_payment_cost" id="f_payment_cost">
-										</div>
-										<p class="pop-up-heading">Specify the drop-off location:</p>
-										<div class="form-group">
-											<input type="text" name="dropoff_location" id="down_dropoff_location" placeholder="Dropoff address..." required>
-										</div>
-										<hr>
-                                        <p class="pop-up-heading">Type in expected time of departure:</p>
-                                        <div class="form-group">
-                                            <label for="departureDateTime">Time of Departure:</label>
-                                            <input type="datetime-local" class="form-control" id="down_departureDateTime" name="departureDateTime" required>
-                                        </div>
-                                        <hr>
-                                        <p class="pop-up-heading">Type in expected time of arrival:</p>
-                                        <div class="form-group">
-                                            <label for="arrivalDateTime">Time of Arrival:</label>
-                                            <input type="datetime-local" class="form-control" id="down_arrivalDateTime" name="arrivalDateTime" required>
-                                        </div>
-                                        <hr>
-										<p class="pop-up-heading">Click the button to add shippment papers and/or attachments:</p>
-										<div class="form-group">
-											<label for="imageFile">Choose Image:</label>
-                                            <input type="file" class="form-control-file" accept=".jpg, .jpeg, .png, .pdf, .docx, .xls, .xlsx" id="down_transportAttachments" name="images[]" multiple>
-
-                                        </div>
-										<input type="hidden" id="insertShipmentAttachmentsInput" name="insertBookingAttachmentsDown">
-									</div>
-									<div class="modal-footer popup-footer">
-										<button type="button" class="btn btn-secondary action-cancel" data-dismiss="modal">Close</button>
-										<button type="submit" id="shippingAttachmentsSubmit" class="btn action-view" name="insertBookingAttachmentsDown" onclick="uploadBookingAttachments_down(event)">Proceed</button>
-									</div>
-								</div>
-							</div>
-						</form>
-					</div>
-				</div>
-			</div>
-			<!-- ADD TRANSPORT ATTACHMENTS -->
 
 			<!-- ADD TRANSPORT ATTACHMENTS -->
 			<div class="modal fade" id="addBookingAttachments" tabindex="-1" role="dialog" aria-hidden="true">

@@ -572,10 +572,58 @@ function rejectFullPayment(name, tID){
 	});
 }
 
-function initiatePickup(name, tID){
+function useCustomLocation(name, tID){
+	const selectedRegion = document.getElementById("region");
+    const selectedProvince = document.getElementById("province");
+    const selectedCity = document.getElementById("city");
+    const barangayValue = document.getElementById("barangay-text").value;
+    const streetValue = document.getElementById("street-text").value;
+    const houseNumValue = document.getElementById("house_number").value;
+
+	if(selectedRegion.selectedIndex !== 0 && selectedProvince.selectedIndex !== 0 && selectedCity.selectedIndex !== 0 && barangayValue !== "" && streetValue !== "" && houseNumValue !== ""){
+		event.preventDefault();
+		Swal.fire({
+			icon: "warning",
+			html: 'Confirm Pickup Location?',
+			showCancelButton: true,
+			confirmButtonColor: '#f7941d',
+			cancelButtonColor: '#8D8D8D',
+			confirmButtonText: 'Yes',
+			cancelButtonText: 'No',
+			width: '380px',
+			customClass: {
+			popup: 'swal-popup',
+			confirmButton: 'swal-btn',
+			}
+		}).then((result) => {
+			if (result.isConfirmed) {
+				var form = document.getElementById("customLocation").submit();
+			}
+		});
+	}
+	else{
+		event.preventDefault();
+		Swal.fire({
+			icon: "warning",
+			html: 'Please fill in all the required fields?',
+			showCancelButton: false,
+			confirmButtonColor: '#8D8D8D',
+			confirmButtonText: 'Okay',
+			width: '380px',
+			customClass: {
+			popup: 'swal-popup',
+			confirmButton: 'swal-btn',
+			}
+		});
+	}
+}
+
+function initiatePickupPrompt(event){
+	const initiatePickupBTN = document.getElementById('initiatePickup');
+	event.preventDefault();
 	Swal.fire({
 		icon: "warning",
-		html: 'Are you sure you want to<br>proceed with ' + name + '\'s pickup?',
+		html: 'Confirm Pickup Location?',
 		showCancelButton: true,
 		confirmButtonColor: '#f7941d',
 		cancelButtonColor: '#8D8D8D',
@@ -588,7 +636,7 @@ function initiatePickup(name, tID){
 		}
 	}).then((result) => {
 		if (result.isConfirmed) {
-			window.location.href='processes/queries.php?initiatePickup=' + tID;
+			initiatePickupBTN.click();
 		}
 	});
 }
@@ -610,7 +658,7 @@ function reattemptPickup(name, tID){
 		}
 	}).then((result) => {
 		if (result.isConfirmed) {
-			window.location.href='processes/queries.php?initiatePickup=' + tID;
+			window.location.href='processes/queries.php?reattemptPickup=' + tID;
 		}
 	});
 }
@@ -685,7 +733,16 @@ function medicalClientDetails(button){
 	document.getElementById('medical_cName').value = cName;
 	document.getElementById('medical_cID').value = cID;
 	document.getElementById('medical_tID').value = tID;
-}
+} medicalClientDetailswPrice
+
+function medicalClientDetailswPrice(button){
+	var cName = button.getAttribute('data-clientname');
+	var cID = button.getAttribute('data-client-id');
+	var tID = button.getAttribute('data-transaction-id');
+	document.getElementById('pmedical_cName').value = cName;
+	document.getElementById('pmedical_cID').value = cID;
+	document.getElementById('pmedical_tID').value = tID;
+} 
 
 function documentsClientDetails(button){
 	var cName = button.getAttribute('data-clientname');
@@ -739,16 +796,36 @@ function uploadDocumentsAttachments(event){
     }
 }
 
-function uploadMedicalAttachments(event){
-	var medicalAttachments = document.getElementById("medicalAttachments").files;
-	var client_name = document.getElementById("medical_cName").value;
-	var transaction_id = document.getElementById("medical_tID").value;
+function uploadMedicalAttachmentswPrice(event){
+	var medicalAttachments = document.getElementById("pmedicalAttachments").files;
+	var client_name = document.getElementById("pmedical_cName").value;
+	var transaction_id = document.getElementById("pmedical_tID").value;
+	var final_cost = document.getElementById("f_payment_cost").value;
 
-    if (medicalAttachments.length === 0) {
+    if (medicalAttachments.length === 0 || final_cost == "") {
 		event.preventDefault();
         Swal.fire({
             icon: "warning",
-            html: 'Are you sure you want to complete this medical procedure for ' + client_name + '\'s animal without attachments?<br>' + transaction_id,
+            html: 'Final price and medical attachments are required',
+            showCancelButton: false,
+            confirmButtonColor: '#8D8D8D',
+            confirmButtonText: 'Okay',
+            width: '380px',
+            customClass: {
+                popup: 'swal-popup',
+                confirmButton: 'swal-btn',
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                //do nothing
+            }
+        });
+	} 
+    else {
+        event.preventDefault();
+        Swal.fire({
+            icon: "warning",
+            html: 'Are you sure you want to complete this medical procedure for ' + client_name + '\'s animal?<br>',
             showCancelButton: true,
             confirmButtonColor: '#f7941d',
             cancelButtonColor: '#8D8D8D',
@@ -761,7 +838,33 @@ function uploadMedicalAttachments(event){
             }
         }).then((result) => {
             if (result.isConfirmed) {
-                var form = document.getElementById("medicalAttachmentsForm").submit();
+                var form = document.getElementById("medicalAttachmentsFormwPrice").submit();
+            }
+        });
+    }
+}
+
+function uploadMedicalAttachments(event){
+	var medicalAttachments = document.getElementById("medicalAttachments").files;
+	var client_name = document.getElementById("medical_cName").value;
+	var transaction_id = document.getElementById("medical_tID").value;
+
+    if (medicalAttachments.length === 0) {
+		event.preventDefault();
+        Swal.fire({
+            icon: "warning",
+            html: 'Medical attachments are required',
+            showCancelButton: false,
+            confirmButtonColor: '#8D8D8D',
+            confirmButtonText: 'Okay',
+            width: '380px',
+            customClass: {
+                popup: 'swal-popup',
+                confirmButton: 'swal-btn',
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                //do nothing
             }
         });
 	} 
@@ -769,7 +872,7 @@ function uploadMedicalAttachments(event){
         event.preventDefault();
         Swal.fire({
             icon: "warning",
-            html: 'Are you sure you want to complete this medical procedure for ' + client_name + '\'s animal?<br>' + transaction_id,
+            html: 'Are you sure you want to complete this medical procedure for ' + client_name + '\'s animal?<br>',
             showCancelButton: true,
             confirmButtonColor: '#f7941d',
             cancelButtonColor: '#8D8D8D',

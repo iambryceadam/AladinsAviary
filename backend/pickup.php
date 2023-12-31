@@ -254,7 +254,7 @@
 								<tr>
 									<td><?php echo $transactionID; ?></td>
 									<td class="table-image-text"><img src="data:image/jpeg;base64,<?php echo base64_encode($get_clientRecords_result['img_profile']); ?>" alt="Client Profile Image"> <span><?php echo $get_clientRecords_result['first_name']; ?></span></td>
-									<td><?php echo $get_location_details_results['house_number'] . ' ' . $get_location_details_results['street'] . ' ' . $get_location_details_results['barangay'] . ' ' . $get_location_details_results['city'] . ' ' . $get_location_details_results['province'] . ' ' . $get_location_details_results['region']?></td>
+									<td>Available for negotiation</td>
 									<?php
 										if($paymentType == "Down Payment"){
 											echo '<td>' . $get_date_data_results['date_initial_approved'] . '</td>';
@@ -264,7 +264,8 @@
 									?>
 									<td>
 										<button class="btn-sm btn m-1 table-action-btn action-view" data-toggle="modal" data-target="#viewClientRequest" data-transaction-id="<?php echo $transactionID; ?>" onclick="viewClientRequest(this);"><i class="material-icons table-action-icon">visibility</i></button>
-										<button class="btn-sm btn m-1 table-action-btn action-approve" onclick="initiatePickup('<?php echo $client_name; ?>', '<?php echo $transactionID; ?>')"><i class="material-icons table-action-icon">thumb_up</i></button>
+										<button class="btn-sm btn m-1 table-action-btn action-approve" data-toggle="modal" data-target="#pickupModal" data-transaction-id="<?php echo $transactionID; ?>" onclick="costClientDetails(this);"><i class="material-icons table-action-icon">thumb_up</i></button>
+										<!-- <button class="btn-sm btn m-1 table-action-btn action-approve" onclick="initiatePickup('<?php echo $client_name; ?>', '<?php echo $transactionID; ?>')"><i class="material-icons table-action-icon">thumb_up</i></button> -->
 										<button class="btn-sm btn m-1 table-action-btn action-deny" data-client-id="<?php echo $clientID; ?>" data-transaction-id="<?php echo $transactionID; ?>" data-clientname="<?php echo $client_name; ?>" onclick="rejectRequest('<?php echo $client_name; ?>', '<?php echo $transactionID; ?>')"><i class="material-icons table-action-icon">thumb_down</i></button>
 									</td>
 								</tr>
@@ -479,7 +480,7 @@
 					</div>
 				</div>
 			</div>
-			<!-- Unsuccessful Pickups -->
+			<!-- Unsuccessful Pickups --> 
 
 			<!-- Reason For Cancellation -->
 			<div class="modal fade" id="cancelTransaction" tabindex="-1" role="dialog" aria-hidden="true">
@@ -515,7 +516,73 @@
 					</div>
 				</div>
 			</div>
-			<!-- Reason For Cancellation -->
+			<!-- Reason For Cancellation --> 
+
+			<div class="modal fade" id="pickupModal" tabindex="-1" role="dialog" aria-hidden="true">
+				<div class="modal-dialog modal-dialog-centered" role="document">
+					<div class="modal-content popup">
+						<div class="modal-header">
+							<h5 class="modal-title popup-title" id="exampleModalCenterTitle">Input Pickup Location</h5>
+							<span aria-hidden="true" data-dismiss="modal" class="modal-exit">&times;</span>
+							</button>
+						</div>
+						<form id="customLocation" action="processes/queries.php" method="POST" autocomplete="off" enctype="multipart/form-data">
+							<input type="hidden" id="e_admin_id" name="e_admin_id">
+							<div class="modal-body" style="padding-bottom: 0px;">
+								<div class="row form-modal" style="padding-right: 20px;">
+									<div class="col col-md-12 ml-auto">
+										<div class="pop-up-prompt" id="update_admin_error"></div>
+										<div class="row mb-3 ml-auto">
+											<p class="pop-up-heading">Select the pickup location or use the sender's address with a button click:</p>
+											<input type="hidden" name="client_name" id="client_name">
+											<input type="hidden" name="client_id" id="client_id">
+											<input type="hidden" name="transaction_id" id="transaction_id">
+										</div>
+										<hr>
+										<div class="">
+											<label class="form-label">Region *</label>
+											<select name="region" class="form-control form-control-md" id="region"></select>
+											<input type="hidden" class="form-control form-control-md" name="region_text" id="region-text" required>
+										</div>
+										<div class="">
+											<label class="form-label">Province *</label>
+											<select name="province" class="form-control form-control-md" id="province"></select>
+											<input type="hidden" class="form-control form-control-md" name="province_text" id="province-text" required>
+										</div>
+										<div class="">
+											<label class="form-label">City / Municipality *</label>
+											<select name="city" class="form-control form-control-md" id="city"></select>
+											<input type="hidden" class="form-control form-control-md" name="city_text" id="city-text" required>
+										</div>
+										<div class="">
+											<label class="form-label">Barangay *</label>
+											<select name="barangay" class="form-control form-control-md" id="barangay"></select>
+											<input type="hidden" class="form-control form-control-md" name="barangay_text" id="barangay-text" required>
+										</div>
+										<div class="">
+											<label for="street-text" class="form-label">Street *</label>
+											<input type="text" class="form-control form-control-md" name="street_text" id="street-text">
+										</div>
+										<div class="">
+											<label for="house_number" class="form-label">House Number *</label>
+											<input type="text" class="form-control form-control-md" name="house_number" id="house_number">
+										</div>
+									</div>
+									<input type="hidden" id="initiatePickupInput" name="initiatePickup">
+									
+
+									<div class="modal-footer popup-footer">
+										<button type="button" class="btn btn-secondary action-cancel" data-dismiss="modal">Close</button>
+										<button type="submit" id="customPickup" class="btn action-view" name="customPickup" onclick="useCustomLocation(event)">Confirm</button>
+										<button type="submit" id="initiatePickupPromptBTN" class="btn action-view" name="initiatePickupPromptBTN" onclick="initiatePickupPrompt(event)">Use Sender's Location</button>
+										<button type="hidden" style="display: none;" id="initiatePickup" class="btn action-view" name="initiatePickup" onclick="initiatePickup(event)"></button>
+									</div>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
 
 			<!-- Pickup -->
 			<!-- MODAL TRANSACTION VIEWER -->
@@ -546,5 +613,6 @@
 	<!-- External JavaScript -->
 	<!-- SweetAlert -->
 	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+	<script src="ph-address-selector.js"></script>
 	<!-- SweetAlert -->
 </html>
