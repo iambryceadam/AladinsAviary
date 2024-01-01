@@ -234,7 +234,12 @@
 
 									$getReasonForCancellation = mysqli_query($conn, "SELECT * FROM tbl_cancelled_transactions WHERE transaction_id = '$transactionID'");
 									$reasonForCancellationResult = mysqli_fetch_array($getReasonForCancellation);
-									$reason_for_cancellation = $reasonForCancellationResult['reason_for_cancellation'];
+
+									if(!$reasonForCancellationResult){
+										$reason_for_cancellation = 'No cancellation reason provided';
+									} else{
+										$reason_for_cancellation = $reasonForCancellationResult['reason_for_cancellation'];
+									}
 
 									$get_breed_id = mysqli_query($conn, "SELECT breed_id FROM tbl_animals WHERE transaction_id = '$transactionID'");
 									$breed_id_result = mysqli_fetch_assoc($get_breed_id);

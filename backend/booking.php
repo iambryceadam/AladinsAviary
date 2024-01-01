@@ -278,7 +278,6 @@
 						<div class="modal-header">
 							<h5 class="modal-title popup-title" id="exampleModalCenterTitle">Add Shipping Attachments</h5>
 							<span aria-hidden="true" data-dismiss="modal" class="modal-exit">&times;</span>
-							</button>
 						</div>
 						<form id="transportAttachmentsForm" action="booking.php" method="POST" autocomplete="off" enctype="multipart/form-data">
 							<div class="modal-body" style="padding-bottom: 0px;">

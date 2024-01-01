@@ -437,34 +437,54 @@ function closeImageModal() {
 }
 
 function getTransactionStatusText(status) {
-    switch (status) {
-        case 'for-approval':
-            return 'Pending For Approval';
-        case 'for-cancellation':
-            return 'Pending For Cancellation';
-        case 'cancelled':
-            return 'Cancelled';
-        case 'for-downpayment':
-            return 'Payment pending for approval';
-        case 'downpayment-approved':
-            return 'Down Payment Approved';
-        case 'for-pickup':
-            return 'For Pickup';
-        case 'for-medical':
-            return 'For Medical';
-        case 'for-payment':
-            return 'Payment pending for approval';
-        case 'payment-approved':
-            return 'Payment Approved';
-        case 'for-transport':
-            return 'For Transport';
-        case 'for-receiving':
-            return 'For Receiving';
-        case 'completed':
-            return 'Completed';
-        default:
-            return '';
-    }
+    function getStatusLabelText(status) {
+		switch (status) {
+			case 'for-approval':
+				return 'Pending For Approval';
+			case 'for-downpayment':
+				return 'Awaiting your Down Payment';
+			case 'for-payment':
+				return 'Awaiting your Payment';
+			case 'i-receipt-submitted':
+				return 'Initial Payment Receipt Submitted';
+			case 'f-receipt-submitted':
+				return 'Payment Receipt Submitted';
+			case 'i-receipt-reattempt':
+				return 'Initial Payment Receipt Invalid';
+			case 'f-receipt-reattempt':
+				return 'Payment Receipt Invalid';
+			case 'pending-pickup':
+				return 'Pending for Pickup';
+			case 'for-pickup':
+				return 'Ready for Pickup';
+			case 'pickup-success':
+				return 'Pickup Successful';
+			case 'pickup-unsuccessful':
+				return 'Pickup Unsuccessful';
+			case 'ongoing-medical':
+				return 'Ongoing Medical Processing';
+			case 'for-booking':
+				return 'Currently being Booked';
+			case 'for-transport':
+				return 'Transporting to Destination';
+			case 'for-receiving':
+				return 'Animal Ready to be Received';
+			case 'completed':
+				return 'Transaction Completed';
+			case 'for-cancellation':
+				return 'Reviewing Cancellation';
+			case 'pending-return':
+				return 'Pending for Return';
+			case 'for-return':
+				return 'On Transit back to the sender';
+			case 'confirmation-return':
+				return 'Awaiting Return Confirmation';
+			case 'Cancelled':
+				return 'Transaction Cancelled';
+			default:
+				return '404 STATUS';
+		}
+	}
 }
 
 function approveInitialPayment(name, tID){
@@ -584,7 +604,7 @@ function useCustomLocation(name, tID){
 		event.preventDefault();
 		Swal.fire({
 			icon: "warning",
-			html: 'Confirm Pickup Location?',
+			html: 'Confirm Customized Pickup Location?',
 			showCancelButton: true,
 			confirmButtonColor: '#f7941d',
 			cancelButtonColor: '#8D8D8D',

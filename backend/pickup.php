@@ -568,9 +568,8 @@
 											<input type="text" class="form-control form-control-md" name="house_number" id="house_number">
 										</div>
 									</div>
-									<input type="hidden" id="initiatePickupInput" name="initiatePickup">
+									<input type="hidden" id="customPickupInput" name="customPickup">
 									
-
 									<div class="modal-footer popup-footer">
 										<button type="button" class="btn btn-secondary action-cancel" data-dismiss="modal">Close</button>
 										<button type="submit" id="customPickup" class="btn action-view" name="customPickup" onclick="useCustomLocation(event)">Confirm</button>
