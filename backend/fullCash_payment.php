@@ -265,14 +265,18 @@
 									$get_animalRecords_result = mysqli_fetch_array($get_animalRecords);
 
 									$get_date_data = mysqli_query($conn, "SELECT * FROM tbl_transactions_dates WHERE transaction_id = '$transactionID'");
-									$get_date_data_results = mysqli_fetch_array($get_date_data);
+									$get_date_data_results = mysqli_fetch_assoc($get_date_data);
+									preg_match_all('/Approved-(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})/', $get_date_data_results['other_transaction_dates'], $matches);
+									$lastSubmittedDateTime = end($matches[1]);
+									$dateTimeObj = new DateTime($lastSubmittedDateTime);
+									$formattedDateTime = $dateTimeObj->format('Y-m-d');
 								
 								?>
 								<tr>
 									<td><?php echo $transactionID; ?></td>
 									<td class="table-image-text"><img src="data:image/jpeg;base64,<?php echo base64_encode($get_clientRecords_result['img_profile']); ?>" alt="Client Profile Image"> <span><?php echo $get_clientRecords_result['first_name']; ?></span></td>
 									<td><?php echo $paymentMethod; ?></td>
-									<td><?php echo $get_date_data_results['date_approved'] ?></td>
+									<td><?php echo $formattedDateTime ?></td>
 									<td>
 									<button class="btn-sm btn m-1 table-action-btn action-view" data-toggle="modal" data-target="#viewClientRequest" data-transaction-id="<?php echo $transactionID; ?>" onclick="viewClientRequest(this);"><i class="material-icons table-action-icon">visibility</i></button>
 									</td>
@@ -352,14 +356,18 @@
 									$get_animalRecords_result = mysqli_fetch_array($get_animalRecords);
 
 									$get_date_data = mysqli_query($conn, "SELECT * FROM tbl_transactions_dates WHERE transaction_id = '$transactionID'");
-									$get_date_data_results = mysqli_fetch_array($get_date_data);
+									$get_date_data_results = mysqli_fetch_assoc($get_date_data);
+									preg_match_all('/Payment Submitted-(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})/', $get_date_data_results['other_transaction_dates'], $matches);
+									$lastSubmittedDateTime = end($matches[1]);
+									$dateTimeObj = new DateTime($lastSubmittedDateTime);
+									$formattedDateTime = $dateTimeObj->format('Y-m-d');
 								
 								?>
 								<tr>
 									<td><?php echo $transactionID; ?></td>
 									<td class="table-image-text"><img src="data:image/jpeg;base64,<?php echo base64_encode($get_clientRecords_result['img_profile']); ?>" alt="Client Profile Image"> <span><?php echo $get_clientRecords_result['first_name']; ?></span></td>
 									<td><?php echo $paymentMethod; ?></td>
-									<td><?php echo $get_date_data_results['date_approved'] ?></td>
+									<td><?php echo $formattedDateTime ?></td>
 									<td>
 										<button class="btn-sm btn m-1 table-action-btn action-view" data-toggle="modal" data-target="#viewClientRequest" data-transaction-id="<?php echo $transactionID; ?>" onclick="viewClientRequest(this);"><i class="material-icons table-action-icon">visibility</i></button>
 										<button class="btn-sm btn m-1 table-action-btn action-approve" onclick="approvePayment('<?php echo $client_name ?>' , '<?php echo $transactionID; ?>')"><i class="material-icons table-action-icon">thumb_up</i></button>
@@ -442,14 +450,18 @@
 									$get_animalRecords_result = mysqli_fetch_array($get_animalRecords);
 
 									$get_date_data = mysqli_query($conn, "SELECT * FROM tbl_transactions_dates WHERE transaction_id = '$transactionID'");
-									$get_date_data_results = mysqli_fetch_array($get_date_data);
+									$get_date_data_results = mysqli_fetch_assoc($get_date_data);
+									preg_match_all('/Payment Rejected-(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})/', $get_date_data_results['other_transaction_dates'], $matches);
+									$lastSubmittedDateTime = end($matches[1]);
+									$dateTimeObj = new DateTime($lastSubmittedDateTime);
+									$formattedDateTime = $dateTimeObj->format('Y-m-d');
 								
 								?>
 								<tr>
 									<td><?php echo $transactionID; ?></td>
 									<td class="table-image-text"><img src="data:image/jpeg;base64,<?php echo base64_encode($get_clientRecords_result['img_profile']); ?>" alt="Client Profile Image"> <span><?php echo $get_clientRecords_result['first_name']; ?></span></td>
 									<td><?php echo $paymentMethod; ?></td>
-									<td><?php echo $get_date_data_results['date_approved'] ?></td>
+									<td><?php echo $formattedDateTime ?></td>
 									<td>
 										<button class="btn-sm btn m-1 table-action-btn action-view" data-toggle="modal" data-target="#viewClientRequest" data-transaction-id="<?php echo $transactionID; ?>" onclick="viewClientRequest(this);"><i class="material-icons table-action-icon">visibility</i></button>
 										<button class="btn-sm btn m-1 table-action-btn action-deny" data-toggle="modal" data-target="#cancelTransaction" data-client-id="<?php echo $clientID; ?>" data-transaction-id="<?php echo $transactionID; ?>" data-clientname="<?php echo $client_name; ?>" onclick="cancelClientDetails(this)"><i class="material-icons table-action-icon">cancel</i></button>

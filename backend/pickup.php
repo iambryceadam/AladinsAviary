@@ -249,7 +249,16 @@
 									$get_dateRecords_result = mysqli_fetch_array($get_dateRecords);
 
 									$get_date_data = mysqli_query($conn, "SELECT * FROM tbl_transactions_dates WHERE transaction_id = '$transactionID'");
-									$get_date_data_results = mysqli_fetch_array($get_date_data);
+									$get_date_data_results = mysqli_fetch_assoc($get_date_data);
+									preg_match_all('/Initial Payment Approved-(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})/', $get_date_data_results['other_transaction_dates'], $IP_matches);
+									$lastSubmittedDateTime_IP = end($IP_matches[1]);
+									$dateTimeObj_IP = new DateTime($lastSubmittedDateTime_IP);
+									$formattedDateTime_IP = $dateTimeObj_IP->format('Y-m-d');
+
+									preg_match_all('/Payment Approved-(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})/', $get_date_data_results['other_transaction_dates'], $FullP_matches);
+									$lastSubmittedDateTime_FullP = end($FullP_matches[1]);
+									$dateTimeObj_FullP = new DateTime($lastSubmittedDateTime_FullP);
+									$formattedDateTime_FullP = $dateTimeObj_FullP->format('Y-m-d');
 								?>
 								<tr>
 									<td><?php echo $transactionID; ?></td>
@@ -257,9 +266,9 @@
 									<td><?php echo $get_location_details_results['house_number'] . ' ' . $get_location_details_results['street'] . ' ' . $get_location_details_results['barangay'] . ' ' . $get_location_details_results['city'] . ' ' . $get_location_details_results['province'] . ' ' . $get_location_details_results['region']?></td>
 									<?php
 										if($paymentType == "Down Payment"){
-											echo '<td>' . $get_date_data_results['date_initial_approved'] . '</td>';
+											echo '<td>' . $formattedDateTime_IP . '</td>';
 										} else if($paymentType == "Full Payment"){
-											echo '<td>' . $get_date_data_results['date_final_approved'] . '</td>';
+											echo '<td>' . $formattedDateTime_FullP . '</td>';
 										}
 									?>
 									<td>
@@ -393,13 +402,17 @@
 									$get_dateRecords_result = mysqli_fetch_array($get_dateRecords);
 
 									$get_date_data = mysqli_query($conn, "SELECT * FROM tbl_transactions_dates WHERE transaction_id = '$transactionID'");
-									$get_date_data_results = mysqli_fetch_array($get_date_data);
+									$get_date_data_results = mysqli_fetch_assoc($get_date_data);
+									preg_match_all('/Pickup Successful-(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})/', $get_date_data_results['other_transaction_dates'], $matches);
+									$lastSubmittedDateTime = end($matches[1]);
+									$dateTimeObj = new DateTime($lastSubmittedDateTime);
+									$formattedDateTime = $dateTimeObj->format('Y-m-d');
 								?>
 								<tr>
 									<td><?php echo $transactionID; ?></td>
 									<td class="table-image-text"><img src="data:image/jpeg;base64,<?php echo base64_encode($get_clientRecords_result['img_profile']); ?>" alt="Client Profile Image"> <span><?php echo $get_clientRecords_result['first_name']; ?></span></td>
 									<td><?php echo $get_location_details_results['house_number'] . ' ' . $get_location_details_results['street'] . ' ' . $get_location_details_results['barangay'] . ' ' . $get_location_details_results['city'] . ' ' . $get_location_details_results['province'] . ' ' . $get_location_details_results['region']?></td>
-									<td> <?php echo $get_date_data_results['date_picked_up']; ?> </td>
+									<td> <?php echo $formattedDateTime ?> </td>
 									<td>
 										<button class="btn-sm btn m-1 table-action-btn action-view" data-toggle="modal" data-target="#viewClientRequest" data-transaction-id="<?php echo $transactionID; ?>" onclick="viewClientRequest(this);"><i class="material-icons table-action-icon">visibility</i></button>
 										<button class="btn-sm btn m-1 table-action-btn action-approve" onclick="proceedForMedical('<?php echo $client_name; ?>', '<?php echo $transactionID; ?>')"><i class="material-icons table-action-icon">thumb_up</i></button>

@@ -246,13 +246,17 @@
 									$get_dateRecords_result = mysqli_fetch_array($get_dateRecords);
 
 									$get_date_data = mysqli_query($conn, "SELECT * FROM tbl_transactions_dates WHERE transaction_id = '$transactionID'");
-									$get_date_data_results = mysqli_fetch_array($get_date_data);
+									$get_date_data_results = mysqli_fetch_assoc($get_date_data);
+									preg_match_all('/Cancellation Approved-(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})/', $get_date_data_results['other_transaction_dates'], $matches);
+									$lastSubmittedDateTime = end($matches[1]);
+									$dateTimeObj = new DateTime($lastSubmittedDateTime);
+									$formattedDateTime = $dateTimeObj->format('Y-m-d');
 								?>
 								<tr>
 									<td><?php echo $transactionID ?></td>
 									<td class="table-image-text"><img src="data:image/jpeg;base64,<?php echo base64_encode($get_clientRecords_result['img_profile']); ?>" alt="Client Profile Image"> <span><?php echo $get_clientRecords_result['first_name']; ?></span></td>
 									<td><?php echo $get_location_details_results['return_location']; ?></td>
-									<td><?php echo $get_date_data_results['date_filed_request']; ?></td>
+									<td><?php echo $formattedDateTime ?></td>
 									<td>
 										<button class="btn-sm btn m-1 table-action-btn action-view" data-toggle="modal" data-target="#viewClientRequest" data-transaction-id="<?php echo $transactionID; ?>" onclick="viewClientRequest(this);"><i class="material-icons table-action-icon">visibility</i></button>
 										<button class="btn-sm btn m-1 table-action-btn action-approve" onclick="proceedForReturn('<?php echo $client_name; ?>', '<?php echo $transactionID; ?>')"><i class="material-icons table-action-icon">thumb_up</i></button>
@@ -399,71 +403,6 @@
 				</div>
 			</div>
 			<!-- Unsuccessful Returns -->
-
-			<div class="card table-card">
-				<div class="card-body table-card-body">
-					<h4 class="card-title table-card-title">Successful Return</h4>
-					<p class="card-description table-card-description">
-						Transactions from this record has been successfully returned by the receiving end. Awaiting approval to cancel the transaction
-					</p>
-					<form action="#">
-						<div class="form-group">
-							<input type="text" placeholder="Search" id="table-search">
-							<i class='bx bx-search icon'></i>
-						</div>
-					</form>
-					<div class="table-responsive">
-						<table class="table table-sm table-hover table-striped table-bordered table-light">
-							<thead>
-								<tr>
-									<th>Transaction ID</th>
-									<th>Client</th>
-									<th>Pickup From</th>
-									<th>Actions</th>
-								</tr>
-							</thead>
-							<tbody>
-							<?php 
-								while($get_return_confirmed_results = mysqli_fetch_assoc($get_return_confirmed)){
-									$transactionID = $get_return_confirmed_results['transaction_id'];
-									$clientID = $get_return_confirmed_results['client_id'];
-									$dateID = $get_return_confirmed_results['date_id'];
-									$locationID = $get_return_confirmed_results['location_id'];
-									$paymentID = $get_return_confirmed_results['payment_id'];
-
-									$get_pickup_location_id = mysqli_query($conn, "SELECT * FROM tbl_locations WHERE transaction_id = '$transactionID'");
-									$get_pickup_location_id_result = mysqli_fetch_assoc($get_pickup_location_id);
-									$pickup_location_id = $get_pickup_location_id_result['pickup_location_id'];
-									
-									$get_location_details = mysqli_query($conn, "SELECT * FROM tbl_locations WHERE transaction_id = '$transactionID'");
-									$get_location_details_results = mysqli_fetch_assoc($get_location_details);
-
-									$get_clientRecords = mysqli_query($conn, "SELECT * FROM tbl_clients WHERE client_id = '$clientID'");
-									$get_clientRecords_result = mysqli_fetch_array($get_clientRecords);
-									$client_name = $get_clientRecords_result['first_name'];
-
-									$get_dateRecords = mysqli_query($conn, "SELECT * FROM tbl_transactions_dates WHERE date_id = '$dateID'");
-									$get_dateRecords_result = mysqli_fetch_array($get_dateRecords);
-
-									$get_date_data = mysqli_query($conn, "SELECT * FROM tbl_transactions_dates WHERE transaction_id = '$transactionID'");
-									$get_date_data_results = mysqli_fetch_array($get_date_data);
-								?>
-								<tr>
-									<td><?php echo $transactionID ?></td>
-									<td class="table-image-text"><img src="data:image/jpeg;base64,<?php echo base64_encode($get_clientRecords_result['img_profile']); ?>" alt="Client Profile Image"> <span><?php echo $get_clientRecords_result['first_name']; ?></span></td>
-									<td><?php echo $get_location_details_results['return_location']; ?></td>
-									<td>
-										<button class="btn-sm btn m-1 table-action-btn action-view" data-toggle="modal" data-target="#viewClientRequest" data-transaction-id="<?php echo $transactionID; ?>" onclick="viewClientRequest(this);"><i class="material-icons table-action-icon">visibility</i></button>
-										<button class="btn-sm btn m-1 table-action-btn action-approve" onclick="finishReturn('<?php echo $client_name; ?>', '<?php echo $transactionID; ?>')"><i class="material-icons table-action-icon">thumb_up</i></button>
-										<!-- <button class="btn-sm btn m-1 table-action-btn action-deny"><i class="material-icons table-action-icon">thumb_down</i></button> -->
-									</td>
-								</tr>
-							<?php } ?>
-							</tbody>
-						</table>
-					</div>
-				</div>
-			</div>
 
 			<!-- MODAL TRANSACTION VIEWER -->
 			<div class="modal fade" id="viewClientRequest" tabindex="-1" role="dialog" aria-hidden="true">

@@ -239,15 +239,19 @@
 									$get_clientRecords_result = mysqli_fetch_array($get_clientRecords);
 									$client_name = $get_clientRecords_result['first_name'];
 
-									$get_dateRecords = mysqli_query($conn, "SELECT * FROM tbl_transactions_dates WHERE date_id = '$dateID'");
-									$get_dateRecords_result = mysqli_fetch_array($get_dateRecords);
+									$get_date_data = mysqli_query($conn, "SELECT * FROM tbl_transactions_dates WHERE transaction_id = '$transactionID'");
+									$get_date_data_results = mysqli_fetch_assoc($get_date_data);
+									preg_match_all('/Applied Cancellation-(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})/', $get_date_data_results['other_transaction_dates'], $matches);
+									$lastSubmittedDateTime = end($matches[1]);
+									$dateTimeObj = new DateTime($lastSubmittedDateTime);
+									$formattedDateTime = $dateTimeObj->format('Y-m-d');
 								?>
 									<tr>
 										<td><?php echo $transactionID; ?></td>
 										<td class="table-image-text"><img src="data:image/jpeg;base64,<?php echo base64_encode($get_clientRecords_result['img_profile']); ?>" alt="Client Profile Image"> <span><?php echo $get_clientRecords_result['first_name']; ?></span></td>
 										<td><?php echo $reason_for_cancellation ?></td>
 										<td><?php echo $previous_status; ?></td>
-										<td><?php echo $get_dateRecords_result['date_filed_request']; ?></td>
+										<td><?php echo $formattedDateTime ?></td>
 										<td>
 											<button class="btn-sm btn m-1 table-action-btn action-view" data-toggle="modal" data-target="#viewClientRequest" data-transaction-id="<?php echo $transactionID; ?>" onclick="viewClientRequest(this);"><i class="material-icons table-action-icon">visibility</i></button>
 											<?php if($previous_status == 'for-approval' || $previous_status == 'for-downpayment' || $previous_status == 'i-receipt-submitted' || $previous_status == 'i-receipt-reattempt' || $previous_status == 'pending-pickup' || $previous_status == 'for-pickup' || $previous_status == 'pickup-unsuccessful' || ($previous_status == 'for-payment' && $payment_type == 'Full Payment') || ($previous_status == 'f-receipt-submitted' && $payment_type == 'Full Payment') || ($previous_status == 'f-receipt-reattempt' && $payment_type == 'Full Payment')){ ?>

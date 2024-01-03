@@ -678,27 +678,6 @@ function proceedForMedical(name, tID){
 	});
 }
 
-function ongoingMedical(name, tID){
-	Swal.fire({
-		icon: "warning",
-		html: 'Are you sure you want to<br>continue ' + name + '\'s animal\'s medical procedure?',
-		showCancelButton: true,
-		confirmButtonColor: '#f7941d',
-		cancelButtonColor: '#8D8D8D',
-		confirmButtonText: 'Yes',
-		cancelButtonText: 'No',
-		width: '380px',
-		customClass: {
-		  popup: 'swal-popup',
-		  confirmButton: 'swal-btn',
-		}
-	}).then((result) => {
-		if (result.isConfirmed) {
-			window.location.href='processes/queries.php?ongoingMedical=' + tID;
-		}
-	});
-}
-
 function medicalClientDetails(button){
 	var cName = button.getAttribute('data-clientname');
 	var cID = button.getAttribute('data-client-id');
@@ -706,15 +685,6 @@ function medicalClientDetails(button){
 	document.getElementById('medical_cName').value = cName;
 	document.getElementById('medical_cID').value = cID;
 	document.getElementById('medical_tID').value = tID;
-} medicalClientDetailswPrice
-
-function medicalClientDetailswPrice(button){
-	var cName = button.getAttribute('data-clientname');
-	var cID = button.getAttribute('data-client-id');
-	var tID = button.getAttribute('data-transaction-id');
-	document.getElementById('pmedical_cName').value = cName;
-	document.getElementById('pmedical_cID').value = cID;
-	document.getElementById('pmedical_tID').value = tID;
 } 
 
 function documentsClientDetails(button){
@@ -764,54 +734,6 @@ function uploadDocumentsAttachments(event){
         }).then((result) => {
             if (result.isConfirmed) {
                 var form = document.getElementById("documentAttachmentsForm").submit();
-            }
-        });
-    }
-}
-
-function uploadMedicalAttachmentswPrice(event){
-	var medicalAttachments = document.getElementById("pmedicalAttachments").files;
-	var client_name = document.getElementById("pmedical_cName").value;
-	var transaction_id = document.getElementById("pmedical_tID").value;
-	var final_cost = document.getElementById("f_payment_cost").value;
-
-    if (medicalAttachments.length === 0 || final_cost == "") {
-		event.preventDefault();
-        Swal.fire({
-            icon: "warning",
-            html: 'Final price and medical attachments are required',
-            showCancelButton: false,
-            confirmButtonColor: '#8D8D8D',
-            confirmButtonText: 'Okay',
-            width: '380px',
-            customClass: {
-                popup: 'swal-popup',
-                confirmButton: 'swal-btn',
-            }
-        }).then((result) => {
-            if (result.isConfirmed) {
-                //do nothing
-            }
-        });
-	} 
-    else {
-        event.preventDefault();
-        Swal.fire({
-            icon: "warning",
-            html: 'Are you sure you want to complete this medical procedure for ' + client_name + '\'s animal?<br>',
-            showCancelButton: true,
-            confirmButtonColor: '#f7941d',
-            cancelButtonColor: '#8D8D8D',
-            confirmButtonText: 'Yes',
-            cancelButtonText: 'No',
-            width: '380px',
-            customClass: {
-                popup: 'swal-popup',
-                confirmButton: 'swal-btn',
-            }
-        }).then((result) => {
-            if (result.isConfirmed) {
-                var form = document.getElementById("medicalAttachmentsFormwPrice").submit();
             }
         });
     }

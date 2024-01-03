@@ -57,6 +57,8 @@
     if(isset($_POST['insertPaymentCost'])){
       $i_payment_cost = mysqli_real_escape_string($conn, $_POST['i_payment_cost']);
       $transaction_id = mysqli_real_escape_string($conn, $_POST['transaction_id']);
+      $numeric_payment_format = floatval($i_payment_cost);
+      $divided_cost = $numeric_payment_format/2;
 
       $get_payment_type = mysqli_query($conn, "SELECT payment_type FROM tbl_payments WHERE transaction_id = '$transaction_id'");
       $payment_type_result = mysqli_fetch_assoc($get_payment_type);
@@ -64,21 +66,23 @@
 
       if($payment_type == "Down Payment"){
         mysqli_query($conn, "UPDATE tbl_transactions SET status = 'for-downpayment' WHERE transaction_id = '$transaction_id'");
-        mysqli_query($conn, "UPDATE tbl_payments SET initial_payment_cost = $i_payment_cost WHERE transaction_id = '$transaction_id'");
-        $transaction_approved_succes = "Successfully approved transaction";
-        header("Location: requests.php?transaction_approved_success=". urldecode($transaction_approved_succes));
+        mysqli_query($conn, "UPDATE tbl_payments SET initial_payment_cost = $divided_cost, final_payment_cost = $divided_cost WHERE transaction_id = '$transaction_id'");
       } else if($payment_type == "Full Payment"){
         mysqli_query($conn, "UPDATE tbl_transactions SET status = 'for-payment' WHERE transaction_id = '$transaction_id'");
         mysqli_query($conn, "UPDATE tbl_payments SET final_payment_cost = $i_payment_cost WHERE transaction_id = '$transaction_id'");
-        $transaction_approved_succes = "Successfully approved transaction";
-        header("Location: requests.php?transaction_approved_success=". urldecode($transaction_approved_succes));
       }
+      mysqli_query($conn, "UPDATE tbl_transactions_dates SET other_transaction_dates = CONCAT('Approved-', NOW()) WHERE transaction_id = '$transaction_id'");
+      // mysqli_query($conn, "UPDATE tbl_transactions_dates SET other_transaction_dates = 'Approved-', NOW() WHERE transaction_id = '$transaction_id'");
+      // mysqli_query($conn, "UPDATE tbl_transactions_dates SET other_transaction_dates = CONCAT(other_transaction_dates, ',', 'Approved-', NOW()) WHERE transaction_id = '$transaction_id'");
+      $transaction_approved_succes = "Successfully approved transaction";
+      header("Location: requests.php?transaction_approved_success=". urldecode($transaction_approved_succes));
     }
 
     if(isset($_GET['approveInitialPayment'])){
       $tID = $_GET['approveInitialPayment'];
 
       mysqli_query($conn, "UPDATE tbl_transactions SET status = 'pending-pickup' WHERE transaction_id = '$tID'");
+      mysqli_query($conn, "UPDATE tbl_transactions_dates SET other_transaction_dates = CONCAT(other_transaction_dates, ',', 'Initial Payment Approved-', NOW()) WHERE transaction_id = '$tID'");
       $initial_payment_approved_success = "Successfully approved initial payment";
       header("Location: ../initial_payment.php?initial_payment_approved_success=" . urldecode($initial_payment_approved_success));
     }
@@ -87,6 +91,7 @@
       $tID = $_GET['approvePayment'];
 
       mysqli_query($conn, "UPDATE tbl_transactions SET status = 'pending-pickup' WHERE transaction_id = '$tID'");
+      mysqli_query($conn, "UPDATE tbl_transactions_dates SET other_transaction_dates = CONCAT(other_transaction_dates, ',', 'Payment Approved-', NOW()) WHERE transaction_id = '$tID'");
       $payment_approved_success = "Successfully approved Payment";
       header("Location: ../fullCash_payment.php?payment_approved_success=" . urldecode($payment_approved_success));
     }
@@ -95,6 +100,7 @@
       $tID = $_GET['rejectInitialPayment'];
 
       mysqli_query($conn, "UPDATE tbl_transactions SET status = 'i-receipt-reattempt' WHERE transaction_id = '$tID'");
+      mysqli_query($conn, "UPDATE tbl_transactions_dates SET other_transaction_dates = CONCAT(other_transaction_dates, ',', 'Down Payment Rejected-', NOW()) WHERE transaction_id = '$tID'");
       $payment_approved_success = "Successfully rejected Payment";
       header("Location: ../initial_payment.php?payment_approved_success=" . urldecode($payment_approved_success));
     }
@@ -111,6 +117,7 @@
       $tID = $_GET['rejectFullPayment'];
 
       mysqli_query($conn, "UPDATE tbl_transactions SET status = 'f-receipt-reattempt' WHERE transaction_id = '$tID'");
+      mysqli_query($conn, "UPDATE tbl_transactions_dates SET other_transaction_dates = CONCAT(other_transaction_dates, ',', 'Payment Rejected-', NOW()) WHERE transaction_id = '$tID'");
       $full_payment_reject_success = "Successfully rejected Payment";
       header("Location: ../fullCash_payment.php?full_payment_reject_success=" . urldecode($full_payment_reject_success));
     }
@@ -119,6 +126,7 @@
       $tID = $_GET['reattemptPickup'];
 
       mysqli_query($conn, "UPDATE tbl_transactions SET status = 'for-pickup' WHERE transaction_id = '$tID'");
+      mysqli_query($conn, "UPDATE tbl_transactions_dates SET other_transaction_dates = CONCAT(other_transaction_dates, ',', 'Pickup Reattempt-', NOW()) WHERE transaction_id = '$tID'");
       $moved_for_pickup_success = "Successfully moved transaction for pick up";
       header("Location: ../pickup.php?moved_for_pickup_success=" . urldecode($moved_for_pickup_success));
     }
@@ -127,6 +135,7 @@
       $tID = $_GET['initiatePickup'];
 
       mysqli_query($conn, "UPDATE tbl_transactions SET status = 'for-pickup' WHERE transaction_id = '$tID'");
+      mysqli_query($conn, "UPDATE tbl_transactions_dates SET other_transaction_dates = CONCAT(other_transaction_dates, ',', 'Pickup Attempt-', NOW()) WHERE transaction_id = '$tID'");
       $moved_for_pickup_success = "Successfully moved transaction for pick up";
       header("Location: ../pickup.php?moved_for_pickup_success=" . urldecode($moved_for_pickup_success));
     }
@@ -135,6 +144,7 @@
       $tID = $_GET['successPickup'];
 
       mysqli_query($conn, "UPDATE tbl_transactions SET status = 'pickup-success' WHERE transaction_id = '$tID'");
+      mysqli_query($conn, "UPDATE tbl_transactions_dates SET other_transaction_dates = CONCAT(other_transaction_dates, ',', 'Pickup Successful-', NOW()) WHERE transaction_id = '$tID'");
       $pickup_successful = "Successfully picked up animal";
       header("Location: ../pickup.php?pickup_successful=" . urldecode($pickup_successful));
     }
@@ -142,6 +152,7 @@
     if(isset($_GET['unsuccessfulPickup'])){
       $tID = $_GET['unsuccessfulPickup'];
       mysqli_query($conn, "UPDATE tbl_transactions SET status = 'pickup-unsuccessful' WHERE transaction_id = '$tID'");
+      mysqli_query($conn, "UPDATE tbl_transactions_dates SET other_transaction_dates = CONCAT(other_transaction_dates, ',', 'Pickup Unsuccessful-', NOW()) WHERE transaction_id = '$tID'");
       $pickup_unsuccessful = "Pickup attempt Unsuccessful";
       header("Location: ../pickup.php?pickup_unsuccessful=" . urldecode($pickup_unsuccessful));
     } 
@@ -150,46 +161,9 @@
       $tID = $_GET['forMedical'];
 
       mysqli_query($conn, "UPDATE tbl_transactions SET status = 'ongoing-medical' WHERE transaction_id = '$tID'");
-      $proceed_for_medical = "Successfully proceeded to next step (For Medical))";
+      mysqli_query($conn, "UPDATE tbl_transactions_dates SET other_transaction_dates = CONCAT(other_transaction_dates, ',', 'Ongoing Medical-', NOW()) WHERE transaction_id = '$tID'");
+      $proceed_for_medical = "Successfully proceeded to next step (Ongoing Medical)";
       header("Location: ../pickup.php?pickup_successful=" . urldecode($proceed_for_medical));
-    }
-
-    if(isset($_GET['ongoingMedical'])){
-      $tID = $_GET['ongoingMedical'];
-
-      mysqli_query($conn, "UPDATE tbl_transactions SET status = 'ongoing-medical' WHERE transaction_id = '$tID'");
-      $ongoing_medical = "Successfully proceeded to next step (On-going Medical))";
-      header("Location: ../medical.php?ongoing_medical=" . urldecode($ongoing_medical));
-    }
-
-    if (isset($_POST['insertMedicalAttachmentswPrice'])) {
-        $transaction_id = mysqli_real_escape_string($conn, $_POST['transaction_id']);
-        $f_payment_cost = mysqli_real_escape_string($conn, $_POST['f_payment_cost']);
-        $currentDate = date('mdY');
-    
-        if (!empty($_FILES['images']['name'][0])) {
-            $fileNames = $_FILES['images']['name'];
-            $fileTmpNames = $_FILES['images']['tmp_name'];
-    
-            for ($i = 0; $i < count($fileNames); $i++) {
-                $fileName = mysqli_real_escape_string($conn, $fileNames[$i]);
-                $fileTmpName = $fileTmpNames[$i];
-                $attachmentTag = "Medical";
-    
-                $fileContent = file_get_contents($fileTmpName);
-                $fileContent = mysqli_real_escape_string($conn, $fileContent);
-
-                $customAttachmentsID = generateCustomAttachmentsID($conn, $currentDate);
-    
-                $insertQuery = "INSERT INTO tbl_transactions_attachments (attachment_id, transaction_id, attachment, attachment_tag) VALUES ('$customAttachmentsID', '$transaction_id', '$fileContent', '$attachmentTag')";
-                mysqli_query($conn, $insertQuery);
-            } 
-        }
-        mysqli_query($conn, "UPDATE tbl_transactions SET status = 'for-payment' WHERE transaction_id = '$transaction_id'");
-        mysqli_query($conn, "UPDATE tbl_payments SET final_payment_cost = '$f_payment_cost' WHERE transaction_id = '$transaction_id'");
-
-        $complete_medical = "Successfully proceeded to the next step (For Payment)";
-        header("Location: ?complete_medical=" . urldecode($complete_medical));
     }
 
     if (isset($_POST['insertMedicalAttachments'])) {
@@ -215,6 +189,7 @@
           }
       }
       mysqli_query($conn, "UPDATE tbl_transactions SET status = 'for-booking' WHERE transaction_id = '$transaction_id'");
+      mysqli_query($conn, "UPDATE tbl_transactions_dates SET other_transaction_dates = CONCAT(other_transaction_dates, ',', 'Booking Animal For Transport-', NOW()) WHERE transaction_id = '$transaction_id'");
       $complete_medical = "Successfully proceeded to the next step (For Booking)";
       header("Location: ?complete_medical=" . urldecode($complete_medical));
   }
@@ -310,6 +285,7 @@
               mysqli_query($conn, $insertQuery);
           }
       }
+      mysqli_query($conn, "UPDATE tbl_transactions_dates SET other_transaction_dates = CONCAT(other_transaction_dates, ',', 'Transport Process-', NOW()) WHERE transaction_id = '$transaction_id'");
       $booking_success = "Successfully booked animal for transport";
       header("Location: ?booking_success=" . urldecode($booking_success));
   }
@@ -364,6 +340,7 @@
     if(isset($_GET['transportCompleted'])){
       $tID = $_GET['transportCompleted'];
       mysqli_query($conn, "UPDATE tbl_transactions SET status = 'for-receiving' WHERE transaction_id = '$tID'");
+      mysqli_query($conn, "UPDATE tbl_transactions_dates SET other_transaction_dates = CONCAT(other_transaction_dates, ',', 'Ready For Receiving-', NOW()) WHERE transaction_id = '$tID'");
       $for_receiving_success = "Successfully proceeded to next step (For Receiving))";
       header("Location: ../transport.php?for_receiving_success=" . urldecode($for_receiving_success));
     }
@@ -385,6 +362,7 @@
     if(isset($_GET['approveCancel'])){
       $tID = $_GET['approveCancel'];
       mysqli_query($conn, "UPDATE tbl_transactions SET status = 'cancelled' WHERE transaction_id = '$tID'");
+      mysqli_query($conn, "UPDATE tbl_transactions_dates SET other_transaction_dates = CONCAT(other_transaction_dates, ',', 'Cancelled-', NOW()) WHERE transaction_id = '$tID'");
       $cancelled_transaction_success = "Transaction has been successfully cancelled";
       header("Location: ../cancellations.php?cancelled_transaction_success=" . urldecode($cancelled_transaction_success));
     }
@@ -406,6 +384,7 @@
     if(isset($_GET['proceedForReturn'])){
       $tID = $_GET['proceedForReturn'];
       mysqli_query($conn, "UPDATE tbl_transactions SET status = 'for-return' WHERE transaction_id = '$tID'");
+      mysqli_query($conn, "UPDATE tbl_transactions_dates SET other_transaction_dates = CONCAT(other_transaction_dates, ',', 'For Return-', NOW()) WHERE transaction_id = '$tID'");
       $to_return = "Transaction is now on its way to the receiving party";
       header("Location: ../return.php?cancelled_transaction_success=" . urldecode($to_return));
     }
@@ -413,6 +392,7 @@
     if(isset($_GET['confirmReturn'])){
       $tID = $_GET['confirmReturn'];
       mysqli_query($conn, "UPDATE tbl_transactions SET status = 'confirmation-return' WHERE transaction_id = '$tID'");
+      mysqli_query($conn, "UPDATE tbl_transactions_dates SET other_transaction_dates = CONCAT(other_transaction_dates, ',', 'Awaiting Return Confirmation-', NOW()) WHERE transaction_id = '$tID'");
       $to_return = "Awaiting Return Proof";
       header("Location: ../return.php?cancelled_transaction_success=" . urldecode($to_return));
     }
@@ -427,6 +407,7 @@
       mysqli_query($conn, "UPDATE tbl_transactions SET status = 'pending-return' WHERE transaction_id = '$transaction_id'");
       mysqli_query($conn, "UPDATE tbl_locations SET return_location = '$dropoff_location' WHERE transaction_id = '$transaction_id'");
       mysqli_query($conn, "UPDATE tbl_transactions_dates SET time_departure = '$departureDateTime', time_arrival = '$arrivalDateTime'  WHERE transaction_id = '$transaction_id'");
+      mysqli_query($conn, "UPDATE tbl_transactions_dates SET other_transaction_dates = CONCAT(other_transaction_dates, ',', 'Cancellation Approved-', NOW()) WHERE transaction_id = '$transaction_id'");
 
       if (!empty($_FILES['images']['name'][0])) {
           $fileNames = $_FILES['images']['name'];
@@ -459,6 +440,7 @@
 
       mysqli_query($conn, "UPDATE tbl_transactions SET status = '$previous_status' WHERE transaction_id = '$tID'");
       mysqli_query($conn, "DELETE FROM tbl_cancelled_transactions WHERE transaction_id = '$tID'");
+      mysqli_query($conn, "UPDATE tbl_transactions_dates SET other_transaction_dates = CONCAT(other_transaction_dates, ',', 'Cancellation Rejected-', NOW()) WHERE transaction_id = '$tID'");
       $reject_cancel = "Transaction has been successfully moved back to its previous status";
       header("Location: ../cancelled.php?reject_cancel=" . urldecode($reject_cancel));
     }
