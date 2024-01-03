@@ -123,58 +123,13 @@
       header("Location: ../pickup.php?moved_for_pickup_success=" . urldecode($moved_for_pickup_success));
     }
 
-    if(isset($_POST['customPickup'])){
-      $tID = mysqli_real_escape_string($conn, $_POST['transaction_id']);
-      $region = mysqli_real_escape_string($conn, $_POST['region']);
-      $province = mysqli_real_escape_string($conn, $_POST['province']);
-      $city = mysqli_real_escape_string($conn, $_POST['city']);
-      $barangay = mysqli_real_escape_string($conn, $_POST['barangay']);
-      $street = mysqli_real_escape_string($conn, $_POST['street_text']);
-      $house_num = mysqli_real_escape_string($conn, $_POST['house_number']);
-      $currentDate = date('mdY');
-      $customPickupLocationId = generateCustomPickupID($conn, $currentDate);
-      echo $tID . 'TID' . $region . 'regiooon' . $customPickupLocationId .'';
+    if(isset($_GET['initiatePickup'])){
+      $tID = $_GET['initiatePickup'];
 
-      if (empty($region) || empty($province) || empty($city) || empty($barangay) || empty($street) || empty($house_num)) {
-        mysqli_query($conn, "UPDATE tbl_transactions SET status = 'for-pickup' WHERE transaction_id = '$tID'");
-        $moved_for_pickup_success = "Successfully moved transaction to for pick up";
-        header("Location: ../pickup.php?moved_for_pickup_success=" . urldecode($moved_for_pickup_success));
-      } else {
-        mysqli_query($conn, "INSERT INTO tbl_custom_pickup_locations (custom_pickup_id, transaction_id, region, province, city, barangay, street, house_number) VALUES ('$customPickupLocationId', '$tID', '$region', '$province', '$city', '$barangay', '$street', '$house_num')");
-        mysqli_query($conn, "UPDATE tbl_locations SET custom_pickup_id = '$customPickupLocationId' WHERE transaction_id = '$tID'");
-        mysqli_query($conn, "UPDATE tbl_transactions SET status = 'for-pickup' WHERE transaction_id = '$tID'");
-        $moved_for_pickup_success = "Successfully moved transaction to for pick up";
-        header("Location: ../pickup.php?moved_for_pickup_success=" . urldecode($moved_for_pickup_success));
-      }
+      mysqli_query($conn, "UPDATE tbl_transactions SET status = 'for-pickup' WHERE transaction_id = '$tID'");
+      $moved_for_pickup_success = "Successfully moved transaction for pick up";
+      header("Location: ../pickup.php?moved_for_pickup_success=" . urldecode($moved_for_pickup_success));
     }
-
-    function generateCustomPickupID($conn, $currentDate) {
-      // Get the maximum location number from the database
-      $checkLocation = "SELECT MAX(CAST(SUBSTRING(custom_pickup_id, 13) AS UNSIGNED)) AS max_location FROM tbl_custom_pickup_locations";
-      $result = mysqli_query($conn, $checkLocation);
-  
-      if ($result && $row = mysqli_fetch_assoc($result)) {
-          $maxLocation = $row['max_location'];
-  
-          if (!is_null($maxLocation)) {
-              $locationID = (int)$maxLocation + 1;
-          } else {
-              $locationID = 1;
-          }
-      } else {
-          $locationID = 1;
-      }
-  
-      // Determine the number of digits in the location ID
-      $numDigits = strlen((string)$locationID);
-  
-      // Create a formatted location ID with leading zeros
-      $formattedLocationID = $locationID;
-  
-      $customLocationID = "CSPU" . $currentDate . $formattedLocationID;
-      return $customLocationID;
-  }
-    
 
     if(isset($_GET['successPickup'])){
       $tID = $_GET['successPickup'];

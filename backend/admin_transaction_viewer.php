@@ -103,7 +103,7 @@
                         </div>
                         <div class="FADetails-data-details">
                             <p class="data-text">Dropoff Address:</p>
-                            <p class="data-text" id="dropoffAddress">Not Yet Decided</p>
+                            <p class="data-text address-text" id="dropoffAddress">Not Yet Decided</p>
                         </div>
 
                         <!-- Payment Details -->

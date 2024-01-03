@@ -592,58 +592,11 @@ function rejectFullPayment(name, tID){
 	});
 }
 
-function useCustomLocation(name, tID){
-	const selectedRegion = document.getElementById("region");
-    const selectedProvince = document.getElementById("province");
-    const selectedCity = document.getElementById("city");
-    const barangayValue = document.getElementById("barangay-text").value;
-    const streetValue = document.getElementById("street-text").value;
-    const houseNumValue = document.getElementById("house_number").value;
 
-	if(selectedRegion.selectedIndex !== 0 && selectedProvince.selectedIndex !== 0 && selectedCity.selectedIndex !== 0 && barangayValue !== "" && streetValue !== "" && houseNumValue !== ""){
-		event.preventDefault();
-		Swal.fire({
-			icon: "warning",
-			html: 'Confirm Customized Pickup Location?',
-			showCancelButton: true,
-			confirmButtonColor: '#f7941d',
-			cancelButtonColor: '#8D8D8D',
-			confirmButtonText: 'Yes',
-			cancelButtonText: 'No',
-			width: '380px',
-			customClass: {
-			popup: 'swal-popup',
-			confirmButton: 'swal-btn',
-			}
-		}).then((result) => {
-			if (result.isConfirmed) {
-				var form = document.getElementById("customLocation").submit();
-			}
-		});
-	}
-	else{
-		event.preventDefault();
-		Swal.fire({
-			icon: "warning",
-			html: 'Please fill in all the required fields?',
-			showCancelButton: false,
-			confirmButtonColor: '#8D8D8D',
-			confirmButtonText: 'Okay',
-			width: '380px',
-			customClass: {
-			popup: 'swal-popup',
-			confirmButton: 'swal-btn',
-			}
-		});
-	}
-}
-
-function initiatePickupPrompt(event){
-	const initiatePickupBTN = document.getElementById('initiatePickup');
-	event.preventDefault();
+function initiatePickup(name, tID){
 	Swal.fire({
 		icon: "warning",
-		html: 'Confirm Pickup Location?',
+		html: 'Are you sure you want to<br>proceed with ' + name + '\'s pickup?',
 		showCancelButton: true,
 		confirmButtonColor: '#f7941d',
 		cancelButtonColor: '#8D8D8D',
@@ -656,7 +609,7 @@ function initiatePickupPrompt(event){
 		}
 	}).then((result) => {
 		if (result.isConfirmed) {
-			initiatePickupBTN.click();
+			window.location.href='processes/queries.php?initiatePickup=' + tID;
 		}
 	});
 }

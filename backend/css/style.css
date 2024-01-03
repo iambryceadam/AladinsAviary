@@ -1267,6 +1267,15 @@ thead {
 	flex-direction: column;
 }
 
+.data-text{
+	color: gray;
+}
+
+.address-text{
+	width: 50%;
+	text-align: right;
+}
+
 #imageModalClient {
     background: rgba(0, 0, 0, .7);
 }
