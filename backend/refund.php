@@ -19,7 +19,7 @@
 	<!-- External Stylesheet -->
 	
 	<link rel="icon" type="image/x-icon" href="images/app_icon.png">
-	<title>Return</title>
+	<title>Refund</title>
 </head>
 <body>
 	
@@ -179,57 +179,66 @@
 		<!-- Main -->
 		<main>
 			<!-- Page Header -->
-			<h1 class="title">Return</h1>
+			<h1 class="title">Refund</h1>
 			<!-- Page Header -->
 
 			<!-- Breadcrumbs -->
 			<ul class="breadcrumbs">
 				<li><p>Transactions</p></li>
 				<li class="divider">/</li>
-				<li><a href="#" class="active">Return</a></li>
+				<li><a href="#" class="active">Refund</a></li>
 			</ul>
 			<!-- Breadcrumbs -->
 
 			<!-- Pickup -->
-			<!-- Pending Returns -->
+			<!-- Pending Payments -->
 			<div class="card table-card">
 				<div class="card-body table-card-body">
-					<h4 class="card-title table-card-title">Pending Returns</h4>
+					<h4 class="card-title table-card-title">Pending Refunds</h4>
 					<p class="card-description table-card-description">
-						Transactions from this record are pending for return, approve transactions to initiate return.
+						Transactions from this record are eligible for refund, once refund has been successful, transaction will be transferred to successful refunds.
 					</p>
-					<form action="#">
-						<div class="form-group">
-							<input type="text" placeholder="Search" id="table-search">
-							<i class='bx bx-search icon'></i>
-						</div>
-					</form>
+					<div class="table-search-dropdown">
+						<form action="#">
+							<div class="form-group" style="flex: 95;">
+								<input type="text" placeholder="Search" id="table-search">
+								<i class='bx bx-search icon'></i>
+							</div>
+						</form>
+					</div>
 					<div class="table-responsive">
 						<table class="table table-sm table-hover table-striped table-bordered table-light">
 							<thead>
 								<tr>
 									<th>Transaction ID</th>
 									<th>Client</th>
-									<th>Return Location</th>
 									<th>Date Approved</th>
 									<th>Actions</th>
-								</tr> 
+								</tr>
 							</thead>
 							<tbody>
-							<?php 
-								while($get_pending_return_results = mysqli_fetch_assoc($get_pending_return)){
-									$transactionID = $get_pending_return_results['transaction_id'];
-									$clientID = $get_pending_return_results['client_id'];
-									$dateID = $get_pending_return_results['date_id'];
-									$locationID = $get_pending_return_results['location_id'];
-									$paymentID = $get_pending_return_results['payment_id'];
+								<?php while($get_pending_refund_result =  mysqli_fetch_array($get_pending_refund)){
+									$transactionID = $get_pending_refund_result['transaction_id'];
 
-									$get_pickup_location_id = mysqli_query($conn, "SELECT * FROM tbl_locations WHERE transaction_id = '$transactionID'");
-									$get_pickup_location_id_result = mysqli_fetch_assoc($get_pickup_location_id);
-									$pickup_location_id = $get_pickup_location_id_result['pickup_location_id'];
-									
-									$get_location_details = mysqli_query($conn, "SELECT * FROM tbl_locations WHERE transaction_id = '$transactionID'");
-									$get_location_details_results = mysqli_fetch_assoc($get_location_details);
+                                    $get_data = mysqli_query($conn, "SELECT * FROM tbl_transactions WHERE transaction_id = '$transactionID'");
+                                    $get_data_result = mysqli_fetch_assoc($get_data);
+
+									$clientID = $get_data_result['client_id'];
+									$dateID = $get_data_result['date_id'];
+									$paymentID = $get_data_result['payment_id'];
+
+									$get_breed_id = mysqli_query($conn, "SELECT breed_id FROM tbl_animals WHERE transaction_id = '$transactionID'");
+									$breed_id_result = mysqli_fetch_assoc($get_breed_id);
+									$breedID = $breed_id_result['breed_id'];
+
+									$get_breed_data = mysqli_query($conn, "SELECT species_id, description FROM tbl_breeds WHERE breed_id = '$breedID'");
+									$breed_data_result = mysqli_fetch_assoc($get_breed_data);
+									$breed_name = $breed_data_result['description'];
+									$speciesID = $breed_data_result['species_id'];
+
+									$get_species_name = mysqli_query($conn, "SELECT description FROM tbl_species WHERE species_id = '$speciesID'");
+									$species_name_result = mysqli_fetch_assoc($get_species_name);
+									$species_name = $species_name_result['description'];
 
 									$get_clientRecords = mysqli_query($conn, "SELECT * FROM tbl_clients WHERE client_id = '$clientID'");
 									$get_clientRecords_result = mysqli_fetch_array($get_clientRecords);
@@ -240,86 +249,104 @@
 
 									$get_date_data = mysqli_query($conn, "SELECT * FROM tbl_transactions_dates WHERE transaction_id = '$transactionID'");
 									$get_date_data_results = mysqli_fetch_assoc($get_date_data);
-									preg_match_all('/Cancellation Approved-(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})/', $get_date_data_results['other_transaction_dates'], $matches);
+									preg_match_all('/Approved-(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})/', $get_date_data_results['other_transaction_dates'], $matches);
+									$lastSubmittedDateTime = end($matches[1]);
+									$dateTimeObj = new DateTime($lastSubmittedDateTime);
+									$formattedDateTime = $dateTimeObj->format('Y-m-d');
+								
+								?>
+								<tr>
+									<td><?php echo $transactionID; ?></td>
+									<td class="table-image-text"><img src="data:image/jpeg;base64,<?php echo base64_encode($get_clientRecords_result['img_profile']); ?>" alt="Client Profile Image"> <span><?php echo $get_clientRecords_result['first_name']; ?></span></td>
+									<td><?php echo $formattedDateTime ?></td>
+									<td>
+									    <button class="btn-sm btn m-1 table-action-btn action-view" data-toggle="modal" data-target="#viewClientRequest" data-transaction-id="<?php echo $transactionID; ?>" onclick="viewClientRequest(this);"><i class="material-icons table-action-icon">visibility</i></button>
+                                        <button class="btn-sm btn m-1 table-action-btn action-approve" data-toggle="modal" data-target="#addRefund" data-client-id="<?php echo $clientID; ?>" data-transaction-id="<?php echo $transactionID; ?>" data-clientname="<?php echo $client_name; ?>" onclick="refundClientDetails(this)"><i class="material-icons table-action-icon">thumb_up</i></button>
+									</td>
+								</tr>
+							<?php } ?>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+			<!-- Pending Payments -->
+
+			<!-- On Transit -->
+			<div class="card table-card">
+				<div class="card-body table-card-body">
+					<h4 class="card-title table-card-title">Submitted Refunds</h4>
+					<p class="card-description table-card-description">
+						Transactions from this record are submitted refunds, awaiting client approval.
+					</p>
+					<div class="table-search-dropdown">
+						<form action="#">
+							<div class="form-group" style="flex: 95;">
+								<input type="text" placeholder="Search" id="table-search">
+								<i class='bx bx-search icon'></i>
+							</div>
+						</form>
+					</div>
+					<div class="table-responsive">
+						<table class="table table-sm table-hover table-striped table-bordered table-light">
+							<thead>
+								<tr>
+									<th>Transaction ID</th>
+									<th>Client</th>
+									<th>Payment Method</th>
+									<th>Date Refunded</th>
+									<th>Actions</th>
+								</tr>
+							</thead>
+							<tbody>
+							<?php while($get_submitted_refund_result =  mysqli_fetch_array($get_submitted_refund)){
+									$transactionID = $get_submitted_refund_result['transaction_id'];
+
+                                    $get_data = mysqli_query($conn, "SELECT * FROM tbl_transactions WHERE transaction_id = '$transactionID'");
+                                    $get_data_result = mysqli_fetch_assoc($get_data);
+
+									$clientID = $get_data_result['client_id'];
+									$dateID = $get_data_result['date_id'];
+									$paymentID = $get_data_result['payment_id'];
+
+                                    $get_payment_method = mysqli_query($conn, "SELECT * FROM tbl_payments WHERE transaction_id = '$transactionID'");
+                                    $payment_method_result = mysqli_fetch_assoc($get_payment_method);
+                                    $payment_method = $payment_method_result['payment_method'];
+
+									$get_breed_id = mysqli_query($conn, "SELECT breed_id FROM tbl_animals WHERE transaction_id = '$transactionID'");
+									$breed_id_result = mysqli_fetch_assoc($get_breed_id);
+									$breedID = $breed_id_result['breed_id'];
+
+									$get_breed_data = mysqli_query($conn, "SELECT species_id, description FROM tbl_breeds WHERE breed_id = '$breedID'");
+									$breed_data_result = mysqli_fetch_assoc($get_breed_data);
+									$breed_name = $breed_data_result['description'];
+									$speciesID = $breed_data_result['species_id'];
+
+									$get_species_name = mysqli_query($conn, "SELECT description FROM tbl_species WHERE species_id = '$speciesID'");
+									$species_name_result = mysqli_fetch_assoc($get_species_name);
+									$species_name = $species_name_result['description'];
+
+									$get_clientRecords = mysqli_query($conn, "SELECT * FROM tbl_clients WHERE client_id = '$clientID'");
+									$get_clientRecords_result = mysqli_fetch_array($get_clientRecords);
+									$client_name = $get_clientRecords_result['first_name'];
+
+									$get_dateRecords = mysqli_query($conn, "SELECT * FROM tbl_transactions_dates WHERE date_id = '$dateID'");
+									$get_dateRecords_result = mysqli_fetch_array($get_dateRecords);
+
+									$get_date_data = mysqli_query($conn, "SELECT * FROM tbl_transactions_dates WHERE transaction_id = '$transactionID'");
+									$get_date_data_results = mysqli_fetch_assoc($get_date_data);
+									preg_match_all('/Refund Amount Updated-(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})/', $get_date_data_results['other_transaction_dates'], $matches);
 									$lastSubmittedDateTime = end($matches[1]);
 									$dateTimeObj = new DateTime($lastSubmittedDateTime);
 									$formattedDateTime = $dateTimeObj->format('Y-m-d');
 								?>
 								<tr>
-									<td><?php echo $transactionID ?></td>
+									<td><?php echo $transactionID; ?></td>
 									<td class="table-image-text"><img src="data:image/jpeg;base64,<?php echo base64_encode($get_clientRecords_result['img_profile']); ?>" alt="Client Profile Image"> <span><?php echo $get_clientRecords_result['first_name']; ?></span></td>
-									<td><?php echo $get_location_details_results['return_location']; ?></td>
+									<td><?php echo $payment_method; ?></td>
 									<td><?php echo $formattedDateTime ?></td>
 									<td>
 										<button class="btn-sm btn m-1 table-action-btn action-view" data-toggle="modal" data-target="#viewClientRequest" data-transaction-id="<?php echo $transactionID; ?>" onclick="viewClientRequest(this);"><i class="material-icons table-action-icon">visibility</i></button>
-										<button class="btn-sm btn m-1 table-action-btn action-approve" onclick="proceedForReturn('<?php echo $client_name; ?>', '<?php echo $transactionID; ?>')"><i class="material-icons table-action-icon">thumb_up</i></button>
-									</td>
-								</tr>
-								<?php } ?>
-							</tbody>
-						</table>
-					</div>
-				</div>
-			</div>
-			<!-- Pending Returns -->
-
-			<!-- On Transit -->
-			<div class="card table-card">
-				<div class="card-body table-card-body">
-					<h4 class="card-title table-card-title">On Transit</h4>
-					<p class="card-description table-card-description">
-						Transactions from this record are on transit, approve transactions to mark as a complete return.
-					</p>
-					<form action="#">
-						<div class="form-group">
-							<input type="text" placeholder="Search" id="table-search">
-							<i class='bx bx-search icon'></i>
-						</div>
-					</form>
-					<div class="table-responsive">
-						<table class="table table-sm table-hover table-striped table-bordered table-light">
-							<thead>
-								<tr>
-									<th>Transaction ID</th>
-									<th>Client</th>
-									<th>Return Location</th>
-									<th>Actions</th>
-								</tr>
-							</thead>
-							<tbody>
-							<?php 
-								while($get_for_return_results = mysqli_fetch_assoc($get_for_return)){
-									$transactionID = $get_for_return_results['transaction_id'];
-									$clientID = $get_for_return_results['client_id'];
-									$dateID = $get_for_return_results['date_id'];
-									$locationID = $get_for_return_results['location_id'];
-									$paymentID = $get_for_return_results['payment_id'];
-
-									$get_pickup_location_id = mysqli_query($conn, "SELECT * FROM tbl_locations WHERE transaction_id = '$transactionID'");
-									$get_pickup_location_id_result = mysqli_fetch_assoc($get_pickup_location_id);
-									$pickup_location_id = $get_pickup_location_id_result['pickup_location_id'];
-									
-									$get_location_details = mysqli_query($conn, "SELECT * FROM tbl_locations WHERE transaction_id = '$transactionID'");
-									$get_location_details_results = mysqli_fetch_assoc($get_location_details);
-
-									$get_clientRecords = mysqli_query($conn, "SELECT * FROM tbl_clients WHERE client_id = '$clientID'");
-									$get_clientRecords_result = mysqli_fetch_array($get_clientRecords);
-									$client_name = $get_clientRecords_result['first_name'];
-
-									$get_dateRecords = mysqli_query($conn, "SELECT * FROM tbl_transactions_dates WHERE date_id = '$dateID'");
-									$get_dateRecords_result = mysqli_fetch_array($get_dateRecords);
-
-									$get_date_data = mysqli_query($conn, "SELECT * FROM tbl_transactions_dates WHERE transaction_id = '$transactionID'");
-									$get_date_data_results = mysqli_fetch_array($get_date_data);
-								?>
-								<tr>
-									<td><?php echo $transactionID ?></td>
-									<td class="table-image-text"><img src="data:image/jpeg;base64,<?php echo base64_encode($get_clientRecords_result['img_profile']); ?>" alt="Client Profile Image"> <span><?php echo $get_clientRecords_result['first_name']; ?></span></td>
-									<td><?php echo $get_location_details_results['return_location']; ?></td>
-									<td>
-										<button class="btn-sm btn m-1 table-action-btn action-view" data-toggle="modal" data-target="#viewClientRequest" data-transaction-id="<?php echo $transactionID; ?>" onclick="viewClientRequest(this);"><i class="material-icons table-action-icon">visibility</i></button>
-										<button class="btn-sm btn m-1 table-action-btn action-approve" onclick="confirmReturn('<?php echo $client_name; ?>', '<?php echo $transactionID; ?>')"><i class="material-icons table-action-icon">thumb_up</i></button>
-										<!-- <button class="btn-sm btn m-1 table-action-btn action-deny"><i class="material-icons table-action-icon">thumb_down</i></button> -->
 									</td>
 								</tr>
 							<?php } ?>
@@ -330,44 +357,59 @@
 			</div>
 			<!-- On Transit -->
 
-			<!-- Unsuccessful Returns -->
+			<!-- Reattempt Payments -->
 			<div class="card table-card">
 				<div class="card-body table-card-body">
-					<h4 class="card-title table-card-title">Return Confirmation</h4>
+					<h4 class="card-title table-card-title">Successful Refunds</h4>
 					<p class="card-description table-card-description">
-						Transactions from this record are awaiting proof of returned animals from the receiving end.
+                        Transactions from this record are successful refunds
 					</p>
-					<form action="#">
-						<div class="form-group">
-							<input type="text" placeholder="Search" id="table-search">
-							<i class='bx bx-search icon'></i>
-						</div>
-					</form>
+					<div class="table-search-dropdown">
+						<form action="#">
+							<div class="form-group" style="flex: 95;">
+								<input type="text" placeholder="Search" id="table-search">
+								<i class='bx bx-search icon'></i>
+							</div>
+						</form>
+					</div>
 					<div class="table-responsive">
 						<table class="table table-sm table-hover table-striped table-bordered table-light">
 							<thead>
 								<tr>
 									<th>Transaction ID</th>
 									<th>Client</th>
-									<th>Pickup From</th>
+									<th>Payment Method</th>
+									<th>Date Payment</th>
 									<th>Actions</th>
 								</tr>
 							</thead>
 							<tbody>
-							<?php 
-								while($get_confirmation_return_results = mysqli_fetch_assoc($get_confirmation_return)){
-									$transactionID = $get_confirmation_return_results['transaction_id'];
-									$clientID = $get_confirmation_return_results['client_id'];
-									$dateID = $get_confirmation_return_results['date_id'];
-									$locationID = $get_confirmation_return_results['location_id'];
-									$paymentID = $get_confirmation_return_results['payment_id'];
+							<?php while($get_refunded_transactions_results =  mysqli_fetch_array($get_refunded_transactions)){
+									$transactionID = $get_refunded_transactions_results['transaction_id'];
 
-									$get_pickup_location_id = mysqli_query($conn, "SELECT * FROM tbl_locations WHERE transaction_id = '$transactionID'");
-									$get_pickup_location_id_result = mysqli_fetch_assoc($get_pickup_location_id);
-									$pickup_location_id = $get_pickup_location_id_result['pickup_location_id'];
-									
-									$get_location_details = mysqli_query($conn, "SELECT * FROM tbl_locations WHERE transaction_id = '$transactionID'");
-									$get_location_details_results = mysqli_fetch_assoc($get_location_details);
+                                    $get_data = mysqli_query($conn, "SELECT * FROM tbl_transactions WHERE transaction_id = '$transactionID'");
+                                    $get_data_result = mysqli_fetch_assoc($get_data);
+
+									$clientID = $get_data_result['client_id'];
+									$dateID = $get_data_result['date_id'];
+									$paymentID = $get_data_result['payment_id'];
+
+                                    $get_payment_method = mysqli_query($conn, "SELECT * FROM tbl_payments WHERE transaction_id = '$transactionID'");
+                                    $payment_method_result = mysqli_fetch_assoc($get_payment_method);
+                                    $payment_method = $payment_method_result['payment_method'];
+
+									$get_breed_id = mysqli_query($conn, "SELECT breed_id FROM tbl_animals WHERE transaction_id = '$transactionID'");
+									$breed_id_result = mysqli_fetch_assoc($get_breed_id);
+									$breedID = $breed_id_result['breed_id'];
+
+									$get_breed_data = mysqli_query($conn, "SELECT species_id, description FROM tbl_breeds WHERE breed_id = '$breedID'");
+									$breed_data_result = mysqli_fetch_assoc($get_breed_data);
+									$breed_name = $breed_data_result['description'];
+									$speciesID = $breed_data_result['species_id'];
+
+									$get_species_name = mysqli_query($conn, "SELECT description FROM tbl_species WHERE species_id = '$speciesID'");
+									$species_name_result = mysqli_fetch_assoc($get_species_name);
+									$species_name = $species_name_result['description'];
 
 									$get_clientRecords = mysqli_query($conn, "SELECT * FROM tbl_clients WHERE client_id = '$clientID'");
 									$get_clientRecords_result = mysqli_fetch_array($get_clientRecords);
@@ -377,16 +419,19 @@
 									$get_dateRecords_result = mysqli_fetch_array($get_dateRecords);
 
 									$get_date_data = mysqli_query($conn, "SELECT * FROM tbl_transactions_dates WHERE transaction_id = '$transactionID'");
-									$get_date_data_results = mysqli_fetch_array($get_date_data);
+									$get_date_data_results = mysqli_fetch_assoc($get_date_data);
+									preg_match_all('/Refunded-(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})/', $get_date_data_results['other_transaction_dates'], $matches);
+									$lastSubmittedDateTime = end($matches[1]);
+									$dateTimeObj = new DateTime($lastSubmittedDateTime);
+									$formattedDateTime = $dateTimeObj->format('Y-m-d');
 								?>
 								<tr>
-									<td><?php echo $transactionID ?></td>
+									<td><?php echo $transactionID; ?></td>
 									<td class="table-image-text"><img src="data:image/jpeg;base64,<?php echo base64_encode($get_clientRecords_result['img_profile']); ?>" alt="Client Profile Image"> <span><?php echo $get_clientRecords_result['first_name']; ?></span></td>
-									<td><?php echo $get_location_details_results['return_location']; ?></td>
+									<td><?php echo $payment_method; ?></td>
+									<td><?php echo $formattedDateTime ?></td>
 									<td>
 										<button class="btn-sm btn m-1 table-action-btn action-view" data-toggle="modal" data-target="#viewClientRequest" data-transaction-id="<?php echo $transactionID; ?>" onclick="viewClientRequest(this);"><i class="material-icons table-action-icon">visibility</i></button>
-										<!-- <button class="btn-sm btn m-1 table-action-btn action-approve" onclick=""><i class="material-icons table-action-icon">thumb_up</i></button> -->
-										<!-- <button class="btn-sm btn m-1 table-action-btn action-deny"><i class="material-icons table-action-icon">thumb_down</i></button> -->
 									</td>
 								</tr>
 							<?php } ?>
@@ -395,7 +440,59 @@
 					</div>
 				</div>
 			</div>
-			<!-- Unsuccessful Returns -->
+			<!-- Reattempt Payments -->
+			<!-- Pickup -->
+
+            <!-- Input Cost -->
+			<div class="modal fade" id="addRefund" tabindex="-1" role="dialog" aria-hidden="true">
+				<div class="modal-dialog modal-dialog-centered" role="document">
+					<div class="modal-content popup">
+						<div class="modal-header">
+							<h5 class="modal-title popup-title" id="exampleModalCenterTitle">Refund</h5>
+							<span aria-hidden="true" data-dismiss="modal" class="modal-exit">&times;</span>
+							</button>
+						</div>
+						<form id="refundCostForm" action="refund.php" method="POST" autocomplete="off" enctype="multipart/form-data">
+							<input type="hidden" id="e_admin_id" name="e_admin_id">
+							<div class="modal-body" style="padding-bottom: 0px;">
+								<div class="row form-modal" style="padding-right: 20px;">
+									<div class="col col-md-12 ml-auto">
+										<div class="pop-up-prompt" id="update_admin_error"></div>
+										<div class="row mb-3 ml-auto">
+											<p class="pop-up-heading">Insert Refund Amount:</p>
+											<input type="text" class="form-control" required pattern="[a-zA-Z0-9\s]+" oninput="validatePaymentAmountPattern(this)" placeholder="Refund Cost..." name="refund_cost" id="refund_cost">
+											<input type="hidden" name="client_name" id="client_name">
+											<input type="hidden" name="client_id" id="client_id">
+											<input type="hidden" name="transaction_id" id="transaction_id">
+										</div>
+                                    </div>
+                                    <hr>
+                                    <div class="col col-md-12 ml-auto">
+                                        <div class="modal-body" style="padding-bottom: 0px;">
+                                            <div class="row form-modal" style="padding-right: 20px;">
+                                                <div class="col col-md-12 ml-auto">
+                                                <p class="pop-up-heading">Click the button to add refund attachments:</p>
+                                                    <div class="form-group">
+                                                        <label for="refundAtachments">Choose Image:</label>
+                                                        <input type="file" class="form-control-file" accept=".jpg, .jpeg, .png, .pdf, .docx, .xls, .xlsx" id="refundAtachments" name="images[]" multiple>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+										<input type="hidden" id="insertRefundCostInput" name="insertRefundCost">
+									</div>
+									<div class="modal-footer popup-footer">
+										<button type="button" class="btn btn-secondary action-cancel" data-dismiss="modal">Close</button>
+										<button type="submit" id="insertRefundCostSubmit" class="btn action-view" name="insertRefundCost" onclick="insertRefundValidate(event)">Proceed</button>
+									</div>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+			<!-- Input Cost -->
 
 			<!-- MODAL TRANSACTION VIEWER -->
 			<div class="modal fade" id="viewClientRequest" tabindex="-1" role="dialog" aria-hidden="true">
@@ -413,8 +510,6 @@
 				</div>
 			</div>
 			<!-- MODAL TRANSACTION VIEWER -->
-
-			<!-- Pickup -->
 		</main>
 		<!-- Notifications -->
 		<!-- Main -->

@@ -63,7 +63,7 @@
 			<li class="divider" data-text="processes"></li>
 			<li>
 				<!-- Transactions -->
-				<a href="#"><i class='bx bxs-collection icon'></i> Transactions <i class='bx bx-chevron-right icon-right' ></i></a>
+				<a href="#" class=" "><i class='bx bxs-collection icon'></i> Transactions <i class='bx bx-chevron-right icon-right' ></i></a>
 				<ul class="side-dropdown">
 					<!-- Approval -->
 					<li class="divider" data-text="Approval"></li>
@@ -78,8 +78,10 @@
 					<li><a href="initial_payment.php">Initial Payment</a></li>
 					<li><a href="final_payment.php">Final Payment</a></li>
 					<li><a href="fullCash_payment.php">Full Payment</a></li>
+					<li><a href="refund.php">Refund</a></li>
 					<!-- Process -->
 					<li class="divider" data-text="Process"></li>
+					<li><a href="booking.php">Booking</a></li>
 					<li><a href="medical.php">Medical</a></li>
 					<li><a href="transport.php">Transport</a></li>
 					<li><a href="toReceive.php">To Receive</a></li>
@@ -109,15 +111,6 @@
 				</ul>
 			</li>
 			<li>
-				<!-- Pricing Maintenance -->
-				<a href="#"><i class='bx bxs-purchase-tag icon' ></i> Pricing Data <i class='bx bx-chevron-right icon-right' ></i></a>
-				<ul class="side-dropdown">
-					<li><a href="maint_cagePricing.php">Cage Pricing</a></li>
-					<li><a href="maint_pickupPricing.php">Pickup Pricing</a></li>
-					<li><a href="maint_transportPricing.php">Transport Pricing</a></li>
-				</ul>
-			</li>
-			<li>
 				<!-- Area Maintenance -->
 				<a href="#"><i class='bx bx-current-location icon' ></i> Area Data <Datag></Datag> <i class='bx bx-chevron-right icon-right' ></i></a>
 				<ul class="side-dropdown">
@@ -129,7 +122,7 @@
 			<li class="divider" data-text="Analytics"></li>
 			<li>
 				<!-- Archives -->
-				<a href="#" class="active-dropdown"><i class='bx bxs-box icon' ></i> Archives <i class='bx bx-chevron-right icon-right' ></i></a>
+				<a href="#" class=" "><i class='bx bxs-box icon' ></i> Archives <i class='bx bx-chevron-right icon-right' ></i></a>
 				<ul class="side-dropdown">
 					<!-- User Accounts -->
 					<li class="divider" data-text="User Accounts"></li>

@@ -63,7 +63,7 @@
 			<li class="divider" data-text="processes"></li>
 			<li>
 				<!-- Transactions -->
-				<a href="#"><i class='bx bxs-collection icon'></i> Transactions <i class='bx bx-chevron-right icon-right' ></i></a>
+				<a href="#" class=" "><i class='bx bxs-collection icon'></i> Transactions <i class='bx bx-chevron-right icon-right' ></i></a>
 				<ul class="side-dropdown">
 					<!-- Approval -->
 					<li class="divider" data-text="Approval"></li>
@@ -78,8 +78,10 @@
 					<li><a href="initial_payment.php">Initial Payment</a></li>
 					<li><a href="final_payment.php">Final Payment</a></li>
 					<li><a href="fullCash_payment.php">Full Payment</a></li>
+					<li><a href="refund.php">Refund</a></li>
 					<!-- Process -->
 					<li class="divider" data-text="Process"></li>
+					<li><a href="booking.php">Booking</a></li>
 					<li><a href="medical.php">Medical</a></li>
 					<li><a href="transport.php">Transport</a></li>
 					<li><a href="toReceive.php">To Receive</a></li>
@@ -106,15 +108,6 @@
 				<ul class="side-dropdown">
 					<li><a href="maint_breeds.php">Breeds</a></li>
 					<li><a href="maint_species.php">Species</a></li>
-				</ul>
-			</li>
-			<li>
-				<!-- Pricing Maintenance -->
-				<a href="#"><i class='bx bxs-purchase-tag icon' ></i> Pricing Data <i class='bx bx-chevron-right icon-right' ></i></a>
-				<ul class="side-dropdown">
-					<li><a href="maint_cagePricing.php">Cage Pricing</a></li>
-					<li><a href="maint_pickupPricing.php">Pickup Pricing</a></li>
-					<li><a href="maint_transportPricing.php">Transport Pricing</a></li>
 				</ul>
 			</li>
 			<li>
@@ -239,7 +232,7 @@
 										<td><?php echo $get_speciesRecords_result['description']; ?></td>
 										<td><?php echo $get_breeds_validate_result['submitted_on']; ?></td>
 										<td>
-											<button class="btn-sm btn m-1 table-action-btn action-approve" data-toggle="modal" data-target="#confirmValidateSpecies" onclick="confirmValidateSpeciesFill(this)" data-id="<?php echo $get_breeds_validate_result['species_id']; ?>"><i class="material-icons table-action-icon">redo</i></button>
+											<button class="btn-sm btn m-1 table-action-btn action-approve" data-toggle="modal" data-target="#confirmValidateBreeds" onclick="confirmValidateBreedsFill(this)" data-id="<?php echo $get_breeds_validate_result['breed_id']; ?>"><i class="material-icons table-action-icon">redo</i></button>
 										</td>
 									</tr>
 								<?php } ?>
@@ -342,13 +335,14 @@
 											<p class="pop-up-heading" style="padding-left: 0px;">Breed Description:</p>
 											<input type="text" class="form-control" placeholder="Breed Description" name="c_breed_description" id="c_breed_description" required>
 										</div>
-										<input type="hidden" id="c_species_id" name="c_species_id">
+										<input type="hidden" id="c_breed_id" name="c_breed_id">
 										<!-- <input type="text" id="c_submitted_by" name="c_submitted_by">
 										<input type="text" id="c_submitted_on" name="c_submitted_on"> -->
 									</div>
+									<input type="hidden" id="validateBreedsSubmit" name="validateBreeds"/>
 									<div class="modal-footer popup-footer">
 										<button type="button" class="btn btn-secondary action-cancel" data-dismiss="modal">Close</button>
-										<button type="submit" class="btn action-view" name="validateSpecies" id="confirmValidateSpeciesSubmit" onclick="confirmValidateBreed(event)">Save to Records</button>
+										<button type="submit" class="btn action-view" name="validateBreeds" id="confirmValidateBreedsSubmit" onclick="confirmValidateBreed(event)">Save to Records</button>
 									</div>
 								</div>
 							</div>

@@ -88,9 +88,9 @@ function viewClient(button) {
 
             // Update the modal elements with the fetched data
 			document.getElementById('v_client_id').textContent = clientData.client_id;
-			document.getElementById('v_first_name').value = clientData.first_name;
-			document.getElementById('v_last_name').value = clientData.last_name;
+			document.getElementById('v_name').value = clientData.first_name + " " + clientData.last_name;
 			document.getElementById('v_email').value = clientData.email;
+			document.getElementById('v_client_contact').value = clientData.contact;
 
             
             //Set the image source in the <img> element
@@ -164,11 +164,20 @@ function loadEditImagePreview(input, imageElementId) {
     }
 }
 
-
-
-
-
-
+function confirmValidateBreedsFill(button){
+	var id = button.getAttribute('data-id');
+    // Make an AJAX request to fetch the data
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', 'processes/queries.php?fetch_breeds_id=' + id, true);
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+            var speciesData = JSON.parse(xhr.responseText);
+			document.getElementById('c_breed_id').value = speciesData.breed_id;
+			document.getElementById('c_breed_description').value = speciesData.description;
+        }
+    };
+    xhr.send();
+}
 
 // Species
 function confirmValidateSpeciesFill(button){
@@ -194,6 +203,15 @@ function validatePaymentAmountPattern(input){
 }
 
 function costClientDetails(button){
+	var cName = button.getAttribute('data-clientname');
+	var cID = button.getAttribute('data-client-id');
+	var tID = button.getAttribute('data-transaction-id');
+	document.getElementById('client_name').value = cName;
+	document.getElementById('client_id').value = cID;
+	document.getElementById('transaction_id').value = tID;
+}
+
+function refundClientDetails(button){
 	var cName = button.getAttribute('data-clientname');
 	var cID = button.getAttribute('data-client-id');
 	var tID = button.getAttribute('data-transaction-id');
@@ -232,6 +250,50 @@ function insertInitialPaymentValidate(event) {
     }
 }
 
+function insertRefundValidate(event) {
+	var refund_cost = document.getElementById("refund_cost").value;
+	var refundAtachments = document.getElementById("refundAtachments").files;
+
+    if (refund_cost == "" || refundAtachments.length === 0) {
+		event.preventDefault();
+        Swal.fire({
+			showCancelButton: false,
+            icon: "warning",
+            html: 'Refund cost and atachments cannot be empty',
+            confirmButtonColor: '#8D8D8D',
+            confirmButtonText: 'Okay',
+            width: '380px',
+            customClass: {
+                popup: 'swal-popup',
+                confirmButton: 'swal-btn',
+            }
+        }).then((result) => {
+            //do nothing
+        });
+	} 
+    else {
+        event.preventDefault();
+        Swal.fire({
+            icon: "warning",
+            html: 'Confirm refund?',
+            showCancelButton: true,
+            confirmButtonColor: '#f7941d',
+            cancelButtonColor: '#8D8D8D',
+            confirmButtonText: 'Yes',
+            cancelButtonText: 'No',
+            width: '380px',
+            customClass: {
+                popup: 'swal-popup',
+                confirmButton: 'swal-btn',
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                var form = document.getElementById("refundCostForm").submit();
+            }
+        });
+    }
+}
+
 function cancelClientDetails(button){
 	var cName = button.getAttribute('data-clientname');
 	var cID = button.getAttribute('data-client-id');
@@ -265,6 +327,34 @@ function cancelTransactionValidate(event) {
         }).then((result) => {
             if (result.isConfirmed) {
                 var form = document.getElementById("insertRFC").submit();
+            }
+        });
+    }
+}
+
+function cancelTransactionValidateWReturn(event) {
+	var rfcText = document.getElementById("rfctext").value;
+	var client_name = document.getElementById("cancel_client_name").value;
+
+    if (rfcText == "") {} 
+    else {
+        event.preventDefault();
+        Swal.fire({
+            icon: "warning",
+            html: 'Are you sure you want to cancel ' + client_name + '\'s animal transportation request?',
+            showCancelButton: true,
+            confirmButtonColor: '#f7941d',
+            cancelButtonColor: '#8D8D8D',
+            confirmButtonText: 'Yes',
+            cancelButtonText: 'No',
+            width: '380px',
+            customClass: {
+                popup: 'swal-popup',
+                confirmButton: 'swal-btn',
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                var form = document.getElementById("insertRFCwReturn").submit();
             }
         });
     }
@@ -678,6 +768,15 @@ function proceedForMedical(name, tID){
 	});
 }
 
+function medicalClientDetailswPrice(button){
+	var cName = button.getAttribute('data-clientname');
+	var cID = button.getAttribute('data-client-id');
+	var tID = button.getAttribute('data-transaction-id');
+	document.getElementById('pmedical_cName').value = cName;
+	document.getElementById('pmedical_cID').value = cID;
+	document.getElementById('pmedical_tID').value = tID;
+} 
+
 function medicalClientDetails(button){
 	var cName = button.getAttribute('data-clientname');
 	var cID = button.getAttribute('data-client-id');
@@ -734,6 +833,53 @@ function uploadDocumentsAttachments(event){
         }).then((result) => {
             if (result.isConfirmed) {
                 var form = document.getElementById("documentAttachmentsForm").submit();
+            }
+        });
+    }
+}
+
+function uploadMedicalAttachmentswPrice(event){
+	var medicalAttachments = document.getElementById("pmedicalAttachments").files;
+	var client_name = document.getElementById("pmedical_cName").value;
+	var transaction_id = document.getElementById("pmedical_tID").value;
+
+    if (medicalAttachments.length === 0) {
+		event.preventDefault();
+        Swal.fire({
+            icon: "warning",
+            html: 'Final price and medical attachments are required',
+            showCancelButton: false,
+            confirmButtonColor: '#8D8D8D',
+            confirmButtonText: 'Okay',
+            width: '380px',
+            customClass: {
+                popup: 'swal-popup',
+                confirmButton: 'swal-btn',
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                //do nothing
+            }
+        });
+	} 
+    else {
+        event.preventDefault();
+        Swal.fire({
+            icon: "warning",
+            html: 'Are you sure you want to complete this medical procedure for ' + client_name + '\'s animal?<br>',
+            showCancelButton: true,
+            confirmButtonColor: '#f7941d',
+            cancelButtonColor: '#8D8D8D',
+            confirmButtonText: 'Yes',
+            cancelButtonText: 'No',
+            width: '380px',
+            customClass: {
+                popup: 'swal-popup',
+                confirmButton: 'swal-btn',
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                var form = document.getElementById("medicalAttachmentsFormwPrice").submit();
             }
         });
     }
@@ -1459,10 +1605,32 @@ function confirmValidateSpecies(event) {
     }
 }
 
+function confirmValidateBreed(event) {
+    var c_breed_description = document.getElementById("c_breed_description").value;
 
-
-
-
+    if (c_breed_description == "") {} 
+    else {
+        event.preventDefault();
+        Swal.fire({
+            icon: "warning",
+            html: 'Are you sure you want<br>to save Breed - ' + c_breed_description + ' to records?',
+            showCancelButton: true,
+            confirmButtonColor: '#f7941d',
+            cancelButtonColor: '#8D8D8D',
+            confirmButtonText: 'Yes',
+            cancelButtonText: 'No',
+            width: '380px',
+            customClass: {
+                popup: 'swal-popup',
+                confirmButton: 'swal-btn',
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                var form = document.getElementById("validateBreedsForm").submit();
+            }
+        });
+    }
+}
 
 // ARCHIVE FUNCTIONS
 function archiveAdministrator(name, delID){

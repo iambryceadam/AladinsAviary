@@ -78,8 +78,10 @@
 					<li><a href="initial_payment.php">Initial Payment</a></li>
 					<li><a href="final_payment.php">Final Payment</a></li>
 					<li><a href="fullCash_payment.php">Full Payment</a></li>
+					<li><a href="refund.php">Refund</a></li>
 					<!-- Process -->
 					<li class="divider" data-text="Process"></li>
+					<li><a href="booking.php">Booking</a></li>
 					<li><a href="medical.php">Medical</a></li>
 					<li><a href="transport.php">Transport</a></li>
 					<li><a href="toReceive.php">To Receive</a></li>
@@ -106,15 +108,6 @@
 				<ul class="side-dropdown">
 					<li><a href="maint_breeds.php">Breeds</a></li>
 					<li><a href="maint_species.php">Species</a></li>
-				</ul>
-			</li>
-			<li>
-				<!-- Pricing Maintenance -->
-				<a href="#"><i class='bx bxs-purchase-tag icon' ></i> Pricing Data <i class='bx bx-chevron-right icon-right' ></i></a>
-				<ul class="side-dropdown">
-					<li><a href="maint_cagePricing.php">Cage Pricing</a></li>
-					<li><a href="maint_pickupPricing.php">Pickup Pricing</a></li>
-					<li><a href="maint_transportPricing.php">Transport Pricing</a></li>
 				</ul>
 			</li>
 			<li>
@@ -282,7 +275,7 @@
 							<div class="modal-body" style="padding-bottom: 0px;">
 								<div class="row form-modal" style="padding-right: 20px;">
 									<div class="col col-md-12 ml-auto">
-										<p class="pop-up-heading">Specify the return location:</p>
+										<p class="pop-up-heading">Specify the return details:</p>
 										<div class="form-group">
 											<input type="hidden" name="client_name" id="client_name">
 											<input type="hidden" name="client_id" id="client_id">

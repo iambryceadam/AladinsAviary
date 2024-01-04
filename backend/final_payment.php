@@ -78,8 +78,10 @@
 					<li><a href="initial_payment.php">Initial Payment</a></li>
 					<li><a href="final_payment.php">Final Payment</a></li>
 					<li><a href="fullCash_payment.php">Full Payment</a></li>
+					<li><a href="refund.php">Refund</a></li>
 					<!-- Process -->
 					<li class="divider" data-text="Process"></li>
+					<li><a href="booking.php">Booking</a></li>
 					<li><a href="medical.php">Medical</a></li>
 					<li><a href="transport.php">Transport</a></li>
 					<li><a href="toReceive.php">To Receive</a></li>
@@ -106,15 +108,6 @@
 				<ul class="side-dropdown">
 					<li><a href="maint_breeds.php">Breeds</a></li>
 					<li><a href="maint_species.php">Species</a></li>
-				</ul>
-			</li>
-			<li>
-				<!-- Pricing Maintenance -->
-				<a href="#"><i class='bx bxs-purchase-tag icon' ></i> Pricing Data <i class='bx bx-chevron-right icon-right' ></i></a>
-				<ul class="side-dropdown">
-					<li><a href="maint_cagePricing.php">Cage Pricing</a></li>
-					<li><a href="maint_pickupPricing.php">Pickup Pricing</a></li>
-					<li><a href="maint_transportPricing.php">Transport Pricing</a></li>
 				</ul>
 			</li>
 			<li>
@@ -265,14 +258,18 @@
 									$get_animalRecords_result = mysqli_fetch_array($get_animalRecords);
 
 									$get_date_data = mysqli_query($conn, "SELECT * FROM tbl_transactions_dates WHERE transaction_id = '$transactionID'");
-									$get_date_data_results = mysqli_fetch_array($get_date_data);
+									$get_date_data_results = mysqli_fetch_assoc($get_date_data);
+									preg_match_all('/Settle Remaining Payment-(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})/', $get_date_data_results['other_transaction_dates'], $matches);
+									$lastSubmittedDateTime = end($matches[1]);
+									$dateTimeObj = new DateTime($lastSubmittedDateTime);
+									$formattedDateTime = $dateTimeObj->format('Y-m-d');
 								
 								?>
 								<tr>
 									<td><?php echo $transactionID; ?></td>
 									<td class="table-image-text"><img src="data:image/jpeg;base64,<?php echo base64_encode($get_clientRecords_result['img_profile']); ?>" alt="Client Profile Image"> <span><?php echo $get_clientRecords_result['first_name']; ?></span></td>
 									<td><?php echo $paymentMethod; ?></td>
-									<td><?php echo $get_date_data_results['date_approved'] ?></td>
+									<td><?php echo $formattedDateTime ?></td>
 									<td>
 									<button class="btn-sm btn m-1 table-action-btn action-view" data-toggle="modal" data-target="#viewClientRequest" data-transaction-id="<?php echo $transactionID; ?>" onclick="viewClientRequest(this);"><i class="material-icons table-action-icon">visibility</i></button>
 										<!-- <button class="btn-sm btn m-1 table-action-btn action-approve" onclick="approvePayment('<?php echo $client_name ?>' , '<?php echo $transactionID; ?>')"><i class="material-icons table-action-icon">thumb_up</i></button> -->
@@ -353,14 +350,18 @@
 									$get_animalRecords_result = mysqli_fetch_array($get_animalRecords);
 
 									$get_date_data = mysqli_query($conn, "SELECT * FROM tbl_transactions_dates WHERE transaction_id = '$transactionID'");
-									$get_date_data_results = mysqli_fetch_array($get_date_data);
+									$get_date_data_results = mysqli_fetch_assoc($get_date_data);
+									preg_match_all('/Payment Submitted-(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})/', $get_date_data_results['other_transaction_dates'], $matches);
+									$lastSubmittedDateTime = end($matches[1]);
+									$dateTimeObj = new DateTime($lastSubmittedDateTime);
+									$formattedDateTime = $dateTimeObj->format('Y-m-d');
 								
 								?>
 								<tr>
 									<td><?php echo $transactionID; ?></td>
 									<td class="table-image-text"><img src="data:image/jpeg;base64,<?php echo base64_encode($get_clientRecords_result['img_profile']); ?>" alt="Client Profile Image"> <span><?php echo $get_clientRecords_result['first_name']; ?></span></td>
 									<td><?php echo $paymentMethod; ?></td>
-									<td><?php echo $get_date_data_results['date_approved'] ?></td>
+									<td><?php echo $formattedDateTime ?></td>
 									<td>
 										<button class="btn-sm btn m-1 table-action-btn action-view" data-toggle="modal" data-target="#viewClientRequest" data-transaction-id="<?php echo $transactionID; ?>" onclick="viewClientRequest(this);"><i class="material-icons table-action-icon">visibility</i></button>
 										<button class="btn-sm btn m-1 table-action-btn action-approve" onclick="approveFinalPayment('<?php echo $client_name ?>' , '<?php echo $transactionID; ?>')"><i class="material-icons table-action-icon">thumb_up</i></button>
@@ -443,14 +444,18 @@
 									$get_animalRecords_result = mysqli_fetch_array($get_animalRecords);
 
 									$get_date_data = mysqli_query($conn, "SELECT * FROM tbl_transactions_dates WHERE transaction_id = '$transactionID'");
-									$get_date_data_results = mysqli_fetch_array($get_date_data);
+									$get_date_data_results = mysqli_fetch_assoc($get_date_data);
+									preg_match_all('/Payment Rejected-(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})/', $get_date_data_results['other_transaction_dates'], $matches);
+									$lastSubmittedDateTime = end($matches[1]);
+									$dateTimeObj = new DateTime($lastSubmittedDateTime);
+									$formattedDateTime = $dateTimeObj->format('Y-m-d');
 								
 								?>
 								<tr>
 									<td><?php echo $transactionID; ?></td>
 									<td class="table-image-text"><img src="data:image/jpeg;base64,<?php echo base64_encode($get_clientRecords_result['img_profile']); ?>" alt="Client Profile Image"> <span><?php echo $get_clientRecords_result['first_name']; ?></span></td>
 									<td><?php echo $paymentMethod; ?></td>
-									<td><?php echo $get_date_data_results['date_approved'] ?></td>
+									<td><?php echo $formattedDateTime ?></td>
 									<td>
 										<button class="btn-sm btn m-1 table-action-btn action-view" data-toggle="modal" data-target="#viewClientRequest" data-transaction-id="<?php echo $transactionID; ?>" onclick="viewClientRequest(this);"><i class="material-icons table-action-icon">visibility</i></button>
 										<button class="btn-sm btn m-1 table-action-btn action-deny" data-toggle="modal" data-target="#cancelTransaction" data-client-id="<?php echo $clientID; ?>" data-transaction-id="<?php echo $transactionID; ?>" data-clientname="<?php echo $client_name; ?>" onclick="cancelClientDetails(this)"><i class="material-icons table-action-icon">cancel</i></button>

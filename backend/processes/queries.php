@@ -78,6 +78,38 @@
       header("Location: requests.php?transaction_approved_success=". urldecode($transaction_approved_succes));
     }
 
+    if(isset($_POST['insertRefundCost'])){
+      $refund_cost = mysqli_real_escape_string($conn, $_POST['refund_cost']);
+      $transaction_id = mysqli_real_escape_string($conn, $_POST['transaction_id']);
+
+      mysqli_query($conn, "UPDATE tbl_refunds SET refund_amount = '$refund_cost', status = 'refund-submitted' WHERE transaction_id = '$transaction_id'");
+      if (!empty($_FILES['images']['name'][0])) {
+        $fileNames = $_FILES['images']['name'];
+        $fileTmpNames = $_FILES['images']['tmp_name'];
+
+        for ($i = 0; $i < count($fileNames); $i++) {
+            $fileName = mysqli_real_escape_string($conn, $fileNames[$i]);
+            $fileTmpName = $fileTmpNames[$i];
+            $attachmentTag = "Refund Proof";
+
+            $fileContent = file_get_contents($fileTmpName);
+            $fileContent = mysqli_real_escape_string($conn, $fileContent);
+
+            $customAttachmentsID = generateCustomAttachmentsID($conn, $currentDate);
+
+            $insertQuery = "INSERT INTO tbl_transactions_attachments (attachment_id, transaction_id, attachment, attachment_tag) VALUES ('$customAttachmentsID', '$transaction_id', '$fileContent', '$attachmentTag')";
+            mysqli_query($conn, $insertQuery);
+        } 
+    }
+
+      mysqli_query($conn, "UPDATE tbl_transactions_dates SET other_transaction_dates = CONCAT('Refund Amount Updated-', NOW()) WHERE transaction_id = '$transaction_id'");
+      // mysqli_query($conn, "UPDATE tbl_transactions_dates SET other_transaction_dates = 'Approved-', NOW() WHERE transaction_id = '$transaction_id'");
+      // mysqli_query($conn, "UPDATE tbl_transactions_dates SET other_transaction_dates = CONCAT(other_transaction_dates, ',', 'Approved-', NOW()) WHERE transaction_id = '$transaction_id'");
+      $transaction_approved_succes = "Successfully submitted refund";
+      header("Location: refund.php?transaction_approved_success=". urldecode($transaction_approved_succes));
+    }
+
+
     if(isset($_GET['approveInitialPayment'])){
       $tID = $_GET['approveInitialPayment'];
 
@@ -109,6 +141,7 @@
       $tID = $_GET['rejectFinalPayment'];
 
       mysqli_query($conn, "UPDATE tbl_transactions SET status = 'f-receipt-reattempt' WHERE transaction_id = '$tID'");
+      mysqli_query($conn, "UPDATE tbl_transactions_dates SET other_transaction_dates = CONCAT(other_transaction_dates, ',', 'Payment Rejected-', NOW()) WHERE transaction_id = '$tID'");
       $payment_approved_success = "Successfully rejected Payment";
       header("Location: ../final_payment.php?payment_approved_success=" . urldecode($payment_approved_success));
     }
@@ -165,6 +198,35 @@
       $proceed_for_medical = "Successfully proceeded to next step (Ongoing Medical)";
       header("Location: ../pickup.php?pickup_successful=" . urldecode($proceed_for_medical));
     }
+
+    if (isset($_POST['insertMedicalAttachmentswPrice'])) {
+      $transaction_id = mysqli_real_escape_string($conn, $_POST['transaction_id']);
+      $currentDate = date('mdY');
+
+      if (!empty($_FILES['images']['name'][0])) {
+          $fileNames = $_FILES['images']['name'];
+          $fileTmpNames = $_FILES['images']['tmp_name'];
+
+          for ($i = 0; $i < count($fileNames); $i++) {
+              $fileName = mysqli_real_escape_string($conn, $fileNames[$i]);
+              $fileTmpName = $fileTmpNames[$i];
+              $attachmentTag = "Medical";
+
+              $fileContent = file_get_contents($fileTmpName);
+              $fileContent = mysqli_real_escape_string($conn, $fileContent);
+
+              $customAttachmentsID = generateCustomAttachmentsID($conn, $currentDate);
+
+              $insertQuery = "INSERT INTO tbl_transactions_attachments (attachment_id, transaction_id, attachment, attachment_tag) VALUES ('$customAttachmentsID', '$transaction_id', '$fileContent', '$attachmentTag')";
+              mysqli_query($conn, $insertQuery);
+          } 
+      }
+      mysqli_query($conn, "UPDATE tbl_transactions SET status = 'for-payment' WHERE transaction_id = '$transaction_id'");
+      mysqli_query($conn, "UPDATE tbl_transactions_dates SET other_transaction_dates = CONCAT(other_transaction_dates, ',', 'Settle Remaining Payment-', NOW()) WHERE transaction_id = '$transaction_id'");
+
+      $complete_medical = "Successfully proceeded to the next step (For Payment)";
+      header("Location: ?complete_medical=" . urldecode($complete_medical));
+  }
 
     if (isset($_POST['insertMedicalAttachments'])) {
       $transaction_id = mysqli_real_escape_string($conn, $_POST['transaction_id']);
@@ -333,6 +395,7 @@
     if(isset($_GET['approveFinalPayment'])){
       $tID = $_GET['approveFinalPayment'];
       mysqli_query($conn, "UPDATE tbl_transactions SET status = 'for-booking' WHERE transaction_id = '$tID'");
+      mysqli_query($conn, "UPDATE tbl_transactions_dates SET other_transaction_dates = CONCAT(other_transaction_dates, ',', 'Final Payment Approved-', NOW()) WHERE transaction_id = '$tID'");
       $for_transport_success = "Successfully proceeded to next step (Booking Transportation)";
       header("Location: ../final_payment.php?for_transport_success=" . urldecode($for_transport_success));
     }
@@ -361,10 +424,49 @@
 
     if(isset($_GET['approveCancel'])){
       $tID = $_GET['approveCancel'];
+      $currentDate = date('mdY');
+      $customRefundID = generateRefundID($conn, $currentDate);
+
+      $get_status_before_cancel = mysqli_query($conn, "SELECT status FROM tbl_transactions WHERE transaction_id = '$tID'");
+      $status_before_cancel_result = mysqli_fetch_assoc($get_status_before_cancel);
+      $previous_status = $status_before_cancel_result['status'];
+
       mysqli_query($conn, "UPDATE tbl_transactions SET status = 'cancelled' WHERE transaction_id = '$tID'");
       mysqli_query($conn, "UPDATE tbl_transactions_dates SET other_transaction_dates = CONCAT(other_transaction_dates, ',', 'Cancelled-', NOW()) WHERE transaction_id = '$tID'");
+
+      $get_payment_type = mysqli_query($conn, "SELECT * FROM tbl_payments WHERE transaction_id = '$tID'");
+			$payment_type_result = mysqli_fetch_assoc($get_payment_type);
+			$payment_type = $payment_type_result['payment_type'];
+
+      if($payment_type == "Down Payment"){
+        if($previous_status != 'for-approval' && $previous_status != 'for-downpayment' && $previous_status != 'i-receipt-submitted' && $previous_status != 'i-receipt-reattempt'){ 
+          mysqli_query($conn, "INSERT INTO tbl_refunds (refund_id, transaction_id, status) VALUES ('$customRefundID', '$tID', 'pending-refund')");
+        }
+      } else if($payment_type == "Full Payment"){
+        if($previous_status != 'for-approval' && $previous_status != 'for-payment' && $previous_status != 'f-receipt-submitted' && $previous_status != 'f-receipt-reattempt'){ 
+          mysqli_query($conn, "INSERT INTO tbl_refunds (refund_id, transaction_id, status) VALUES ('$customRefundID', '$tID', 'pending-refund')");
+        }
+      }
       $cancelled_transaction_success = "Transaction has been successfully cancelled";
       header("Location: ../cancellations.php?cancelled_transaction_success=" . urldecode($cancelled_transaction_success));
+    }
+
+    function generateRefundID($conn, $currentDate) {
+      // Get the maximum transaction number from the database
+      $checkTransaction = "SELECT MAX(CAST(SUBSTRING(refund_id, 13) AS UNSIGNED)) AS max_number FROM tbl_refunds";
+      $result = mysqli_query($conn, $checkTransaction);
+      $get_max_number = mysqli_fetch_assoc($result);
+      $maxNumber = $get_max_number['max_number'];
+  
+      if (!is_null($maxNumber)) {
+          $transactionNumber = (int)$maxNumber + 1;
+      } else {
+          $transactionNumber = 1;
+      }
+  
+      $customTransactionID = "RFND" . $currentDate . $transactionNumber;
+      return $customTransactionID;
+
     }
 
     if(isset($_GET['finishReturn'])){
@@ -456,8 +558,33 @@
       $status_before_cancel = $status_before_cancel_result['status'];
 
       mysqli_query($conn, "UPDATE tbl_transactions SET status = 'cancelled' WHERE transaction_id = '$transaction_id'"); 
+      mysqli_query($conn, "UPDATE tbl_transactions_dates SET other_transaction_dates = CONCAT(other_transaction_dates, ',', 'Cancelled-', NOW()) WHERE transaction_id = '$transaction_id'");
       mysqli_query($conn, "INSERT INTO tbl_cancelled_transactions (cancellation_id, transaction_id, reason_for_cancellation, previous_status) values ('$customCancelID', '$transaction_id', '$rfctext', '$status_before_cancel')");
       $cancelled_transaction_success = "Transaction has been successfully cancelled";
+      header("Location: ?cancelled_transaction_success=" . urldecode($cancelled_transaction_success));
+    }
+
+    if(isset($_POST['rfcwReturn'])){
+      $currentDate = date('mdY');
+      $customRefundID = generateRefundID($conn, $currentDate);
+      $customCancelID = generateCustomCancellationID($conn, $currentDate);
+      $rfctext = mysqli_real_escape_string($conn, $_POST['rfctext']);
+      $transaction_id = mysqli_real_escape_string($conn, $_POST['cancel_transaction_id']);
+
+      $get_status_before_cancel = mysqli_query($conn, "SELECT status FROM tbl_transactions WHERE transaction_id = '$transaction_id'");
+      $status_before_cancel_result = mysqli_fetch_assoc($get_status_before_cancel);
+      $previous_status = $status_before_cancel_result['status'];
+
+      $get_payment_type = mysqli_query($conn, "SELECT * FROM tbl_payments WHERE transaction_id = '$transaction_id'");
+			$payment_type_result = mysqli_fetch_assoc($get_payment_type);
+			$payment_type = $payment_type_result['payment_type'];
+
+      mysqli_query($conn, "INSERT INTO tbl_refunds (refund_id, transaction_id, status) VALUES ('$customRefundID', '$transaction_id', 'pending-refund')");
+
+      mysqli_query($conn, "UPDATE tbl_transactions SET status = 'pending-return' WHERE transaction_id = '$transaction_id'"); 
+      mysqli_query($conn, "INSERT INTO tbl_cancelled_transactions (cancellation_id, transaction_id, reason_for_cancellation, previous_status) values ('$customCancelID', '$transaction_id', '$rfctext', '$previous_status')");
+      mysqli_query($conn, "UPDATE tbl_transactions_dates SET other_transaction_dates = CONCAT(other_transaction_dates, ',', 'Transaction Cancelled by Administrator-', NOW()) WHERE transaction_id = '$transaction_id'");
+      $cancelled_transaction_success = "Transaction is now pending for return";
       header("Location: ?cancelled_transaction_success=" . urldecode($cancelled_transaction_success));
     }
 
@@ -637,13 +764,20 @@
   
 
     if (isset($_POST['validateSpecies'])) {
-      header("Location: dashboard.php");
-      
+      $species_id = mysqli_real_escape_string($conn, $_POST['c_species_id']);
+      mysqli_query($conn, "UPDATE tbl_species SET status = 'verified', approved_on = NOW() WHERE species_id = '$species_id'");
+
+      $mark_read_notif_success = "Successfully approved species";
+      header("Location: ?mark_read_notif_success=" . urldecode($mark_read_notif_success));
     }
 
+    if (isset($_POST['validateBreeds'])) {
+      $breed_id = mysqli_real_escape_string($conn, $_POST['c_breed_id']);
+      mysqli_query($conn, "UPDATE tbl_breeds SET status = 'verified', approved_on = NOW() WHERE breed_id = '$breed_id'");
 
-
-
+      $mark_read_notif_success = "Successfully approved breed";
+      header("Location: ?mark_read_notif_success=" . urldecode($mark_read_notif_success));
+    }
 
     // ARCHIVE
     // Archive Admin
@@ -1051,6 +1185,15 @@
     // FETCH pending cancellation
     $get_cancelled_transactions = mysqli_query($conn, "SELECT * FROM tbl_transactions WHERE status='cancelled'");
 
+    //FETCH pending-refund
+    $get_pending_refund = mysqli_query($conn, "SELECT * FROM tbl_refunds WHERE status='pending-refund'");
+
+    //FETCH Submitted Refunds
+    $get_submitted_refund = mysqli_query($conn, "SELECT * FROM tbl_refunds WHERE status='refund-submitted'");
+
+    //FETCH Refunded transactions
+    $get_refunded_transactions = mysqli_query($conn, "SELECT * FROM tbl_refunds WHERE status='refunded'");
+
     // FETCH Client Completed
     $get_clientCompleted = mysqli_query($conn, "SELECT * FROM tbl_transactions WHERE status");
 
@@ -1070,12 +1213,12 @@
     $get_archivedAdmin = mysqli_query($conn, "SELECT * FROM tbl_archived_administrator ORDER BY archived_on ASC");
 
     // FETCH Breeds Data for Animal Breeds Table
-    $get_breeds_validate = mysqli_query($conn, "SELECT * FROM tbl_breeds WHERE status = 0 ORDER BY submitted_on ASC");
-    $get_breeds_validated = mysqli_query($conn, "SELECT * FROM tbl_breeds WHERE status = 1 ORDER BY approved_on ASC");
+    $get_breeds_validate = mysqli_query($conn, "SELECT * FROM tbl_breeds WHERE status = 'unverified' ORDER BY submitted_on ASC");
+    $get_breeds_validated = mysqli_query($conn, "SELECT * FROM tbl_breeds WHERE status = 'verified' ORDER BY approved_on ASC");
 
     // FETCH Species Data for Animal Species Table
-    $get_species_validate = mysqli_query($conn, "SELECT * FROM tbl_species WHERE status = 0 ORDER BY submitted_on ASC");
-    $get_species_validated = mysqli_query($conn, "SELECT * FROM tbl_species WHERE status = 1 ORDER BY approved_on ASC");
+    $get_species_validate = mysqli_query($conn, "SELECT * FROM tbl_species WHERE status = 'unverified' ORDER BY submitted_on ASC");
+    $get_species_validated = mysqli_query($conn, "SELECT * FROM tbl_species WHERE status = 'verified' ORDER BY approved_on ASC");
 
     // FETCH Breeds Data for Archived Breeds Table
     $get_archivedBreeds = mysqli_query($conn, "SELECT * FROM tbl_archived_breeds ORDER BY archived_on ASC");
@@ -1129,6 +1272,7 @@
           'first_name' => $get_client_result['first_name'],
           'last_name' => $get_client_result['last_name'],
           'email' => $get_client_result['email'],
+          'contact' => $get_client_result['contact'],
           'imageData' => base64_encode($get_client_result['img_profile'])
       ];
       
@@ -1140,7 +1284,7 @@
     // FETCH Species Data for Confirm Validate Species
     if (isset($_GET['fetch_species_id'])) {
       $id = $_GET['fetch_species_id'];
-      $get_species = mysqli_query($conn, "SELECT * FROM tbl_species_validate WHERE species_id = '$id'");
+      $get_species = mysqli_query($conn, "SELECT * FROM tbl_species WHERE species_id = '$id'");
       $get_species_result = mysqli_fetch_assoc($get_species);
       
       $speciesData = [
@@ -1154,6 +1298,24 @@
       echo json_encode($speciesData);
       exit;
     }
+
+        // FETCH Species Data for Confirm Validate Breeds
+        if (isset($_GET['fetch_breeds_id'])) {
+          $id = $_GET['fetch_breeds_id'];
+          $get_species = mysqli_query($conn, "SELECT * FROM tbl_breeds WHERE breed_id = '$id'");
+          $get_species_result = mysqli_fetch_assoc($get_species);
+          
+          $speciesData = [
+              'breed_id' => $get_species_result['breed_id'],
+              'submitted_by' => $get_species_result['submitted_by'],
+              'description' => $get_species_result['description'],
+              'submitted_on' => $get_species_result['submitted_on']
+          ];
+          
+          header('Content-Type: application/json');
+          echo json_encode($speciesData);
+          exit;
+        }
     
     // FETCH COUNT 
     // FETCH COUNT Admin Notifications

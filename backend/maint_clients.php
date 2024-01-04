@@ -63,7 +63,7 @@
 			<li class="divider" data-text="processes"></li>
 			<li>
 				<!-- Transactions -->
-				<a href="#"><i class='bx bxs-collection icon'></i> Transactions <i class='bx bx-chevron-right icon-right' ></i></a>
+				<a href="#" class=" "><i class='bx bxs-collection icon'></i> Transactions <i class='bx bx-chevron-right icon-right' ></i></a>
 				<ul class="side-dropdown">
 					<!-- Approval -->
 					<li class="divider" data-text="Approval"></li>
@@ -78,8 +78,10 @@
 					<li><a href="initial_payment.php">Initial Payment</a></li>
 					<li><a href="final_payment.php">Final Payment</a></li>
 					<li><a href="fullCash_payment.php">Full Payment</a></li>
+					<li><a href="refund.php">Refund</a></li>
 					<!-- Process -->
 					<li class="divider" data-text="Process"></li>
+					<li><a href="booking.php">Booking</a></li>
 					<li><a href="medical.php">Medical</a></li>
 					<li><a href="transport.php">Transport</a></li>
 					<li><a href="toReceive.php">To Receive</a></li>
@@ -106,15 +108,6 @@
 				<ul class="side-dropdown">
 					<li><a href="maint_breeds.php">Breeds</a></li>
 					<li><a href="maint_species.php">Species</a></li>
-				</ul>
-			</li>
-			<li>
-				<!-- Pricing Maintenance -->
-				<a href="#"><i class='bx bxs-purchase-tag icon' ></i> Pricing Data <i class='bx bx-chevron-right icon-right' ></i></a>
-				<ul class="side-dropdown">
-					<li><a href="maint_cagePricing.php">Cage Pricing</a></li>
-					<li><a href="maint_pickupPricing.php">Pickup Pricing</a></li>
-					<li><a href="maint_transportPricing.php">Transport Pricing</a></li>
 				</ul>
 			</li>
 			<li>
@@ -241,11 +234,11 @@
 											</div>
 										</td>
 										<td><?php echo $get_clients_result['first_name'].' '.$get_clients_result['last_name']; ?></td>
-										<td><?php echo '0'.$get_clients_result['contact']; ?></td>
+										<td><?php echo $get_clients_result['contact']; ?></td>
 										<td><?php echo $get_clients_result['email']; ?></td>
 										<td><?php echo $get_clients_result['created_on']; ?></td>
 										<td>
-											<a href="#"><button class="btn-sm btn m-1 table-action-btn action-approve"><i class="material-icons table-action-icon">visibility</i></button></a>
+											<a><button class="btn-sm btn m-1 table-action-btn action-approve" data-toggle="modal" data-id="<?php echo $get_clients_result['client_id']; ?>" data-target="#viewClient" onclick="viewClient(this)"><i class="material-icons table-action-icon">visibility</i></button></a>
 										</td>
 									</tr>
 								<?php } ?>
@@ -263,6 +256,45 @@
 				</div>
 			</div>
 			<!-- Client Accounts -->
+
+			<!-- VIEW CLIENT -->
+			<div class="modal fade" id="viewClient" tabindex="-1" role="dialog" aria-hidden="true">
+				<div class="modal-dialog modal-dialog-centered" role="document">
+					<div class="modal-content popup">
+						<div class="modal-header">
+							<h5 class="modal-title popup-title" id="v_client_id"></h5>
+							<span aria-hidden="true" data-dismiss="modal" class="modal-exit">&times;</span>
+							</button>
+						</div>
+						<div class="modal-body">
+							<div class="row form-modal" style="padding-right: 20px;">
+								<div class="col col-md-4 ml-auto view-admin-image-div">
+									<div class="image-container">
+										<img id="v_image" src="" alt="Admin Profile" class="view-admin-image">
+									</div>
+								</div>
+								<div class="col col-md-8 ml-auto">
+									<div class="row mb-3 ml-auto">
+										<p class="pop-up-heading" style="padding-left: 0px;">Client Name:</p>
+										<input type="text" class="form-control" placeholder="Name" name="name" id="v_name" required readonly>
+									</div>
+									<div class="row mb-8 ml-auto">
+										<p class="pop-up-heading">Email:</p>
+										<input type="text" class="form-control" placeholder="Username" name="v_email" id="v_email" required readonly>
+									</div>
+									<br>
+									<div class="row mb-8 ml-auto">
+										<p class="pop-up-heading">Contact:</p>
+										<input type="text" class="form-control" placeholder="Password" name="v_client_contact" id="v_client_contact" required readonly>
+									</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- VIEW CLIENT -->
 		</main>
 		<!-- Main -->
 	</section>

@@ -78,8 +78,10 @@
 					<li><a href="initial_payment.php">Initial Payment</a></li>
 					<li><a href="final_payment.php">Final Payment</a></li>
 					<li><a href="fullCash_payment.php">Full Payment</a></li>
+					<li><a href="refund.php">Refund</a></li>
 					<!-- Process -->
 					<li class="divider" data-text="Process"></li>
+					<li><a href="booking.php">Booking</a></li>
 					<li><a href="medical.php">Medical</a></li>
 					<li><a href="transport.php">Transport</a></li>
 					<li><a href="toReceive.php">To Receive</a></li>
@@ -106,15 +108,6 @@
 				<ul class="side-dropdown">
 					<li><a href="maint_breeds.php">Breeds</a></li>
 					<li><a href="maint_species.php">Species</a></li>
-				</ul>
-			</li>
-			<li>
-				<!-- Pricing Maintenance -->
-				<a href="#"><i class='bx bxs-purchase-tag icon' ></i> Pricing Data <i class='bx bx-chevron-right icon-right' ></i></a>
-				<ul class="side-dropdown">
-					<li><a href="maint_cagePricing.php">Cage Pricing</a></li>
-					<li><a href="maint_pickupPricing.php">Pickup Pricing</a></li>
-					<li><a href="maint_transportPricing.php">Transport Pricing</a></li>
 				</ul>
 			</li>
 			<li>
@@ -262,7 +255,12 @@
 									<td> <?php echo $formattedDateTime; ?> </td>
 									<td>
 										<button class="btn-sm btn m-1 table-action-btn action-view" data-toggle="modal" data-target="#viewClientRequest" data-transaction-id="<?php echo $transactionID; ?>" onclick="viewClientRequest(this);"><i class="material-icons table-action-icon">visibility</i></button>
-										<button class="btn-sm btn m-1 table-action-btn action-approve" data-toggle="modal" data-target="#addMedicalAttachments" data-client-id="<?php echo $clientID; ?>" data-transaction-id="<?php echo $transactionID; ?>" data-clientname="<?php echo $client_name; ?>" onclick="medicalClientDetails(this)"><i class="material-icons table-action-icon">thumb_up</i></button>
+										<?php
+											if($payment_type == "Down Payment"){ ?>
+												<button class="btn-sm btn m-1 table-action-btn action-approve" data-toggle="modal" data-target="#addMedicalAttachmentWPrice" data-client-id="<?php echo $clientID; ?>" data-transaction-id="<?php echo $transactionID; ?>" data-clientname="<?php echo $client_name; ?>" onclick="medicalClientDetailswPrice(this)"><i class="material-icons table-action-icon">thumb_up</i></button>
+											<?php }  else if($payment_type == "Full Payment"){ ?>
+												<button class="btn-sm btn m-1 table-action-btn action-approve" data-toggle="modal" data-target="#addMedicalAttachments" data-client-id="<?php echo $clientID; ?>" data-transaction-id="<?php echo $transactionID; ?>" data-clientname="<?php echo $client_name; ?>" onclick="medicalClientDetails(this)"><i class="material-icons table-action-icon">thumb_up</i></button>
+											<?php } ?>
 										<button class="btn-sm btn m-1 table-action-btn action-deny" data-toggle="modal" data-target="#cancelTransaction" data-client-id="<?php echo $clientID; ?>" data-transaction-id="<?php echo $transactionID; ?>" data-clientname="<?php echo $client_name; ?>" onclick="cancelClientDetails(this)"><i class="material-icons table-action-icon">cancel</i></button>
 									</td>
 								</tr>
@@ -274,6 +272,41 @@
 			</div>
 			<!-- On Transit -->
 			<!-- Pickup -->
+
+			<!-- ADD MEDICAL ATTACHMENTS -->
+			<div class="modal fade" id="addMedicalAttachmentWPrice" tabindex="-1" role="dialog" aria-hidden="true">
+				<div class="modal-dialog modal-dialog-centered" role="document">
+					<div class="modal-content popup">
+						<div class="modal-header">
+							<h5 class="modal-title popup-title" id="exampleModalCenterTitle">Add Medical Attachments</h5>
+							<span aria-hidden="true" data-dismiss="modal" class="modal-exit">&times;</span>
+							</button>
+						</div>
+						<form id="medicalAttachmentsFormwPrice" action="medical.php" method="POST" autocomplete="off" enctype="multipart/form-data">
+							<div class="modal-body" style="padding-bottom: 0px;">
+								<div class="row form-modal" style="padding-right: 20px;">
+									<div class="col col-md-12 ml-auto">
+										<p class="pop-up-heading">Click the button to add medical attachments:</p>
+										<div class="form-group">
+											<input type="hidden" name="client_name" id="pmedical_cName">
+											<input type="hidden" name="client_id" id="pmedical_cID">
+											<input type="hidden" name="transaction_id" id="pmedical_tID">
+											<label for="imageFile">Choose Image:</label>
+                                            <input type="file" class="form-control-file" accept=".jpg, .jpeg, .png, .pdf, .docx, .xls, .xlsx" id="pmedicalAttachments" name="images[]" multiple>
+                                        </div>
+										<input type="hidden" id="insertMedicalAttachmentswPriceInput" name="insertMedicalAttachmentswPrice">
+									</div>
+									<div class="modal-footer popup-footer">
+										<button type="button" class="btn btn-secondary action-cancel" data-dismiss="modal">Close</button>
+										<button type="submit" id="medicalAttachmentsSubmit" class="btn action-view" name="insertMedicalAttachmentswPrice" onclick="uploadMedicalAttachmentswPrice(event)">Proceed</button>
+									</div>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+			<!-- ADD MEDICAL ATTACHMENTS -->
 
 			<!-- ADD MEDICAL ATTACHMENTS -->
 			<div class="modal fade" id="addMedicalAttachments" tabindex="-1" role="dialog" aria-hidden="true">
@@ -319,7 +352,7 @@
 							<span aria-hidden="true" data-dismiss="modal" class="modal-exit">&times;</span>
 							</button>
 						</div>
-						<form id="insertRFC" action="pickup.php" method="POST" autocomplete="off" enctype="multipart/form-data">
+						<form id="insertRFCwReturn" action="medical.php" method="POST" autocomplete="off" enctype="multipart/form-data">
 							<input type="hidden" id="e_admin_id" name="e_admin_id">
 							<div class="modal-body" style="padding-bottom: 0px;">
 								<div class="row form-modal" style="padding-right: 20px;">
@@ -332,11 +365,11 @@
 											<input type="hidden" name="cancel_client_id" id="cancel_client_id">
 											<input type="hidden" name="cancel_transaction_id" id="cancel_transaction_id">
 										</div>
-										<input type="hidden" id="rfcInput" name="rfc">
+										<input type="hidden" id="rfcwReturnInput" name="rfcwReturn">
 									</div>
 									<div class="modal-footer popup-footer">
 										<button type="button" class="btn btn-secondary action-cancel" data-dismiss="modal">Close</button>
-										<button type="submit" id="rfcSubmit" class="btn action-view" name="rfc" onclick="cancelTransactionValidate(event)">Cancel Transaction</button>
+										<button type="submit" id="rfcSubmit" class="btn action-view" name="rfcwReturn" onclick="cancelTransactionValidateWReturn(event)">Cancel Transaction</button>
 									</div>
 								</div>
 							</div>
