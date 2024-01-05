@@ -1257,6 +1257,32 @@
     $get_messagesCount_dashboard = mysqli_query($conn, "SELECT * FROM tbl_messages WHERE user_receiver_id='ADMIN'");
     $get_messages_dashboard_count = mysqli_num_rows($get_messagesCount_dashboard);
 
+    $get_transaction_today = mysqli_query($conn, "SELECT COUNT(*) AS transaction_count FROM tbl_transactions_dates WHERE DATE(date_filed_request) = CURDATE()");
+    $transaction_today_result = mysqli_fetch_assoc($get_transaction_today);
+    $transactions_today = $transaction_today_result['transaction_count'];
+
+    $get_transaction_month = mysqli_query($conn, "SELECT COUNT(*) AS transaction_count FROM tbl_transactions_dates WHERE MONTH(date_filed_request) = MONTH(CURDATE()) AND YEAR(date_filed_request) = YEAR(CURDATE())");
+    $transaction_month_result = mysqli_fetch_assoc($get_transaction_month);
+    $transactions_month = $transaction_month_result['transaction_count'];
+
+    $get_completed_today = mysqli_query($conn, "SELECT COUNT(*) AS completed_count 
+    FROM tbl_transactions_dates 
+    WHERE other_transaction_dates LIKE '%Completed-%' 
+    AND SUBSTRING(other_transaction_dates, LOCATE('Completed-', other_transaction_dates) + LENGTH('Completed-'), 10) = CURDATE()");
+    $completed_this_day_result = mysqli_fetch_assoc($get_completed_today);
+    $completed_today = $completed_this_day_result['completed_count'];
+
+    //$get_completed_this_month = mysqli_query($conn, "SELECT COUNT(*) AS completed_count FROM tbl_transactions_dates WHERE other_transaction_dates LIKE '%Completed-%'");
+    $get_completed_this_month = mysqli_query($conn, "SELECT COUNT(*) AS completed_count 
+    FROM tbl_transactions_dates 
+    WHERE other_transaction_dates LIKE '%Completed-%' 
+    AND SUBSTRING(other_transaction_dates, LOCATE('Completed-', other_transaction_dates) + LENGTH('Completed-'), 10) LIKE CONCAT(YEAR(CURDATE()), '-', LPAD(MONTH(CURDATE()), 2, '0'), '%')");
+
+    $completed_this_month_result = mysqli_fetch_assoc($get_completed_this_month);
+    $completed_count_this_month = $completed_this_month_result['completed_count'];
+
+    //mysqli_query($conn, "UPDATE tbl_transactions_dates SET other_transaction_dates = CONCAT(other_transaction_dates, ',', 'Transaction Cancelled by Administrator-', NOW()) WHERE transaction_id = '$transaction_id'");
+
     $get_requests_dashboard = mysqli_query($conn, "SELECT * FROM tbl_transactions WHERE status='for-approval' LIMIT 4");
     $get_allrequests_dashboard = mysqli_query($conn, "SELECT * FROM tbl_transactions WHERE status='for-approval'");
     $get_allrequests_dashboard_count = mysqli_num_rows($get_allrequests_dashboard);

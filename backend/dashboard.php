@@ -187,7 +187,7 @@
 					<div class="card card-analytics">
 						<div class="card-body card-body-analytics">
 							<h6 class="card-title card-title-analytics">Transactions for Today</h6>
-							<h3 class="card-title card-content-analytics"><i class='bx bx-receipt icon-analytics'></i> 20</h3>
+							<h3 class="card-title card-content-analytics"><i class='bx bx-receipt icon-analytics'></i> <?php echo $transactions_today; ?></h3>
 						</div>
 					</div>
 				</div>
@@ -195,7 +195,7 @@
 					<div class="card card-analytics">
 						<div class="card-body card-body-analytics">
 							<h6 class="card-title card-title-analytics">Transactions this Month</h6>
-							<h3 class="card-title card-content-analytics"><i class='bx bx-receipt icon-analytics'></i> 102</h3>
+							<h3 class="card-title card-content-analytics"><i class='bx bx-calendar-alt icon-analytics' ></i></i> <?php echo $transactions_month; ?></h3>
 						</div>
 					</div>
 				</div>
@@ -203,7 +203,7 @@
 					<div class="card card-analytics">
 						<div class="card-body card-body-analytics">
 							<h6 class="card-title card-title-analytics">Completed Today</h6>
-							<h3 class="card-title card-content-analytics"><i class='bx bx-box icon-analytics'></i> 5</h3>
+							<h3 class="card-title card-content-analytics"><i class='bx bx-box icon-analytics'></i><?php echo $completed_today ?></h3>
 						</div>
 					</div>
 				</div>
@@ -211,7 +211,7 @@
 					<div class="card card-analytics">
 						<div class="card-body card-body-analytics">
 							<h6 class="card-title table-card-title">Completed this Month</h6>
-							<h3 class="card-title card-content-analytics"><i class='bx bx-box icon-analytics'></i> 20</h3>
+							<h3 class="card-title card-content-analytics"><i class='bx bx-calendar-check icon-analytics'></i></i><?php echo $completed_count_this_month; ?></h3>
 						</div>
 					</div>
 				</div>
