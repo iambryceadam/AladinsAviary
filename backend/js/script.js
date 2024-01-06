@@ -527,7 +527,6 @@ function closeImageModal() {
 }
 
 function getTransactionStatusText(status) {
-    function getStatusLabelText(status) {
 		switch (status) {
 			case 'for-approval':
 				return 'Pending For Approval';
@@ -574,7 +573,6 @@ function getTransactionStatusText(status) {
 			default:
 				return '404 STATUS';
 		}
-	}
 }
 
 function approveInitialPayment(name, tID){

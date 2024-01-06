@@ -5,6 +5,7 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 	<!-- Box Icons -->
 	<link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 	<!-- Box Icons -->
@@ -17,9 +18,57 @@
 	<!-- External Stylesheet -->
 	<link rel="stylesheet" href="css/style.css">
 	<!-- External Stylesheet -->
+
+	<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+        google.charts.load('current', {'packages':['corechart']});
+        google.charts.setOnLoadCallback(drawChart);
+
+        function drawChart() {
+            var data = google.visualization.arrayToDataTable([
+                ['species_description', 'occurrence_count'],
+                <?php
+                    // Your PHP code for SQL query
+                    $sql = "SELECT s.description AS species_description, COUNT(*) AS occurrence_count
+                            FROM tbl_transactions t
+                            JOIN tbl_animals a ON t.animal_id = a.animal_id
+                            JOIN tbl_breeds b ON a.breed_id = b.breed_id
+                            JOIN tbl_species s ON b.species_id = s.species_id
+                            GROUP BY s.description
+                            ORDER BY occurrence_count DESC
+                            LIMIT 5";
+
+                    $result = mysqli_query($conn, $sql);
+
+                    while ($row = mysqli_fetch_assoc($result)) {
+                        echo "['" . $row['species_description'] . "'," . $row['occurrence_count'] . "],";
+                    }
+                ?>
+            ]);
+
+            var options = {
+                title: 'Top 5 Species Filed for Transactions',
+				pieHole: 0.4,
+				width: '10%',
+				is3D: true,
+				chartArea: {width: '80%', height: '80%'},
+				legend: {
+					alignment: 'center', // This is not a standard option, you may need to adjust positioning manually
+					position: 'right', // You can change the position based on your preference
+					textStyle: {fontSize: 16, color: 'black', bold: true}
+				},
+				titleTextStyle: {fontSize: 18, bold: true},
+				responsive: true,
+            };
+
+            var chart = new google.visualization.PieChart(document.getElementById('piechart'));
+
+            chart.draw(data, options);
+        }
+    </script>
 	
 	<link rel="icon" type="image/x-icon" href="images/app_icon.png">
-	<title>Audit Trail</title>
+	<title>Transactions Audit</title>
 </head>
 <body>
 	
@@ -176,50 +225,223 @@
 		<!-- Main -->
 		<main>
 			<!-- Page Header -->
-			<h1 class="title">Audit Trail</h1>
+			<h1 class="title">Transactions Audit</h1>
 			<!-- Page Header -->
 
 			<!-- Breadcrumbs -->
 			<ul class="breadcrumbs">
 				<li><p>Reports</p></li>
 				<li class="divider">/</li>
-				<li><a href="#" class="active">Audit Trail</a></li>
+				<li><a href="#" class="active">Transactions Audit</a></li>
 			</ul>
 			<!-- Breadcrumbs -->
-
+			
 			<!-- Requests -->
+			<div class="analytics-main-container">
+				<div id="piechart" style="width: 40%; height: 350px; border-radius: 15px; background-color: white; border-style: solid; border-color: white;"></div>
+				<div class="analytics-group-col">
+					<div class="upper-analytics">
+						<?php 
+							$get_total_num_of_transactions = mysqli_query($conn, "SELECT COUNT(*) as transaction_count FROM tbl_transactions");
+							$total_number_result = mysqli_fetch_assoc($get_total_num_of_transactions);
+							$total_transactions_all = $total_number_result['transaction_count'];
+							
+							/////////////////////////////////////////////////////////////////////
+							
+							$get_payment_data = mysqli_query($conn, "SELECT * FROM tbl_payments");
+							$get_payment_data_results = mysqli_fetch_all($get_payment_data, MYSQLI_ASSOC);
+
+							$initial_total_cost = 0;
+							$final_total_cost = 0;
+							$total_transactions_selected = 0;
+
+							foreach ($get_payment_data_results as $payment) {
+								$initial_cost = empty($payment['initial_payment_cost']) ? 0 : $payment['initial_payment_cost'];
+								$final_cost = empty($payment['final_payment_cost']) ? 0 : $payment['final_payment_cost'];
+
+								// Only include transactions with non-zero values in either initial_payment_cost or final_payment_cost
+								if ($initial_cost != 0 || $final_cost != 0) {
+									$initial_total_cost += $initial_cost;
+									$final_total_cost += $final_cost;
+									$total_transactions_selected++;
+								}
+							}
+
+							// Calculate the average per transaction
+							$average_transaction_cost = 0;
+							if ($total_transactions_selected > 0) {
+								$average_transaction_cost = ($initial_total_cost + $final_total_cost) / $total_transactions_selected;
+								$average_transaction_cost = number_format($average_transaction_cost, 2); // Limit to 2 decimals
+							}
+							
+							$get_total_num_of_transactions = mysqli_query($conn, "SELECT COUNT(*) as total_transaction_count FROM tbl_transactions");
+							$total_transaction_result = mysqli_fetch_assoc($get_total_num_of_transactions);
+							$total_transactions_all = $total_transaction_result['total_transaction_count'];
+
+							// Get the number of refunded transactions
+							$get_refunded_transactions = mysqli_query($conn, "SELECT COUNT(DISTINCT transaction_id) as refunded_transaction_count FROM tbl_refunds");
+							$refunded_transaction_result = mysqli_fetch_assoc($get_refunded_transactions);
+							$refunded_transactions = $refunded_transaction_result['refunded_transaction_count'];
+
+							// Calculate the refund rate
+							$refund_rate = 0;
+							if ($total_transactions_all > 0) {
+								$refund_rate = ($refunded_transactions / $total_transactions_all) * 100;
+								$refund_rate = number_format($refund_rate, 2); // Limit to 2 decimals
+							}
+							$get_refund_data = mysqli_query($conn, "SELECT SUM(refund_amount) as total_refund_amount, COUNT(DISTINCT transaction_id) as refunded_transaction_count FROM tbl_refunds");
+							$refund_data_result = mysqli_fetch_assoc($get_refund_data);
+
+							$total_refund_amount = $refund_data_result['total_refund_amount'];
+							$refunded_transaction_count = $refund_data_result['refunded_transaction_count'];
+
+							// Calculate the average refund cost
+							$average_refund_cost = 0;
+							if ($refunded_transaction_count > 0) {
+								$average_refund_cost = $total_refund_amount / $refunded_transaction_count;
+								$average_refund_cost = number_format($average_refund_cost, 2); // Limit to 2 decimals
+							}
+						?>
+						<div class="container-analytics-cards">
+							<h5>Total Number of transactions</h5>
+							<br>
+							<h2 class="data-analytics-num"><?php echo $total_transactions_all ?></h2>
+						</div>
+						<div class="container-analytics-cards">
+							<h5>Average Transaction Cost</h5>
+							<br>
+							<h2 class="data-analytics-num">P<?php echo $average_transaction_cost ?></h2>
+						</div>
+					</div>
+					<div class="upper-analytics">
+						<div class="container-analytics-cards">
+							<h5>Refund Rate</h5>
+							<br>
+							<h2 class="data-analytics-num"><?php echo $refund_rate?>%</span</h2>
+						</div>
+						<div class="container-analytics-cards">
+							<h5>Average Refund Cost</h5>
+							<br>
+							<h2 class="data-analytics-num">P<?php echo $average_refund_cost ?></h2>
+						</div>
+					</div>
+				</div>
+			</div>
+			
+			<br>
 			<div class="card table-card">
 				<div class="card-body table-card-body">
-					<form action="#">
-						<div class="form-group">
-							<input type="text" placeholder="Search" id="table-search-client-requests">
-							<i class='bx bx-search icon'></i>
+					<div class="table-search-dropdown">
+						<form action="#">
+							<div class="form-group" style="flex: 95;">
+								<input type="text" placeholder="Search" id="table-search">
+								<i class='bx bx-search icon'></i>
+							</div>
+						</form>
+						<div class="input-group mb-3" style="flex: 5;">
+							<select class="custom-select payment-method" id="inputGroupSelect01">
+								<option selected>Payment Method</option>
+								<option value="1">Cash</option>
+								<option value="2">GCash</option>
+								<option value="3">Bank transfer</option>
+							</select>
 						</div>
-					</form>
+					</div>
 					<div class="table-responsive">
 						<table class="table table-sm table-hover table-striped table-bordered table-light" id="table-client-requests">
 							<thead>
 								<tr>
-									<th>Event ID</th>
-									<th>Date</th>
-									<th>User ID</th>
-									<th>Event Type</th>
+									<th>Transaction ID</th>
+									<th>Sender's Name</th>
+									<th>Receiver's Name</th>
+									<th>Breed</th>
+									<th>Species</th>
+									<th>Payment Type</th>
+									<th>Payment Method</th>
+									<th>Transaction Cost</th>
+									<th>Date Filed</th>
+									<th>Transaction Status</th>
 								</tr>
 							</thead>
 							<tbody>
-							<?php while($get_audit_trail_data_results = mysqli_fetch_array($get_audit_trail_data)) { 
-								$event_ID = $get_audit_trail_data_results['event_id'];
-								$date = $get_audit_trail_data_results['date'];
-								$user_id = $get_audit_trail_data_results['user_id'];
-								$event_type = $get_audit_trail_data_results['event_type'];
+							<?php 
+							while($get_all_available_transactions_results = mysqli_fetch_array($get_all_available_transactions)) { 
+								$tID = $get_all_available_transactions_results['transaction_id'];
+								$clientID = $get_all_available_transactions_results['client_id'];
+								$dateID = $get_all_available_transactions_results['date_id'];
+								$animalID = $get_all_available_transactions_results['animal_id'];
+								$receiverID = $get_all_available_transactions_results['receiver_id'];
+								$transaction_status = $get_all_available_transactions_results['status'];
+								
+
+								$get_clientRecords = mysqli_query($conn, "SELECT * FROM tbl_clients WHERE client_id = '$clientID'");
+								$get_clientRecords_result = mysqli_fetch_array($get_clientRecords);
+								$client_name = $get_clientRecords_result['first_name'] . " " . $get_clientRecords_result['last_name'];
+
+								$get_receiver_records =  mysqli_query($conn, "SELECT * FROM tbl_receivers WHERE receiver_id = '$receiverID'");
+								$get_receiver_records_result = mysqli_fetch_array($get_receiver_records);
+								$receiver_name = $get_receiver_records_result['first_name'] . " " . $get_receiver_records_result['last_name'];
+
+								$get_breed_id = mysqli_query($conn, "SELECT breed_id FROM tbl_animals WHERE transaction_id = '$tID'");
+								$breed_id_result = mysqli_fetch_assoc($get_breed_id);
+								$breedID = $breed_id_result['breed_id'];
+
+								$get_breed_data = mysqli_query($conn, "SELECT species_id, description FROM tbl_breeds WHERE breed_id = '$breedID'");
+								$breed_data_result = mysqli_fetch_assoc($get_breed_data);
+								$breed_name = $breed_data_result['description'];
+								$speciesID = $breed_data_result['species_id'];
+
+								$get_species_name = mysqli_query($conn, "SELECT description FROM tbl_species WHERE species_id = '$speciesID'");
+								$species_name_result = mysqli_fetch_assoc($get_species_name);
+								$species_name = $species_name_result['description'];
+
+								$get_payment_type = mysqli_query($conn, "SELECT * FROM tbl_payments WHERE transaction_id = '$tID'");
+								$get_payment_type_results = mysqli_fetch_assoc($get_payment_type);
+								$initial_cost = 0;
+								$final_cost = 0;
+								$payment_type = $get_payment_type_results['payment_type'];
+								$payment_method = $get_payment_type_results['payment_method'];
+								if (empty($get_payment_type_results['initial_payment_cost']) || $get_payment_type_results['initial_payment_cost'] === null) {
+									$initial_cost == 0;
+								} else {
+									$initial_cost = $get_payment_type_results['initial_payment_cost'];
+								}
+
+								if (empty($get_payment_type_results['final_payment_cost']) || $get_payment_type_results['final_payment_cost'] === null){
+									$final_cost == 0;
+								} else {
+									$final_cost = $get_payment_type_results['final_payment_cost'];
+								}
+
+								$transaction_cost = $initial_cost + $final_cost;
+								
+								$get_dateRecords = mysqli_query($conn, "SELECT * FROM tbl_transactions_dates WHERE date_id = '$dateID'");
+								$get_dateRecords_result = mysqli_fetch_array($get_dateRecords);
+								$date_filed = $get_dateRecords_result['date_filed_request'];
+
+								preg_match_all('/Completed-(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})/', $get_dateRecords_result['other_transaction_dates'], $matches);
+								$lastSubmittedDateTime = end($matches[1]);
+								$dateTimeObj = new DateTime($lastSubmittedDateTime);
+								$formattedDateTime = $dateTimeObj->format('Y-m-d');
+
+								$get_animalRecords = mysqli_query($conn, "SELECT * FROM tbl_animals WHERE animal_id = '$animalID'");
+								$get_animalRecords_result = mysqli_fetch_array($get_animalRecords);
 							?>
 								<tr>
-									<td><?php echo $event_ID; ?></td>
-									<td><?php echo $date; ?></td>
-									<td><?php echo $user_id; ?></td>
-									<td><?php echo $event_type; ?></td>
+									<td><?php echo $tID; ?></td>
+									<td><?php echo $client_name; ?></td>
+									<td><?php echo $receiver_name; ?></td>
+									<td><?php echo $breed_name; ?></td>
+									<td><?php echo $species_name; ?></td>
+									<td><?php echo $payment_type; ?></td>
+									<td><?php echo $payment_method; ?></td>
+									<td><?php echo $transaction_cost; ?></td>
+									<td><?php echo $date_filed; ?></td>
+									<td><?php echo $transaction_status; ?></td>
 								</tr>
-							<?php } ?>
+							<?php 
+							$transaction_cost = 0;
+							} ?>
 							</tbody>
 						</table>
 					</div>

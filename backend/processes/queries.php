@@ -1219,6 +1219,9 @@
     $get_admin_message_unread = mysqli_query($conn, "SELECT * FROM tbl_messages WHERE user_sender_id != 'ADMIN' AND read_status = 'unread'");
     $get_admin_message_unread_count = mysqli_num_rows($get_admin_message_unread);
 
+    // FETCH transactions
+    $get_all_available_transactions = mysqli_query($conn, "SELECT * FROM tbl_transactions");
+
     // FETCH Client Requests
     $get_clientRequests = mysqli_query($conn, "SELECT * FROM tbl_transactions WHERE status = 'for-approval'");
 

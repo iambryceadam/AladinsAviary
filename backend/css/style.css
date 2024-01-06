@@ -1821,6 +1821,44 @@ thead {
 	color: var(--logo-light-green);
 }
 
+.analytics-main-container{
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+}
+
+.analytics-group-col{
+	width: 59%;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.upper-analytics{
+	display: flex;
+	justify-content: space-between;
+	width: 100%;
+	height: 170px;
+	border-radius: 15px;
+	flex-direction: row;
+	margin-bottom: 10px;
+}
+
+.container-analytics-cards{
+	padding: 20px;
+	background-color: white;
+	border-radius: 15px;
+	height: 100%;
+	width: 49%;
+}
+
+.data-analytics-num{
+	margin-left: 50px;
+}
+
+.piechart-container{
+	border-radius: 15px;
+}
+
 
 /* Media Query */
 @media screen and (max-width: 768px) {
