@@ -617,6 +617,7 @@
       $transaction_id = mysqli_real_escape_string($conn, $_POST['transaction_id']);
       $dropoff_location = mysqli_real_escape_string($conn, $_POST['dropoff_location']);
       $currentDate = date('mdY');
+      $customRefundID = generateRefundID($conn, $currentDate);
       $dropoff_location = mysqli_real_escape_string($conn, $_POST['dropoff_location']);
       $departureDateTime = mysqli_real_escape_string($conn, $_POST['departureDateTime']);
       $arrivalDateTime = mysqli_real_escape_string($conn, $_POST['arrivalDateTime']);
@@ -642,6 +643,23 @@
               $insertQuery = "INSERT INTO tbl_transactions_attachments (attachment_id, transaction_id, attachment, attachment_tag) VALUES ('$customAttachmentsID', '$transaction_id', '$fileContent', '$attachmentTag')";
               mysqli_query($conn, $insertQuery);
           }
+      }
+
+      $get_status_before_cancel = mysqli_query($conn, "SELECT status FROM tbl_transactions WHERE transaction_id = '$transaction_id'");
+      $status_before_cancel_result = mysqli_fetch_assoc($get_status_before_cancel);
+      $previous_status = $status_before_cancel_result['status'];
+      $get_payment_type = mysqli_query($conn, "SELECT * FROM tbl_payments WHERE transaction_id = '$transaction_id'");
+			$payment_type_result = mysqli_fetch_assoc($get_payment_type);
+			$payment_type = $payment_type_result['payment_type'];
+
+      if($payment_type == "Down Payment"){
+        if($previous_status != 'for-approval' && $previous_status != 'for-downpayment' && $previous_status != 'i-receipt-submitted' && $previous_status != 'i-receipt-reattempt'){ 
+          mysqli_query($conn, "INSERT INTO tbl_refunds (refund_id, transaction_id, status) VALUES ('$customRefundID', '$transaction_id', 'pending-refund')");
+        }
+      } else if($payment_type == "Full Payment"){
+        if($previous_status != 'for-approval' && $previous_status != 'for-payment' && $previous_status != 'f-receipt-submitted' && $previous_status != 'f-receipt-reattempt'){ 
+          mysqli_query($conn, "INSERT INTO tbl_refunds (refund_id, transaction_id, status) VALUES ('$customRefundID', '$transaction_id', 'pending-refund')");
+        }
       }
       $reject_cancel = "Transaction is now pending for return";
       header("Location: ?reject_cancel=" . urldecode($reject_cancel));
