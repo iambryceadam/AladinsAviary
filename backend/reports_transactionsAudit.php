@@ -159,13 +159,6 @@
 					<li><a href="maint_species.php">Species</a></li>
 				</ul>
 			</li>
-			<li>
-				<!-- Area Maintenance -->
-				<a href="#"><i class='bx bx-current-location icon' ></i> Area Data <Datag></Datag> <i class='bx bx-chevron-right icon-right' ></i></a>
-				<ul class="side-dropdown">
-					<li><a href="maint_restrictedAreas.php">Restricted Areas</a></li>
-				</ul>
-			</li>
 			<!-- Analytics -->
 			<li class="divider" data-text="Analytics"></li>
 			<li>
@@ -174,7 +167,6 @@
 				<ul class="side-dropdown">
 					<!-- User Accounts -->
 					<li class="divider" data-text="User Accounts"></li>
-					<li><a href="archived_clients.php">Clients</a></li>
 					<li><a href="archived_administrators.php">Administrators</a></li>
 					<!-- Animal Data -->
 					<li class="divider" data-text="Animal Data"></li>
@@ -331,24 +323,16 @@
 			<br>
 			<div class="card table-card">
 				<div class="card-body table-card-body">
-					<div class="table-search-dropdown">
+					<div class="table-search-action">
 						<form action="#">
 							<div class="form-group" style="flex: 95;">
-								<input type="text" placeholder="Search" id="table-search">
+								<input type="text" placeholder="Search" id="table-search-admin">
 								<i class='bx bx-search icon'></i>
 							</div>
 						</form>
-						<div class="input-group mb-3" style="flex: 5;">
-							<select class="custom-select payment-method" id="inputGroupSelect01">
-								<option selected>Payment Method</option>
-								<option value="1">Cash</option>
-								<option value="2">GCash</option>
-								<option value="3">Bank transfer</option>
-							</select>
-						</div>
 					</div>
 					<div class="table-responsive">
-						<table class="table table-sm table-hover table-striped table-bordered table-light" id="table-client-requests">
+						<table class="table table-sm table-hover table-striped table-bordered table-light" id="table-admin">
 							<thead>
 								<tr>
 									<th>Transaction ID</th>
@@ -365,6 +349,54 @@
 							</thead>
 							<tbody>
 							<?php 
+							function tStatusTXT($status) {
+								switch ($status) {
+									case 'for-approval':
+										return 'Pending For Approval';
+									case 'for-downpayment':
+										return 'Awaiting your Down Payment';
+									case 'for-payment':
+										return 'Awaiting your Payment';
+									case 'i-receipt-submitted':
+										return 'Initial Payment Receipt Submitted';
+									case 'f-receipt-submitted':
+										return 'Payment Receipt Submitted';
+									case 'i-receipt-reattempt':
+										return 'Initial Payment Receipt Invalid';
+									case 'f-receipt-reattempt':
+										return 'Payment Receipt Invalid';
+									case 'pending-pickup':
+										return 'Pending for Pickup';
+									case 'for-pickup':
+										return 'Ready for Pickup';
+									case 'pickup-success':
+										return 'Pickup Successful';
+									case 'pickup-unsuccessful':
+										return 'Pickup Unsuccessful';
+									case 'ongoing-medical':
+										return 'Ongoing Medical Processing';
+									case 'for-booking':
+										return 'Currently being Booked';
+									case 'for-transport':
+										return 'Transporting to Destination';
+									case 'for-receiving':
+										return 'Animal Ready to be Received';
+									case 'completed':
+										return 'Transaction Completed';
+									case 'for-cancellation':
+										return 'Reviewing Cancellation';
+									case 'pending-return':
+										return 'Pending for Return';
+									case 'for-return':
+										return 'On Transit back to the sender';
+									case 'confirmation-return':
+										return 'Awaiting Return Confirmation';
+									case 'Cancelled':
+										return 'Transaction Cancelled';
+									default:
+										return '404 STATUS';
+								}
+							}
 							while($get_all_available_transactions_results = mysqli_fetch_array($get_all_available_transactions)) { 
 								$tID = $get_all_available_transactions_results['transaction_id'];
 								$clientID = $get_all_available_transactions_results['client_id'];
@@ -437,7 +469,7 @@
 									<td><?php echo $payment_method; ?></td>
 									<td><?php echo $transaction_cost; ?></td>
 									<td><?php echo $date_filed; ?></td>
-									<td><?php echo $transaction_status; ?></td>
+									<td><?php echo tStatusTXT($transaction_status); ?></td>
 								</tr>
 							<?php 
 							$transaction_cost = 0;

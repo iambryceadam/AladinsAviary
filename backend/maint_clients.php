@@ -110,13 +110,6 @@
 					<li><a href="maint_species.php">Species</a></li>
 				</ul>
 			</li>
-			<li>
-				<!-- Area Maintenance -->
-				<a href="#"><i class='bx bx-current-location icon' ></i> Area Data <Datag></Datag> <i class='bx bx-chevron-right icon-right' ></i></a>
-				<ul class="side-dropdown">
-					<li><a href="maint_restrictedAreas.php">Restricted Areas</a></li>
-				</ul>
-			</li>
 			<!-- Analytics -->
 			<li class="divider" data-text="Analytics"></li>
 			<li>
@@ -125,7 +118,6 @@
 				<ul class="side-dropdown">
 					<!-- User Accounts -->
 					<li class="divider" data-text="User Accounts"></li>
-					<li><a href="archived_clients.php">Clients</a></li>
 					<li><a href="archived_administrators.php">Administrators</a></li>
 					<!-- Animal Data -->
 					<li class="divider" data-text="Animal Data"></li>
@@ -194,16 +186,16 @@
 					<p class="card-description table-card-description">
 						Displaying all client accounts from earliest created client accounts to recently created client accounts.
 					</p>
-					<div class="table-search-dropdown">
+					<div class="table-search-action">
 						<form action="#">
 							<div class="form-group" style="flex: 95;">
-								<input type="text" placeholder="Search" id="table-search-clients">
+								<input type="text" placeholder="Search" id="table-search-admin">
 								<i class='bx bx-search icon'></i>
 							</div>
 						</form>
 					</div>
 					<div class="table-responsive">
-						<table class="table table-sm table-hover table-striped table-bordered table-light table-center" id="table-client">
+						<table class="table table-sm table-hover table-striped table-bordered table-light table-center" id="table-admin">
 							<thead>
 								<tr>
 									<th><i class='bx bxs-check-shield table-header-icon'></i></th>
