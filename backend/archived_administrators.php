@@ -117,7 +117,6 @@
 					<li><a href="maint_restrictedAreas.php">Restricted Areas</a></li>
 				</ul>
 			</li>
-
 			<!-- Analytics -->
 			<li class="divider" data-text="Analytics"></li>
 			<li>
@@ -132,9 +131,6 @@
 					<li class="divider" data-text="Animal Data"></li>
 					<li><a href="archived_breeds.php">Breeds</a></li>
 					<li><a href="archived_species.php">Species</a></li>
-					<!-- Payment -->
-					<li class="divider" data-text="Area Data"></li>
-					<li><a href="archived_restricted_areas.php">Restricted Areas</a></li>
 				</ul>
 			</li>
 			<li>

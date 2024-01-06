@@ -200,22 +200,24 @@
 						<table class="table table-sm table-hover table-striped table-bordered table-light" id="table-client-requests">
 							<thead>
 								<tr>
-									<th>User's Name</th>	
-									<th>Event Type</th>
+									<th>Event ID</th>
 									<th>Date</th>
+									<th>User ID</th>
+									<th>Event Type</th>
 								</tr>
 							</thead>
 							<tbody>
 							<?php while($get_audit_trail_data_results = mysqli_fetch_array($get_audit_trail_data)) { 
+								$event_ID = $get_audit_trail_data_results['event_id'];
 								$date = $get_audit_trail_data_results['date'];
 								$user_id = $get_audit_trail_data_results['user_id'];
-								$user_name = $get_audit_trail_data_results['users_name'];
 								$event_type = $get_audit_trail_data_results['event_type'];
 							?>
 								<tr>
-									<td><?php echo $user_name; ?></td>
-									<td><?php echo $event_type; ?></td>
+									<td><?php echo $event_ID; ?></td>
 									<td><?php echo $date; ?></td>
+									<td><?php echo $user_id; ?></td>
+									<td><?php echo $event_type; ?></td>
 								</tr>
 							<?php } ?>
 							</tbody>

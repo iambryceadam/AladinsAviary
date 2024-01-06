@@ -215,34 +215,66 @@ $(document).ready(function () {
     });
 
     function sendMessage(message, receiverId) {
-        // Check if both message and imageData are empty
-        if (!message.trim() && !$('#chatImage')[0].files.length > 0) {
-            // If both are empty, do nothing and return
-            return;
-        }
+        // Read the selected image file and convert it to base64
+        var reader = new FileReader();
+        var imageDataInput = $('#chatImage')[0].files[0];
     
-        $.ajax({
-            url: 'processes/send_message.php',
-            type: 'POST',
-            data: {
-                send: true,
-                receiver_id: receiverId,
-                message: message,
-                imageData: $('#imageData').val() // Include imageData in the data
-            },
-            success: function () {
-                $('#message').val('');
-                $('#imageData').val(''); // Clear imageData after sending
-                $('#chatImage').val(''); // Clear imageData after sending
-                $('#imagePreviewContainer').html(''); // Clear the image preview
-                console.log('success');
-            },
-            error: function (xhr, status, error) {
-                console.error("AJAX error:", status, error);
-            }
-        });
-    }    
-
+        // Check if imageDataInput is a valid file
+        if (imageDataInput instanceof Blob) {
+            reader.onloadend = function () {
+                // Check if reader.result is not null before performing the replacement
+                var imgDataModded = reader.result ? reader.result.replace(/^data:image\/(jpeg|png|gif|jpg);base64,/, "") : "";
+    
+                // Log the modified imageData to the console
+                console.log("Modified ImageData:", imgDataModded);
+    
+                $.ajax({
+                    url: 'processes/send_message.php',
+                    type: 'POST',
+                    data: {
+                        send: true,
+                        receiver_id: receiverId,
+                        message: message,
+                        imageData: imgDataModded // Include imageData in the data
+                    },
+                    success: function () {
+                        $('#message').val('');
+                        $('#imageData').val(''); // Clear imageData after sending
+                        $('#chatImage').val(''); // Clear imageData after sending
+                        $('#imagePreviewContainer').html(''); // Clear the image preview
+                        console.log('success');
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("AJAX error:", status, error);
+                    }
+                });
+            };
+    
+            reader.readAsDataURL(imageDataInput);
+        } else {
+            // Still execute the AJAX request without passing the image data
+            $.ajax({
+                url: 'processes/send_message.php',
+                type: 'POST',
+                data: {
+                    send: true,
+                    receiver_id: receiverId,
+                    message: message
+                },
+                success: function () {
+                    $('#message').val('');
+                    $('#imageData').val(''); // Clear imageData after sending
+                    $('#chatImage').val(''); // Clear imageData after sending
+                    $('#imagePreviewContainer').html(''); // Clear the image preview
+                    console.log('success');
+                },
+                error: function (xhr, status, error) {
+                    console.error("AJAX error:", status, error);
+                }
+            });
+            console.error("Invalid file selected.");
+        }
+    }
     function scrollChatToBottom(chatBox) {
         chatBox.scrollTop(chatBox.prop("scrollHeight"));
     }

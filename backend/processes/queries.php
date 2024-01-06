@@ -8,9 +8,8 @@
     // Variables
     $prompt = array();
 
-
-
-
+    $users_name = "Aladins Aviary";
+    $currentDate = date('mdY');
 
     // Administrator Login
     if (isset($_POST['login'])) {
@@ -57,8 +56,12 @@
     if(isset($_POST['insertPaymentCost'])){
       $i_payment_cost = mysqli_real_escape_string($conn, $_POST['i_payment_cost']);
       $transaction_id = mysqli_real_escape_string($conn, $_POST['transaction_id']);
+      $client_id = mysqli_real_escape_string($conn, $_POST['client_id']);
       $numeric_payment_format = floatval($i_payment_cost);
       $divided_cost = $numeric_payment_format/2;
+      $currentDate = date('mdY');
+      $eventID = generateEventID($conn, $currentDate);
+      $admin_ID = $_SESSION['admin_id'];
 
       $get_payment_type = mysqli_query($conn, "SELECT payment_type FROM tbl_payments WHERE transaction_id = '$transaction_id'");
       $payment_type_result = mysqli_fetch_assoc($get_payment_type);
@@ -74,8 +77,27 @@
       mysqli_query($conn, "UPDATE tbl_transactions_dates SET other_transaction_dates = CONCAT('Approved-', NOW()) WHERE transaction_id = '$transaction_id'");
       // mysqli_query($conn, "UPDATE tbl_transactions_dates SET other_transaction_dates = 'Approved-', NOW() WHERE transaction_id = '$transaction_id'");
       // mysqli_query($conn, "UPDATE tbl_transactions_dates SET other_transaction_dates = CONCAT(other_transaction_dates, ',', 'Approved-', NOW()) WHERE transaction_id = '$transaction_id'");
+      mysqli_query($conn, "INSERT INTO tbl_audit_trail (event_id, user_id, users_name, event_type, date) VALUES ('$eventID', '$admin_ID', '$users_name', 'Approved a request for transport', NOW())");
       $transaction_approved_succes = "Successfully approved transaction";
       header("Location: requests.php?transaction_approved_success=". urldecode($transaction_approved_succes));
+    }
+
+    function generateEventID($conn, $currentDate) {
+      // Get the maximum transaction number from the database
+      $checkTransaction = "SELECT MAX(CAST(SUBSTRING(event_id, 13) AS UNSIGNED)) AS max_number FROM tbl_audit_trail";
+      $result = mysqli_query($conn, $checkTransaction);
+      $get_max_number = mysqli_fetch_assoc($result);
+      $maxNumber = $get_max_number['max_number'];
+  
+      if (!is_null($maxNumber)) {
+          $transactionNumber = (int)$maxNumber + 1;
+      } else {
+          $transactionNumber = 1;
+      }
+  
+      $customTransactionID = "EVNT" . $currentDate . $transactionNumber;
+      return $customTransactionID;
+
     }
 
     if(isset($_POST['insertRefundCost'])){
@@ -115,6 +137,12 @@
 
       mysqli_query($conn, "UPDATE tbl_transactions SET status = 'pending-pickup' WHERE transaction_id = '$tID'");
       mysqli_query($conn, "UPDATE tbl_transactions_dates SET other_transaction_dates = CONCAT(other_transaction_dates, ',', 'Initial Payment Approved-', NOW()) WHERE transaction_id = '$tID'");
+      $currentDate = date('mdY');
+      $eventID = generateEventID($conn, $currentDate);
+      $admin_ID = $_SESSION['admin_id'];
+      $event_type = "Approved a down payment";
+      $user_name = "Aladins Aviary";
+      mysqli_query($conn, "INSERT INTO tbl_audit_trail (event_id, user_id, users_name, event_type, date) VALUES ('$eventID', '$admin_ID', '$users_name', '$event_type', NOW())");
       $initial_payment_approved_success = "Successfully approved initial payment";
       header("Location: ../initial_payment.php?initial_payment_approved_success=" . urldecode($initial_payment_approved_success));
     }
@@ -124,6 +152,7 @@
 
       mysqli_query($conn, "UPDATE tbl_transactions SET status = 'pending-pickup' WHERE transaction_id = '$tID'");
       mysqli_query($conn, "UPDATE tbl_transactions_dates SET other_transaction_dates = CONCAT(other_transaction_dates, ',', 'Payment Approved-', NOW()) WHERE transaction_id = '$tID'");
+      
       $payment_approved_success = "Successfully approved Payment";
       header("Location: ../fullCash_payment.php?payment_approved_success=" . urldecode($payment_approved_success));
     }
@@ -133,6 +162,11 @@
 
       mysqli_query($conn, "UPDATE tbl_transactions SET status = 'i-receipt-reattempt' WHERE transaction_id = '$tID'");
       mysqli_query($conn, "UPDATE tbl_transactions_dates SET other_transaction_dates = CONCAT(other_transaction_dates, ',', 'Down Payment Rejected-', NOW()) WHERE transaction_id = '$tID'");
+      $currentDate = date('mdY');
+      $eventID = generateEventID($conn, $currentDate);
+      $admin_ID = $_SESSION['admin_id'];
+      $event_type = "Rejected a down payment";
+      mysqli_query($conn, "INSERT INTO tbl_audit_trail (event_id, user_id, users_name, event_type, date) VALUES ('$eventID', '$admin_ID', '$users_name', '$event_type', NOW())");
       $payment_approved_success = "Successfully rejected Payment";
       header("Location: ../initial_payment.php?payment_approved_success=" . urldecode($payment_approved_success));
     }
@@ -142,6 +176,11 @@
 
       mysqli_query($conn, "UPDATE tbl_transactions SET status = 'f-receipt-reattempt' WHERE transaction_id = '$tID'");
       mysqli_query($conn, "UPDATE tbl_transactions_dates SET other_transaction_dates = CONCAT(other_transaction_dates, ',', 'Payment Rejected-', NOW()) WHERE transaction_id = '$tID'");
+      $currentDate = date('mdY');
+      $eventID = generateEventID($conn, $currentDate);
+      $admin_ID = $_SESSION['admin_id'];
+      $event_type = "Rejected a final payment";
+      mysqli_query($conn, "INSERT INTO tbl_audit_trail (event_id, user_id, users_name, event_type, date) VALUES ('$eventID', '$admin_ID', '$users_name', '$event_type', NOW())");
       $payment_approved_success = "Successfully rejected Payment";
       header("Location: ../final_payment.php?payment_approved_success=" . urldecode($payment_approved_success));
     }
@@ -151,6 +190,11 @@
 
       mysqli_query($conn, "UPDATE tbl_transactions SET status = 'f-receipt-reattempt' WHERE transaction_id = '$tID'");
       mysqli_query($conn, "UPDATE tbl_transactions_dates SET other_transaction_dates = CONCAT(other_transaction_dates, ',', 'Payment Rejected-', NOW()) WHERE transaction_id = '$tID'");
+      $currentDate = date('mdY');
+      $eventID = generateEventID($conn, $currentDate);
+      $admin_ID = $_SESSION['admin_id'];
+      $event_type = "Rejected a full payment";
+      mysqli_query($conn, "INSERT INTO tbl_audit_trail (event_id, user_id, users_name, event_type, date) VALUES ('$eventID', '$admin_ID', '$users_name', '$event_type', NOW())");
       $full_payment_reject_success = "Successfully rejected Payment";
       header("Location: ../fullCash_payment.php?full_payment_reject_success=" . urldecode($full_payment_reject_success));
     }
@@ -160,6 +204,11 @@
 
       mysqli_query($conn, "UPDATE tbl_transactions SET status = 'for-pickup' WHERE transaction_id = '$tID'");
       mysqli_query($conn, "UPDATE tbl_transactions_dates SET other_transaction_dates = CONCAT(other_transaction_dates, ',', 'Pickup Reattempt-', NOW()) WHERE transaction_id = '$tID'");
+      $currentDate = date('mdY');
+      $eventID = generateEventID($conn, $currentDate);
+      $admin_ID = $_SESSION['admin_id'];
+      $event_type = "Reattempted a pickup";
+      mysqli_query($conn, "INSERT INTO tbl_audit_trail (event_id, user_id, users_name, event_type, date) VALUES ('$eventID', '$admin_ID', '$users_name', '$event_type', NOW())");
       $moved_for_pickup_success = "Successfully moved transaction for pick up";
       header("Location: ../pickup.php?moved_for_pickup_success=" . urldecode($moved_for_pickup_success));
     }
@@ -169,6 +218,11 @@
 
       mysqli_query($conn, "UPDATE tbl_transactions SET status = 'for-pickup' WHERE transaction_id = '$tID'");
       mysqli_query($conn, "UPDATE tbl_transactions_dates SET other_transaction_dates = CONCAT(other_transaction_dates, ',', 'Pickup Attempt-', NOW()) WHERE transaction_id = '$tID'");
+      $currentDate = date('mdY');
+      $eventID = generateEventID($conn, $currentDate);
+      $admin_ID = $_SESSION['admin_id'];
+      $event_type = "Initiated a pickup attempt";
+      mysqli_query($conn, "INSERT INTO tbl_audit_trail (event_id, user_id, users_name, event_type, date) VALUES ('$eventID', '$admin_ID', '$users_name', '$event_type', NOW())");
       $moved_for_pickup_success = "Successfully moved transaction for pick up";
       header("Location: ../pickup.php?moved_for_pickup_success=" . urldecode($moved_for_pickup_success));
     }
@@ -178,6 +232,11 @@
 
       mysqli_query($conn, "UPDATE tbl_transactions SET status = 'pickup-success' WHERE transaction_id = '$tID'");
       mysqli_query($conn, "UPDATE tbl_transactions_dates SET other_transaction_dates = CONCAT(other_transaction_dates, ',', 'Pickup Successful-', NOW()) WHERE transaction_id = '$tID'");
+      $currentDate = date('mdY');
+      $eventID = generateEventID($conn, $currentDate);
+      $admin_ID = $_SESSION['admin_id'];
+      $event_type = "Successfully picked up an animal";
+      mysqli_query($conn, "INSERT INTO tbl_audit_trail (event_id, user_id, users_name, event_type, date) VALUES ('$eventID', '$admin_ID', '$users_name', '$event_type', NOW())");
       $pickup_successful = "Successfully picked up animal";
       header("Location: ../pickup.php?pickup_successful=" . urldecode($pickup_successful));
     }
@@ -186,6 +245,11 @@
       $tID = $_GET['unsuccessfulPickup'];
       mysqli_query($conn, "UPDATE tbl_transactions SET status = 'pickup-unsuccessful' WHERE transaction_id = '$tID'");
       mysqli_query($conn, "UPDATE tbl_transactions_dates SET other_transaction_dates = CONCAT(other_transaction_dates, ',', 'Pickup Unsuccessful-', NOW()) WHERE transaction_id = '$tID'");
+      $currentDate = date('mdY');
+      $eventID = generateEventID($conn, $currentDate);
+      $admin_ID = $_SESSION['admin_id'];
+      $event_type = "Unsuccessful Pickup Attempt";
+      mysqli_query($conn, "INSERT INTO tbl_audit_trail (event_id, user_id, users_name, event_type, date) VALUES ('$eventID', '$admin_ID', '$users_name', '$event_type', NOW())");
       $pickup_unsuccessful = "Pickup attempt Unsuccessful";
       header("Location: ../pickup.php?pickup_unsuccessful=" . urldecode($pickup_unsuccessful));
     } 
@@ -195,6 +259,11 @@
 
       mysqli_query($conn, "UPDATE tbl_transactions SET status = 'ongoing-medical' WHERE transaction_id = '$tID'");
       mysqli_query($conn, "UPDATE tbl_transactions_dates SET other_transaction_dates = CONCAT(other_transaction_dates, ',', 'Ongoing Medical-', NOW()) WHERE transaction_id = '$tID'");
+      $currentDate = date('mdY');
+      $eventID = generateEventID($conn, $currentDate);
+      $admin_ID = $_SESSION['admin_id'];
+      $event_type = "Confirmed an animal for medical processing";
+      mysqli_query($conn, "INSERT INTO tbl_audit_trail (event_id, user_id, users_name, event_type, date) VALUES ('$eventID', '$admin_ID', '$users_name', '$event_type', NOW())");
       $proceed_for_medical = "Successfully proceeded to next step (Ongoing Medical)";
       header("Location: ../pickup.php?pickup_successful=" . urldecode($proceed_for_medical));
     }
@@ -223,7 +292,11 @@
       }
       mysqli_query($conn, "UPDATE tbl_transactions SET status = 'for-payment' WHERE transaction_id = '$transaction_id'");
       mysqli_query($conn, "UPDATE tbl_transactions_dates SET other_transaction_dates = CONCAT(other_transaction_dates, ',', 'Settle Remaining Payment-', NOW()) WHERE transaction_id = '$transaction_id'");
-
+      $currentDate = date('mdY');
+      $eventID = generateEventID($conn, $currentDate);
+      $admin_ID = $_SESSION['admin_id'];
+      $event_type = "Successful Medical Processing";
+      mysqli_query($conn, "INSERT INTO tbl_audit_trail (event_id, user_id, users_name, event_type, date) VALUES ('$eventID', '$admin_ID', '$users_name', '$event_type', NOW())");
       $complete_medical = "Successfully proceeded to the next step (For Payment)";
       header("Location: ?complete_medical=" . urldecode($complete_medical));
   }
@@ -252,6 +325,11 @@
       }
       mysqli_query($conn, "UPDATE tbl_transactions SET status = 'for-booking' WHERE transaction_id = '$transaction_id'");
       mysqli_query($conn, "UPDATE tbl_transactions_dates SET other_transaction_dates = CONCAT(other_transaction_dates, ',', 'Booking Animal For Transport-', NOW()) WHERE transaction_id = '$transaction_id'");
+      $currentDate = date('mdY');
+      $eventID = generateEventID($conn, $currentDate);
+      $admin_ID = $_SESSION['admin_id'];
+      $event_type = "Booking a flight for animal Transport";
+      mysqli_query($conn, "INSERT INTO tbl_audit_trail (event_id, user_id, users_name, event_type, date) VALUES ('$eventID', '$admin_ID', '$users_name', '$event_type', NOW())");
       $complete_medical = "Successfully proceeded to the next step (For Booking)";
       header("Location: ?complete_medical=" . urldecode($complete_medical));
   }
@@ -347,6 +425,11 @@
               mysqli_query($conn, $insertQuery);
           }
       }
+      $currentDate = date('mdY');
+      $eventID = generateEventID($conn, $currentDate);
+      $admin_ID = $_SESSION['admin_id'];
+      $event_type = "Transported an animal to its destination";
+      mysqli_query($conn, "INSERT INTO tbl_audit_trail (event_id, user_id, users_name, event_type, date) VALUES ('$eventID', '$admin_ID', '$users_name', '$event_type', NOW())");
       mysqli_query($conn, "UPDATE tbl_transactions_dates SET other_transaction_dates = CONCAT(other_transaction_dates, ',', 'Transport Process-', NOW()) WHERE transaction_id = '$transaction_id'");
       $booking_success = "Successfully booked animal for transport";
       header("Location: ?booking_success=" . urldecode($booking_success));
@@ -396,6 +479,11 @@
       $tID = $_GET['approveFinalPayment'];
       mysqli_query($conn, "UPDATE tbl_transactions SET status = 'for-booking' WHERE transaction_id = '$tID'");
       mysqli_query($conn, "UPDATE tbl_transactions_dates SET other_transaction_dates = CONCAT(other_transaction_dates, ',', 'Final Payment Approved-', NOW()) WHERE transaction_id = '$tID'");
+      $currentDate = date('mdY');
+      $eventID = generateEventID($conn, $currentDate);
+      $admin_ID = $_SESSION['admin_id'];
+      $event_type = "Approved a final payment";
+      mysqli_query($conn, "INSERT INTO tbl_audit_trail (event_id, user_id, users_name, event_type, date) VALUES ('$eventID', '$admin_ID', '$users_name', '$event_type', NOW())");
       $for_transport_success = "Successfully proceeded to next step (Booking Transportation)";
       header("Location: ../final_payment.php?for_transport_success=" . urldecode($for_transport_success));
     }
@@ -404,6 +492,11 @@
       $tID = $_GET['transportCompleted'];
       mysqli_query($conn, "UPDATE tbl_transactions SET status = 'for-receiving' WHERE transaction_id = '$tID'");
       mysqli_query($conn, "UPDATE tbl_transactions_dates SET other_transaction_dates = CONCAT(other_transaction_dates, ',', 'Ready For Receiving-', NOW()) WHERE transaction_id = '$tID'");
+      $currentDate = date('mdY');
+      $eventID = generateEventID($conn, $currentDate);
+      $admin_ID = $_SESSION['admin_id'];
+      $event_type = "Confirmed an animal is ready for receiving";
+      mysqli_query($conn, "INSERT INTO tbl_audit_trail (event_id, user_id, users_name, event_type, date) VALUES ('$eventID', '$admin_ID', '$users_name', '$event_type', NOW())");
       $for_receiving_success = "Successfully proceeded to next step (For Receiving))";
       header("Location: ../transport.php?for_receiving_success=" . urldecode($for_receiving_success));
     }
@@ -447,6 +540,11 @@
           mysqli_query($conn, "INSERT INTO tbl_refunds (refund_id, transaction_id, status) VALUES ('$customRefundID', '$tID', 'pending-refund')");
         }
       }
+      $currentDate = date('mdY');
+      $eventID = generateEventID($conn, $currentDate);
+      $admin_ID = $_SESSION['admin_id'];
+      $event_type = "Approved a cancellation";
+      mysqli_query($conn, "INSERT INTO tbl_audit_trail (event_id, user_id, users_name, event_type, date) VALUES ('$eventID', '$admin_ID', '$users_name', '$event_type', NOW())");
       $cancelled_transaction_success = "Transaction has been successfully cancelled";
       header("Location: ../cancellations.php?cancelled_transaction_success=" . urldecode($cancelled_transaction_success));
     }
@@ -472,6 +570,7 @@
     if(isset($_GET['finishReturn'])){
       $tID = $_GET['finishReturn'];
       mysqli_query($conn, "UPDATE tbl_transactions SET status = 'cancelled' WHERE transaction_id = '$tID'");
+      
       $cancelled_transaction_success = "Transaction has been successfully cancelled";
       header("Location: ../return.php?cancelled_transaction_success=" . urldecode($cancelled_transaction_success));
     }
@@ -479,6 +578,11 @@
     if(isset($_GET['cancelToReturn'])){
       $tID = $_GET['cancelToReturn'];
       mysqli_query($conn, "UPDATE tbl_transactions SET status = 'pending-return' WHERE transaction_id = '$tID'");
+      $currentDate = date('mdY');
+      $eventID = generateEventID($conn, $currentDate);
+      $admin_ID = $_SESSION['admin_id'];
+      $event_type = "Approved Cancellation";
+      mysqli_query($conn, "INSERT INTO tbl_audit_trail (event_id, user_id, users_name, event_type, date) VALUES ('$eventID', '$admin_ID', '$users_name', '$event_type', NOW())");
       $to_return = "Transaction is now pending for return";
       header("Location: ../cancellations.php?cancelled_transaction_success=" . urldecode($to_return));
     }
@@ -487,6 +591,11 @@
       $tID = $_GET['proceedForReturn'];
       mysqli_query($conn, "UPDATE tbl_transactions SET status = 'for-return' WHERE transaction_id = '$tID'");
       mysqli_query($conn, "UPDATE tbl_transactions_dates SET other_transaction_dates = CONCAT(other_transaction_dates, ',', 'For Return-', NOW()) WHERE transaction_id = '$tID'");
+      $currentDate = date('mdY');
+      $eventID = generateEventID($conn, $currentDate);
+      $admin_ID = $_SESSION['admin_id'];
+      $event_type = "Attempt to return an animal";
+      mysqli_query($conn, "INSERT INTO tbl_audit_trail (event_id, user_id, users_name, event_type, date) VALUES ('$eventID', '$admin_ID', '$users_name', '$event_type', NOW())");
       $to_return = "Transaction is now on its way to the receiving party";
       header("Location: ../return.php?cancelled_transaction_success=" . urldecode($to_return));
     }
@@ -495,6 +604,11 @@
       $tID = $_GET['confirmReturn'];
       mysqli_query($conn, "UPDATE tbl_transactions SET status = 'confirmation-return' WHERE transaction_id = '$tID'");
       mysqli_query($conn, "UPDATE tbl_transactions_dates SET other_transaction_dates = CONCAT(other_transaction_dates, ',', 'Awaiting Return Confirmation-', NOW()) WHERE transaction_id = '$tID'");
+      $currentDate = date('mdY');
+      $eventID = generateEventID($conn, $currentDate);
+      $admin_ID = $_SESSION['admin_id'];
+      $event_type = "Returned an animal";
+      mysqli_query($conn, "INSERT INTO tbl_audit_trail (event_id, user_id, users_name, event_type, date) VALUES ('$eventID', '$admin_ID', '$users_name', '$event_type', NOW())");
       $to_return = "Awaiting Return Proof";
       header("Location: ../return.php?cancelled_transaction_success=" . urldecode($to_return));
     }
@@ -543,6 +657,11 @@
       mysqli_query($conn, "UPDATE tbl_transactions SET status = '$previous_status' WHERE transaction_id = '$tID'");
       mysqli_query($conn, "DELETE FROM tbl_cancelled_transactions WHERE transaction_id = '$tID'");
       mysqli_query($conn, "UPDATE tbl_transactions_dates SET other_transaction_dates = CONCAT(other_transaction_dates, ',', 'Cancellation Rejected-', NOW()) WHERE transaction_id = '$tID'");
+      $currentDate = date('mdY');
+      $eventID = generateEventID($conn, $currentDate);
+      $admin_ID = $_SESSION['admin_id'];
+      $event_type = "Cancellation Request Rejected";
+      mysqli_query($conn, "INSERT INTO tbl_audit_trail (event_id, user_id, users_name, event_type, date) VALUES ('$eventID', '$admin_ID', '$users_name', '$event_type', NOW())");
       $reject_cancel = "Transaction has been successfully moved back to its previous status";
       header("Location: ../cancelled.php?reject_cancel=" . urldecode($reject_cancel));
     }
@@ -560,6 +679,11 @@
       mysqli_query($conn, "UPDATE tbl_transactions SET status = 'cancelled' WHERE transaction_id = '$transaction_id'"); 
       mysqli_query($conn, "UPDATE tbl_transactions_dates SET other_transaction_dates = CONCAT(other_transaction_dates, ',', 'Cancelled-', NOW()) WHERE transaction_id = '$transaction_id'");
       mysqli_query($conn, "INSERT INTO tbl_cancelled_transactions (cancellation_id, transaction_id, reason_for_cancellation, previous_status) values ('$customCancelID', '$transaction_id', '$rfctext', '$status_before_cancel')");
+      $currentDate = date('mdY');
+      $eventID = generateEventID($conn, $currentDate);
+      $admin_ID = $_SESSION['admin_id'];
+      $event_type = "Cancelled a transaction";
+      mysqli_query($conn, "INSERT INTO tbl_audit_trail (event_id, user_id, users_name, event_type, date) VALUES ('$eventID', '$admin_ID', '$users_name', '$event_type', NOW())");
       $cancelled_transaction_success = "Transaction has been successfully cancelled";
       header("Location: ?cancelled_transaction_success=" . urldecode($cancelled_transaction_success));
     }
@@ -584,6 +708,11 @@
       mysqli_query($conn, "UPDATE tbl_transactions SET status = 'pending-return' WHERE transaction_id = '$transaction_id'"); 
       mysqli_query($conn, "INSERT INTO tbl_cancelled_transactions (cancellation_id, transaction_id, reason_for_cancellation, previous_status) values ('$customCancelID', '$transaction_id', '$rfctext', '$previous_status')");
       mysqli_query($conn, "UPDATE tbl_transactions_dates SET other_transaction_dates = CONCAT(other_transaction_dates, ',', 'Transaction Cancelled by Administrator-', NOW()) WHERE transaction_id = '$transaction_id'");
+      $currentDate = date('mdY');
+      $eventID = generateEventID($conn, $currentDate);
+      $admin_ID = $_SESSION['admin_id'];
+      $event_type = "Cancelled a transaction";
+      mysqli_query($conn, "INSERT INTO tbl_audit_trail (event_id, user_id, users_name, event_type, date) VALUES ('$eventID', '$admin_ID', '$users_name', '$event_type', NOW())");
       $cancelled_transaction_success = "Transaction is now pending for return";
       header("Location: ?cancelled_transaction_success=" . urldecode($cancelled_transaction_success));
     }
@@ -766,16 +895,20 @@
     if (isset($_POST['validateSpecies'])) {
       $species_id = mysqli_real_escape_string($conn, $_POST['c_species_id']);
       mysqli_query($conn, "UPDATE tbl_species SET status = 'verified', approved_on = NOW() WHERE species_id = '$species_id'");
-
-      $mark_read_notif_success = "Successfully approved species";
+      $eventID = generateEventID($conn, $currentDate);
+      $admin_ID = $_SESSION['admin_id'];
+      $event_type = "Validated a Species";
+      mysqli_query($conn, "INSERT INTO tbl_audit_trail (event_id, user_id, users_name, event_type, date) VALUES ('$eventID', '$admin_ID', '$users_name', '$event_type', NOW())");
       header("Location: ?mark_read_notif_success=" . urldecode($mark_read_notif_success));
     }
 
     if (isset($_POST['validateBreeds'])) {
       $breed_id = mysqli_real_escape_string($conn, $_POST['c_breed_id']);
       mysqli_query($conn, "UPDATE tbl_breeds SET status = 'verified', approved_on = NOW() WHERE breed_id = '$breed_id'");
-
-      $mark_read_notif_success = "Successfully approved breed";
+      $eventID = generateEventID($conn, $currentDate);
+      $admin_ID = $_SESSION['admin_id'];
+      $event_type = "Validated a breed";
+      mysqli_query($conn, "INSERT INTO tbl_audit_trail (event_id, user_id, users_name, event_type, date) VALUES ('$eventID', '$admin_ID', '$users_name', '$event_type', NOW())");
       header("Location: ?mark_read_notif_success=" . urldecode($mark_read_notif_success));
     }
 
@@ -807,6 +940,10 @@
         error_log($error_message);
         header("Location: ../error.php");
       }
+      $eventID = generateEventID($conn, $currentDate);
+      $admin_ID = $_SESSION['admin_id'];
+      $event_type = "Archieved an admin";
+      mysqli_query($conn, "INSERT INTO tbl_audit_trail (event_id, user_id, users_name, event_type, date) VALUES ('$eventID', '$admin_ID', '$users_name', '$event_type', NOW())");
     }
 
     // Archive Species
@@ -836,11 +973,19 @@
         error_log($error_message);
         header("Location: ../error.php");
       }
+      $eventID = generateEventID($conn, $currentDate);
+      $admin_ID = $_SESSION['admin_id'];
+      $event_type = "Archived a specie";
+      mysqli_query($conn, "INSERT INTO tbl_audit_trail (event_id, user_id, users_name, event_type, date) VALUES ('$eventID', '$admin_ID', '$users_name', '$event_type', NOW())");
     }
 
     // Archive Breeds
     if (isset($_GET['archiveBreed'])) {
       $id = $_GET['archiveBreed'];
+      $eventID = generateEventID($conn, $currentDate);
+      $admin_ID = $_SESSION['admin_id'];
+      $event_type = "Archived a breed";
+      mysqli_query($conn, "INSERT INTO tbl_audit_trail (event_id, user_id, users_name, event_type, date) VALUES ('$eventID', '$admin_ID', '$users_name', '$event_type', NOW())");
 
       $transfer = "INSERT INTO tbl_archived_breeds (breed_id, species_id, submitted_by, description, submitted_on, approved_on, status) 
       SELECT breed_id, species_id, submitted_by, description, submitted_on, approved_on, status
@@ -880,6 +1025,10 @@
         $delete_admin_success = "Successfully deleted Admin - $id";
         header("Location: ../archived_administrators.php?delete_admin_success=".urldecode($delete_admin_success));
       }
+      $eventID = generateEventID($conn, $currentDate);
+      $admin_ID = $_SESSION['admin_id'];
+      $event_type = "Deleted an admin account";
+      mysqli_query($conn, "INSERT INTO tbl_audit_trail (event_id, user_id, users_name, event_type, date) VALUES ('$eventID', '$admin_ID', '$users_name', '$event_type', NOW())");
     }
 
     // Delete All Archived Admin
@@ -890,6 +1039,10 @@
         $delete_allArchivedAdmin_success = "Successfully deleted all archived Administrators";
         header("Location: ../archived_administrators.php?delete_allArchivedAdmin_success=" . urlencode($delete_allArchivedAdmin_success));
       }
+      $eventID = generateEventID($conn, $currentDate);
+      $admin_ID = $_SESSION['admin_id'];
+      $event_type = "Batch deleted all archived admin";
+      mysqli_query($conn, "INSERT INTO tbl_audit_trail (event_id, user_id, users_name, event_type, date) VALUES ('$eventID', '$admin_ID', '$users_name', '$event_type', NOW())");
     }
 
     // Delete Breeds
@@ -899,6 +1052,11 @@
       mysqli_stmt_bind_param($query, "s", $id);
 
       if (mysqli_stmt_execute($query)) {
+        $eventID = generateEventID($conn, $currentDate);
+        $admin_ID = $_SESSION['admin_id'];
+        $event_type = "Deleted an archived breed";
+        mysqli_query($conn, "INSERT INTO tbl_audit_trail (event_id, user_id, users_name, event_type, date) VALUES ('$eventID', '$admin_ID', '$users_name', '$event_type', NOW())");
+        $mark_read_notif_success = "Deleted an archived breed";
         $delete_breed_success = "Successfully deleted Breed - $id";
         header("Location: ../archived_species.php?delete_breed_success=".urldecode($delete_breed_success));
       }
@@ -911,6 +1069,10 @@
       mysqli_stmt_bind_param($query, "s", $id);
 
       if (mysqli_stmt_execute($query)) {
+        $eventID = generateEventID($conn, $currentDate);
+        $admin_ID = $_SESSION['admin_id'];
+        $event_type = "Deleted a specie";
+        mysqli_query($conn, "INSERT INTO tbl_audit_trail (event_id, user_id, users_name, event_type, date) VALUES ('$eventID', '$admin_ID', '$users_name', '$event_type', NOW())");
         $delete_species_success = "Successfully deleted Species - $id";
         header("Location: ../archived_species.php?delete_species_success=".urldecode($delete_species_success));
       }
@@ -947,6 +1109,10 @@
         error_log($error_message);
         header("Location: ../error.php");
       }
+      $eventID = generateEventID($conn, $currentDate);
+      $admin_ID = $_SESSION['admin_id'];
+      $event_type = "Retrieved an admin";
+      mysqli_query($conn, "INSERT INTO tbl_audit_trail (event_id, user_id, users_name, event_type, date) VALUES ('$eventID', '$admin_ID', '$users_name', '$event_type', NOW())");
     }
 
     // Retrieve All Archived Administrator
@@ -968,6 +1134,10 @@
           // Handle insert error
           echo "Error inserting records: " . mysqli_error($conn);
       }
+      $eventID = generateEventID($conn, $currentDate);
+      $admin_ID = $_SESSION['admin_id'];
+      $event_type = "Batch retrieved all archived admin";
+      mysqli_query($conn, "INSERT INTO tbl_audit_trail (event_id, user_id, users_name, event_type, date) VALUES ('$eventID', '$admin_ID', '$users_name', '$event_type', NOW())");
     }
 
     // Retrieve Breed
@@ -997,6 +1167,10 @@
         error_log($error_message);
         header("Location: ../error.php");
       }
+      $eventID = generateEventID($conn, $currentDate);
+      $admin_ID = $_SESSION['admin_id'];
+      $event_type = "Retrieved a breed";
+      mysqli_query($conn, "INSERT INTO tbl_audit_trail (event_id, user_id, users_name, event_type, date) VALUES ('$eventID', '$admin_ID', '$users_name', '$event_type', NOW())");
     }
 
     // Retrieve Species
@@ -1026,6 +1200,10 @@
         error_log($error_message);
         header("Location: ../error.php");
       }
+      $eventID = generateEventID($conn, $currentDate);
+      $admin_ID = $_SESSION['admin_id'];
+      $event_type = "Retrieved a specie";
+      mysqli_query($conn, "INSERT INTO tbl_audit_trail (event_id, user_id, users_name, event_type, date) VALUES ('$eventID', '$admin_ID', '$users_name', '$event_type', NOW())");
     }
 
 
@@ -1037,6 +1215,9 @@
     $get_admin_notif = mysqli_query($conn, "SELECT * FROM tbl_admin_notif");
     $get_admin_notif_active = mysqli_query($conn, "SELECT * FROM tbl_admin_notif WHERE status = 0");
     $get_admin_notif_active_count = mysqli_num_rows($get_admin_notif_active);
+
+    $get_admin_message_unread = mysqli_query($conn, "SELECT * FROM tbl_messages WHERE user_sender_id != 'ADMIN' AND read_status = 'unread'");
+    $get_admin_message_unread_count = mysqli_num_rows($get_admin_message_unread);
 
     // FETCH Client Requests
     $get_clientRequests = mysqli_query($conn, "SELECT * FROM tbl_transactions WHERE status = 'for-approval'");
@@ -1199,6 +1380,9 @@
 
     // FETCH Client Cancelled
     $get_clientCancelled = mysqli_query($conn, "SELECT * FROM tbl_transactions WHERE status");
+
+    // FETCH Audit Trail Data
+    $get_audit_trail_data = mysqli_query($conn, "SELECT * FROM tbl_audit_trail");
 
     // FETCH Admin Profile Image for User Logged Profile
     if(isset($_SESSION['admin_id'])){
