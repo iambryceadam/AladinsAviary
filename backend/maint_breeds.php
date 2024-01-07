@@ -232,9 +232,6 @@
 								There are currently no entries in this table.
 							</p>
 						<?php } ?>
-						<p class="card-description table-card-description no-entry-description" id="search_no_match_breeds_validate">
-							There are no entries that match with your search.
-						</p>
 					</div>
 				</div>
 			</div>
@@ -296,9 +293,6 @@
 								There are currently no entries in this table.
 							</p>
 						<?php } ?>
-						<p class="card-description table-card-description no-entry-description" id="search_no_match_breeds_validated">
-							There are no entries that match with your search.
-						</p>
 					</div>
 				</div>
 			</div>

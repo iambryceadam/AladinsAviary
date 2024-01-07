@@ -113,15 +113,6 @@
 					<li><a href="maint_species.php">Species</a></li>
 				</ul>
 			</li>
-			<li>
-				<!-- Pricing Maintenance -->
-				<a href="#"><i class='bx bxs-purchase-tag icon' ></i> Pricing Data <i class='bx bx-chevron-right icon-right' ></i></a>
-				<ul class="side-dropdown">
-					<li><a href="maint_cagePricing.php">Cage Pricing</a></li>
-					<li><a href="maint_pickupPricing.php">Pickup Pricing</a></li>
-					<li><a href="maint_transportPricing.php">Transport Pricing</a></li>
-				</ul>
-			</li>
 			<!-- Analytics -->
 			<li class="divider" data-text="Analytics"></li>
 			<li>

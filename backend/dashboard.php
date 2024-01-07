@@ -100,13 +100,6 @@
 					<li><a href="maint_species.php">Species</a></li>
 				</ul>
 			</li>
-			<li>
-				<!-- Area Maintenance -->
-				<a href="#"><i class='bx bx-current-location icon' ></i> Area Data <Datag></Datag> <i class='bx bx-chevron-right icon-right' ></i></a>
-				<ul class="side-dropdown">
-					<li><a href="maint_restrictedAreas.php">Restricted Areas</a></li>
-				</ul>
-			</li>
 			<!-- Analytics -->
 			<li class="divider" data-text="Analytics"></li>
 			<li>
@@ -115,7 +108,6 @@
 				<ul class="side-dropdown">
 					<!-- User Accounts -->
 					<li class="divider" data-text="User Accounts"></li>
-					<li><a href="archived_clients.php">Clients</a></li>
 					<li><a href="archived_administrators.php">Administrators</a></li>
 					<!-- Animal Data -->
 					<li class="divider" data-text="Animal Data"></li>

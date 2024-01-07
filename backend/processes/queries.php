@@ -124,9 +124,9 @@
         } 
     }
 
-      mysqli_query($conn, "UPDATE tbl_transactions_dates SET other_transaction_dates = CONCAT('Refund Amount Updated-', NOW()) WHERE transaction_id = '$transaction_id'");
+      // mysqli_query($conn, "UPDATE tbl_transactions_dates SET other_transaction_dates = CONCAT('Refund Amount Updated-', NOW()) WHERE transaction_id = '$transaction_id'");
       // mysqli_query($conn, "UPDATE tbl_transactions_dates SET other_transaction_dates = 'Approved-', NOW() WHERE transaction_id = '$transaction_id'");
-      // mysqli_query($conn, "UPDATE tbl_transactions_dates SET other_transaction_dates = CONCAT(other_transaction_dates, ',', 'Approved-', NOW()) WHERE transaction_id = '$transaction_id'");
+      mysqli_query($conn, "UPDATE tbl_transactions_dates SET other_transaction_dates = CONCAT(other_transaction_dates, ',', 'Refund Amount Updated-', NOW()) WHERE transaction_id = '$transaction_id'");
       $transaction_approved_succes = "Successfully submitted refund";
       header("Location: refund.php?transaction_approved_success=". urldecode($transaction_approved_succes));
     }
