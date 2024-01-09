@@ -231,7 +231,7 @@ function insertInitialPaymentValidate(event) {
         event.preventDefault();
         Swal.fire({
             icon: "warning",
-            html: 'Are you sure you want<br>to approve request from ' + client_name + '?<br>(' +  client_id + ' ' + transaction_id + ')',
+            html: 'Are you sure you want<br>to approve request from ' + client_name + '?',
             showCancelButton: true,
             confirmButtonColor: '#f7941d',
             cancelButtonColor: '#8D8D8D',
@@ -1106,7 +1106,7 @@ function uploadTransportAttachments(event){
 		event.preventDefault();
         Swal.fire({
             icon: "warning",
-            html: 'Are you sure you want to transport ' + client_name + '\'s animal without attachments?<br>' + transaction_id,
+            html: 'Are you sure you want to transport ' + client_name + '\'s animal without attachments?',
             showCancelButton: true,
             confirmButtonColor: '#f7941d',
             cancelButtonColor: '#8D8D8D',
