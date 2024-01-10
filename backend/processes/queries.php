@@ -305,6 +305,9 @@
     $transaction_id = mysqli_real_escape_string($conn, $_POST['transaction_id']);
     $currentDate = date('mdY');
 
+    mysqli_query($conn, "UPDATE tbl_transactions SET status = 'for-booking' WHERE transaction_id = '$transaction_id'");
+    mysqli_query($conn, "UPDATE tbl_transactions_dates SET other_transaction_dates = CONCAT(other_transaction_dates, ',', 'Booking Animal For Transport-', NOW()) WHERE transaction_id = '$transaction_id'");
+
     if (!empty($_FILES['images']['name'][0])) {
         $fileNames = $_FILES['images']['name'];
         $fileTmpNames = $_FILES['images']['tmp_name'];
@@ -314,38 +317,26 @@
             $fileTmpName = $fileTmpNames[$i];
             $attachmentTag = "Medical";
 
-            // Move the uploaded file to a designated directory
-            $uploadDirectory = 'path/to/your/upload/directory/';
-            $uploadedFilePath = $uploadDirectory . basename($fileName);
-            move_uploaded_file($fileTmpName, $uploadedFilePath);
-
-            // Get the file content after moving the file
-            $fileContent = file_get_contents($uploadedFilePath);
+            $fileContent = file_get_contents($fileTmpName);
             $fileContent = mysqli_real_escape_string($conn, $fileContent);
 
             $customAttachmentsID = generateCustomAttachmentsID($conn, $currentDate);
-
             $insertQuery = "INSERT INTO tbl_transactions_attachments (attachment_id, transaction_id, attachment, attachment_tag) VALUES ('$customAttachmentsID', '$transaction_id', '$fileContent', '$attachmentTag')";
             
-            if (mysqli_query($conn, $insertQuery)) {
-                // File successfully inserted into the database, you can choose to unlink (delete) the file if needed
-                unlink($uploadedFilePath);
-            } else {
-                // Handle the insertion failure, e.g., log an error or display a message
-                echo "Error inserting file into the database: " . mysqli_error($conn);
-            }
-          }
-      }
-      mysqli_query($conn, "UPDATE tbl_transactions SET status = 'for-booking' WHERE transaction_id = '$transaction_id'");
-      mysqli_query($conn, "UPDATE tbl_transactions_dates SET other_transaction_dates = CONCAT(other_transaction_dates, ',', 'Booking Animal For Transport-', NOW()) WHERE transaction_id = '$transaction_id'");
-      $currentDate = date('mdY');
-      $eventID = generateEventID($conn, $currentDate);
-      $admin_ID = $_SESSION['admin_id'];
-      $event_type = "Booking a flight for animal Transport";
-      mysqli_query($conn, "INSERT INTO tbl_audit_trail (event_id, user_id, users_name, event_type, date) VALUES ('$eventID', '$admin_ID', '$users_name', '$event_type', NOW())");
-      $complete_medical = "Successfully proceeded to the next step (For Booking)";
-      header("Location: ?complete_medical=" . urldecode($complete_medical));
+            mysqli_query($conn, $insertQuery);
+        }
     }
+
+    // Log the event in the audit trail
+    $eventID = generateEventID($conn, $currentDate);
+    $admin_ID = $_SESSION['admin_id'];
+    $event_type = "Booking a flight for animal Transport";
+    mysqli_query($conn, "INSERT INTO tbl_audit_trail (event_id, user_id, users_name, event_type, date) VALUES ('$eventID', '$admin_ID', '$users_name', '$event_type', NOW())");
+
+    // Redirect with success message
+    $complete_medical = "Successfully proceeded to the next step (For Booking)";
+    header("Location: ?complete_medical=" . urldecode($complete_medical));
+  } 
 
     if (isset($_POST['submitDocumentsAttachments'])) {
       $transaction_id = mysqli_real_escape_string($conn, $_POST['transaction_id']);
@@ -446,7 +437,7 @@
       mysqli_query($conn, "UPDATE tbl_transactions_dates SET other_transaction_dates = CONCAT(other_transaction_dates, ',', 'Transport Process-', NOW()) WHERE transaction_id = '$transaction_id'");
       $booking_success = "Successfully booked animal for transport";
       header("Location: ?booking_success=" . urldecode($booking_success));
-  }
+    }
 
     function generateCustomAttachmentsID($conn, $currentDate) {
       // Get the maximum transaction number from the database

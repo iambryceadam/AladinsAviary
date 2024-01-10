@@ -316,7 +316,7 @@
 											<input type="hidden" name="client_id" id="medical_cID">
 											<input type="hidden" name="transaction_id" id="medical_tID">
 											<label for="imageFile">Choose Image:</label>
-                                            <input type="file" class="form-control-file" accept=".jpg, .jpeg, .png, .pdf, .docx, .xls, .xlsx" id="medicalAttachments" name="images[]" multiple>
+                                            <input type="file" class="form-control-file" accept=".jpg, .jpeg, .png" id="medicalAttachments" name="images[]" multiple>
                                         </div>
 										<input type="hidden" id="insertMedicalAttachmentsInput" name="insertMedicalAttachments">
 									</div>

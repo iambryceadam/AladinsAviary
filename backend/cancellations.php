@@ -289,7 +289,7 @@
 										<p class="pop-up-heading">Click the button to add attachments (if necessary):</p>
 										<div class="form-group">
 											<label for="transportAttachments">Choose Image:</label>
-                                            <input type="file" class="form-control-file" accept=".jpg, .jpeg, .png, .pdf, .docx, .xls, .xlsx" id="transportAttachments" name="images[]" multiple>
+                                            <input type="file" class="form-control-file" accept=".jpg, .jpeg, .png" id="transportAttachments" name="images[]" multiple>
                                         </div>
 										<input type="hidden" id="addReturnLocationInput" name="addReturnLocation">
 									</div>

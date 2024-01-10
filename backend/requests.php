@@ -297,7 +297,7 @@
 							<span aria-hidden="true" data-dismiss="modal" class="modal-exit">&times;</span>
 							</button>
 						</div>
-						<form id="insertRFC" action="pickup.php" method="POST" autocomplete="off" enctype="multipart/form-data">
+						<form id="insertRFC" action="requests.php" method="POST" autocomplete="off" enctype="multipart/form-data">
 							<input type="hidden" id="e_admin_id" name="e_admin_id">
 							<div class="modal-body" style="padding-bottom: 0px;">
 								<div class="row form-modal" style="padding-right: 20px;">
