@@ -418,7 +418,6 @@ function viewClientRequest(button) {
                 document.getElementById('animalColor_text').textContent = transactionData.animal_color;
                 document.getElementById('animalQuantity_text').textContent = transactionData.animal_quantity;
 				document.getElementById('transactionStatus').textContent = getTransactionStatusText(transactionData.status);
-				//var otherImagesArray = transactionData.other_images;
 				document.getElementById('other_transactions_attachments').innerHTML = '';
 				var imagesHTML = '';
 

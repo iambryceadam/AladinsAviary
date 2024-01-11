@@ -219,7 +219,7 @@
 										<td><?php echo $get_archivedBreeds_result['breed_id']; ?></td>
 										<td class="table-image-text"><img src="data:image/jpeg;base64,<?php echo base64_encode($get_clientRecords_result['img_profile']); ?>" alt="Client Profile Image"> <?php echo $get_clientRecords_result['first_name']; ?></td>
 										<td><?php echo $get_archivedBreeds_result['description']; ?></td>
-										<td><?php echo $get_speciesRecords_result['description']?></td>
+										<td><?php echo $get_speciesRecords_result['description'] ?? '---'; ?></td>
 										<td><?php echo $get_archivedBreeds_result['submitted_on']; ?></td>
 										<td><?php echo $get_archivedBreeds_result['archived_on']; ?></td>
 										<td>
