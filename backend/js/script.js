@@ -605,7 +605,7 @@ function getTransactionStatusText(status) {
 		}
 }
 
-function approveInitialPayment(name, tID){
+function approveInitialPayment(cID, name, tID){
 	Swal.fire({
 		icon: "warning",
 		html: 'Are you sure you want<br>to approve ' + name + '\'s initial payment?',
@@ -621,12 +621,12 @@ function approveInitialPayment(name, tID){
 		}
 	}).then((result) => {
 		if (result.isConfirmed) {
-			window.location.href='processes/queries.php?approveInitialPayment=' + tID;
+			window.location.href='processes/queries.php?approveInitialPayment=' + tID + '&cid=' + cID;
 		}
 	});
 }
 
-function approvePayment(name, tID){
+function approvePayment(cID, name, tID){
 	Swal.fire({
 		icon: "warning",
 		html: 'Are you sure you want<br>to approve ' + name + '\'s payment?',
@@ -642,12 +642,12 @@ function approvePayment(name, tID){
 		}
 	}).then((result) => {
 		if (result.isConfirmed) {
-			window.location.href='processes/queries.php?approvePayment=' + tID;
+			window.location.href='processes/queries.php?approvePayment=' + tID + '&cid=' + cID;
 		}
 	});
 }
 
-function rejectInitialPayment(name, tID){
+function rejectInitialPayment(cID, name, tID){
 	Swal.fire({
 		icon: "warning",
 		html: 'Are you sure you want to<br>reject ' + name + '\'s initial?',
@@ -663,12 +663,12 @@ function rejectInitialPayment(name, tID){
 		}
 	}).then((result) => {
 		if (result.isConfirmed) {
-			window.location.href='processes/queries.php?rejectInitialPayment=' + tID;
+			window.location.href='processes/queries.php?rejectInitialPayment=' + tID + '&cid=' + cID;
 		}
 	});
 }
 
-function rejectFinalPayment(name, tID){
+function rejectFinalPayment(cID, name, tID){
 	Swal.fire({
 		icon: "warning",
 		html: 'Are you sure you want to<br>reject ' + name + '\'s final payment?',
@@ -684,12 +684,12 @@ function rejectFinalPayment(name, tID){
 		}
 	}).then((result) => {
 		if (result.isConfirmed) {
-			window.location.href='processes/queries.php?rejectFinalPayment=' + tID;
+			window.location.href='processes/queries.php?rejectFinalPayment=' + tID + '&cid=' + cID;
 		}
 	});
 }
 
-function rejectFullPayment(name, tID){
+function rejectFullPayment(cID, name, tID){
 	Swal.fire({
 		icon: "warning",
 		html: 'Are you sure you want to<br>reject ' + name + '\'s final payment?',
@@ -705,13 +705,13 @@ function rejectFullPayment(name, tID){
 		}
 	}).then((result) => {
 		if (result.isConfirmed) {
-			window.location.href='processes/queries.php?rejectFullPayment=' + tID;
+			window.location.href='processes/queries.php?rejectFullPayment=' + tID + '&cid=' + cID;
 		}
 	});
 }
 
 
-function initiatePickup(name, tID){
+function initiatePickup(cID, name, tID){
 	Swal.fire({
 		icon: "warning",
 		html: 'Are you sure you want to<br>proceed with ' + name + '\'s pickup?',
@@ -727,13 +727,13 @@ function initiatePickup(name, tID){
 		}
 	}).then((result) => {
 		if (result.isConfirmed) {
-			window.location.href='processes/queries.php?initiatePickup=' + tID;
+			window.location.href='processes/queries.php?initiatePickup=' + tID + '&cid=' + cID;
 		}
 	});
 }
 
 
-function reattemptPickup(name, tID){
+function reattemptPickup(cID, name, tID){
 	Swal.fire({
 		icon: "warning",
 		html: 'Are you sure you want to<br>re-attempt the pickup for ' + name + '\'s animal?',
@@ -749,12 +749,12 @@ function reattemptPickup(name, tID){
 		}
 	}).then((result) => {
 		if (result.isConfirmed) {
-			window.location.href='processes/queries.php?reattemptPickup=' + tID;
+			window.location.href='processes/queries.php?reattemptPickup=' + tID + '&cid=' + cID;
 		}
 	});
 }
 
-function successPickup(name, tID){
+function successPickup(cID, name, tID){
 	Swal.fire({
 		icon: "warning",
 		html: 'Are you sure you want to<br>confirm successful pickup for ' + name + '\'s animal?',
@@ -770,12 +770,12 @@ function successPickup(name, tID){
 		}
 	}).then((result) => {
 		if (result.isConfirmed) {
-			window.location.href='processes/queries.php?successPickup=' + tID;
+			window.location.href='processes/queries.php?successPickup=' + tID + '&cid=' + cID;
 		}
 	});
 }
 
-function proceedForMedical(name, tID){
+function proceedForMedical(cID, name, tID){
 	Swal.fire({
 		icon: "warning",
 		html: 'Are you sure you want to<br>proceed with ' + name + '\'s animal to for medical?',
@@ -791,7 +791,7 @@ function proceedForMedical(name, tID){
 		}
 	}).then((result) => {
 		if (result.isConfirmed) {
-			window.location.href='processes/queries.php?forMedical=' + tID;
+			window.location.href='processes/queries.php?forMedical=' + tID  + '&cid=' + cID;
 		}
 	});
 }
@@ -1011,7 +1011,7 @@ function proceedFinalPay(event) {
     }
 }
 
-function approveFinalPayment(name, tID){
+function approveFinalPayment(cID, name, tID){
 	Swal.fire({
 		icon: "warning",
 		html: 'Are you sure you want<br>to approve ' + name + '\'s payment?',
@@ -1027,7 +1027,7 @@ function approveFinalPayment(name, tID){
 		}
 	}).then((result) => {
 		if (result.isConfirmed) {
-			window.location.href='processes/queries.php?approveFinalPayment=' + tID;
+			window.location.href='processes/queries.php?approveFinalPayment=' + tID + '&cid=' + cID;
 		}
 	});
 }
@@ -1302,7 +1302,7 @@ function uploadBookingAttachments(event){
     }
 }
 
-function transportCompleted(name, tID){
+function transportCompleted(cID, name, tID){
 	Swal.fire({
 		icon: "warning",
 		html: 'Are you sure that ' + name + '\'s animal is ready for receiving?',
@@ -1318,7 +1318,7 @@ function transportCompleted(name, tID){
 		}
 	}).then((result) => {
 		if (result.isConfirmed) {
-			window.location.href='processes/queries.php?transportCompleted=' + tID;
+			window.location.href='processes/queries.php?transportCompleted=' + tID + '&cid=' + cID;
 		}
 	});
 }
@@ -1491,7 +1491,7 @@ function rejectRequest(name, tID){
 	});
 }
 
-function pickupUnsuccessful(name, tID){
+function pickupUnsuccessful(cID, name, tID){
 	Swal.fire({
 		icon: "warning",
 		html: 'Confirm ' + name + '\'s<br> unsuccessful animal pickup?',
@@ -1507,7 +1507,7 @@ function pickupUnsuccessful(name, tID){
 		}
 	}).then((result) => {
 		if (result.isConfirmed) {
-			window.location.href='processes/queries.php?unsuccessfulPickup=' + tID;
+			window.location.href='processes/queries.php?unsuccessfulPickup=' + tID + '&cid=' + cID;
 		}
 	});
 }
