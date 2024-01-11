@@ -1185,11 +1185,14 @@ thead {
 
 .FADetails-data-attachments{
 	display: flex;
+	flex-wrap: wrap;
 	flex-direction: row;
+	margin-bottom: 30px;
 }
 
 .FADetails-data-attachments img{
 	margin-right: 15px;
+	margin-bottom: 10px;
 }
 
 .cancel-button-container{

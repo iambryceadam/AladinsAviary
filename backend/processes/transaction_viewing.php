@@ -9,11 +9,19 @@ if (isset($_GET['transaction_id'])) {
     $transaction_info_result = mysqli_query($conn, $find_transaction_info);
     $transaction_info_row = mysqli_fetch_assoc($transaction_info_result);
     $transaction_status = $transaction_info_row['status'];
+    $cage_provider = $transaction_info_row['cage_provider'];
 
-    $find_date_filed = "SELECT date_filed_request FROM tbl_transactions_dates WHERE transaction_id = '$transaction_id'";
+    $find_date_filed = "SELECT * FROM tbl_transactions_dates WHERE transaction_id = '$transaction_id'";
     $find_date_filed_result = mysqli_query($conn, $find_date_filed);
     $date_filed_row = mysqli_fetch_assoc($find_date_filed_result);
     $date_filed_value = $date_filed_row['date_filed_request'];
+    if($date_filed_row['time_departure'] == null && $date_filed_row['time_arrival'] == null){
+        $date_of_departure = "Not yet decided";
+        $date_of_arrival = "Not yet decided";
+    } else{
+        $date_of_departure = $date_filed_row['time_departure'];
+        $date_of_arrival = $date_filed_row['time_arrival'];
+    }
 
     $find_sender_id = "SELECT sender_id FROM tbl_senders WHERE transaction_id = '$transaction_id'";
     $find_sender_result = mysqli_query($conn, $find_sender_id);
@@ -70,20 +78,41 @@ if (isset($_GET['transaction_id'])) {
 
     if($pMethod_row['initial_payment_cost'] == 0){
         $pInitial_cost = "No price has been set yet.";
+        $numValueInitialCost = 0;
     } else{
         $pInitial_cost = "P" . $pMethod_row['initial_payment_cost'];
+        $numValueInitialCost =  $pMethod_row['initial_payment_cost'];
     }
 
     if($pMethod_row['final_payment_cost'] == 0){
         $pFinal_cost = "No price has been set yet.";
+        $numValueFinalCost = 0;
     } else{
         $pFinal_cost = "P" . $pMethod_row['final_payment_cost'];
+        $numValueFinalCost = $pMethod_row['final_payment_cost'];
     }
 
     $pType_value = $pMethod_row['payment_type'];
     $pMethod_value = $pMethod_row['payment_method'];
     $pInitial_receipt = base64_encode($pMethod_row['initial_payment_receipt']);
     $pFinal_receipt = base64_encode($pMethod_row['final_payment_receipt']);
+
+    ////////////////////////////////////////////////////////////////
+
+    $total_pay_status = $numValueInitialCost + $numValueFinalCost;
+    $animal_pickup_cost = 1700;
+    $mobilization_cost = 500;
+    $ltp_cost = 100;
+    $vhc_cost = 150;
+    if($cage_provider == 0){
+        $carrier_cage_cost = 500;
+        $cage_enable = 0;
+    } else{
+        $carrier_cage_cost = 0;
+        $cage_enable = 1;
+    }
+    $professional_fee = $total_pay_status - ($animal_pickup_cost + $mobilization_cost + $ltp_cost + $vhc_cost + $carrier_cage_cost);
+    $grand_total = $animal_pickup_cost + $mobilization_cost + $ltp_cost + $vhc_cost + $carrier_cage_cost + $professional_fee;
 
     ////////////////////////////////////////////////////////////////
 
@@ -117,9 +146,18 @@ if (isset($_GET['transaction_id'])) {
     $find_species_name_row = mysqli_fetch_assoc($find_species_name_result);
     $species_name = $find_species_name_row['description'];
 
+    $find_transaction_attachments = mysqli_query($conn, "SELECT attachment FROM tbl_transactions_attachments WHERE transaction_id = '$transaction_id'");
+    $images = [];
+    while ($row = mysqli_fetch_assoc($find_transaction_attachments)) {
+        $images[] = base64_encode($row['attachment']);
+    }
+
+
     $transactionData = [
         'transaction_id' => $transaction_id,
         'transaction_date_filed' => $date_filed_value,
+        'departure_date' => $date_of_departure,
+        'arrival_date' => $date_of_arrival,
         'status' => $transaction_status,
         'sender_id' => $sender_id_value,
         'sender_last_name' => $slname_id_value,
@@ -147,6 +185,13 @@ if (isset($_GET['transaction_id'])) {
         'final_payment_cost' => $pFinal_cost,
         'initial_payment_receipt' => base64_encode($pMethod_row['initial_payment_receipt']),
         'final_payment_receipt' => base64_encode($pMethod_row['final_payment_receipt']),
+        'animal_pickup_cost' => $animal_pickup_cost,
+        'mobilization_cost' => $mobilization_cost,
+        'ltp_cost' => $ltp_cost,
+        'vhc_cost' => $vhc_cost,
+        'carrier_cage_cost' => $carrier_cage_cost,
+        'professional_fee' => $professional_fee,
+        'grand_total' => $grand_total,
         'breed_id' => $breed_id,
         'animal_height' => $height,
         'animal_weight' => $weight,
@@ -158,6 +203,7 @@ if (isset($_GET['transaction_id'])) {
         'species_id' => $species_id,
         'breed_name' => $breed_name,
         'species_name' => $species_name,
+        'other_images' => $images,
     ];
     
     header('Content-Type: application/json');

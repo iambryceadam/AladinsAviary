@@ -391,7 +391,7 @@
 										return 'On Transit back to the sender';
 									case 'confirmation-return':
 										return 'Awaiting Return Confirmation';
-									case 'Cancelled':
+									case 'cancelled':
 										return 'Transaction Cancelled';
 									default:
 										return '404 STATUS';

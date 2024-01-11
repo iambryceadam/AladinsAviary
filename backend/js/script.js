@@ -376,7 +376,8 @@ function viewClientRequest(button) {
                 // Update the HTML elements with the retrieved data
                 document.getElementById('tID_text').textContent = transactionData.transaction_id;
                 document.getElementById('tDateFiled_text').textContent = transactionData.transaction_date_filed;
-                //document.getElementById('tStatus_text').textContent = transactionData.transaction_status;
+                document.getElementById('departure_date').textContent = transactionData.departure_date;
+				document.getElementById('arrival_date').textContent = transactionData.arrival_date;
 
                 // Sender Info
                 document.getElementById('senderID_text').textContent = transactionData.sender_id;
@@ -398,11 +399,13 @@ function viewClientRequest(button) {
                 // Payment Info
                 document.getElementById('paymentType_text').textContent = transactionData.payment_type;
                 document.getElementById('paymentMethod_text').textContent = transactionData.payment_method;
-                //document.getElementById('initialPaymentCost_text').textContent = transactionData.initial_payment_cost;
-                //document.getElementById('finalPaymentCost_text').textContent = transactionData.final_payment_cost;
-                // Update image elements with base64-encoded images
-                //document.getElementById('initialPaymentReceipt').src = 'data:image/png;base64,' + transactionData.initial_payment_receipt;
-                //document.getElementById('finalPaymentReceipt').src = 'data:image/png;base64,' + transactionData.final_payment_receipt;
+                document.getElementById('animal_pickup').textContent = transactionData.animal_pickup_cost;
+                document.getElementById('mobilization_info').textContent = transactionData.mobilization_cost;
+                document.getElementById('ltp_info').textContent = transactionData.ltp_cost;
+                document.getElementById('vhc_info').textContent = transactionData.vhc_cost;
+				document.getElementById('cage_info').textContent = transactionData.carrier_cage_cost;
+				document.getElementById('professional_fee').textContent = transactionData.professional_fee;
+				document.getElementById('grand_total').textContent = transactionData.grand_total;
 
                 // Animal Info
 				document.getElementById('animalImage').src = 'data:image/png;base64,' + transactionData.animal_image;
@@ -415,11 +418,27 @@ function viewClientRequest(button) {
                 document.getElementById('animalColor_text').textContent = transactionData.animal_color;
                 document.getElementById('animalQuantity_text').textContent = transactionData.animal_quantity;
 				document.getElementById('transactionStatus').textContent = getTransactionStatusText(transactionData.status);
+				//var otherImagesArray = transactionData.other_images;
+				document.getElementById('other_transactions_attachments').innerHTML = '';
+				var imagesHTML = '';
+
+				transactionData.other_images.forEach(function (imageData, index) {
+					var imgTag = '<img src="data:image/png;base64,' +
+						imageData +
+						'"alt="" onclick="openImageModal(this.src, ' + index + ')" id="initial-receipt-img" class="initial-receipt-img"></img>';
+					
+					imagesHTML += imgTag;
+				});
+
+				document.getElementById('other_transactions_attachments').innerHTML = imagesHTML;
 				document.getElementById('dynamic-admin-payment-container').innerHTML = '';
+
+				var cost_container = document.getElementById('dynamic-admin-cost-container');
+				var cage_modif_display = document.getElementById('cage_modif_display');
 				
 				if (transactionData.payment_type == "Down Payment" && (transactionData.initial_payment_receipt === "" && transactionData.final_payment_receipt === "")) {
 					document.getElementById('dynamic-admin-payment-container').innerHTML = '<div class="FADetails-data-label">' +
-						'<p>Payment Status</p>' +
+						'<p>Cost Details</p>' +
 						'</div>' +
 						'<div class="FADetails-data-details">' +
 						'<p class="data-text" id="">Down Payment Cost</p>' +
@@ -440,7 +459,7 @@ function viewClientRequest(button) {
 				} else if (transactionData.payment_type == "Down Payment" && (transactionData.initial_payment_receipt !== "" || transactionData.final_payment_receipt !== "")) {
 					document.getElementById('dynamic-admin-payment-container').innerHTML =
 					  '<div class="FADetails-data-label">' +
-					  '<p>Payment Status</p>' +
+					  '<p>Cost Details</p>' +
 					  '</div>' +
 					  '<div class="FADetails-data-details">' +
 					  '<p class="data-text" id="">Down Payment Cost</p>' +
@@ -469,7 +488,7 @@ function viewClientRequest(button) {
 					  '</div>';
 				} else if (transactionData.payment_type == "Full Payment" && (transactionData.final_payment_receipt === "")) {
 					document.getElementById('dynamic-admin-payment-container').innerHTML = '<div class="FADetails-data-label">' +
-						'<p>Payment Status</p>' +
+						'<p>Cost Details</p>' +
 						'</div>' +
 						'<div class="FADetails-data-details">' +
 						'<p class="data-text" id="">Payment Cost</p>' +
@@ -502,7 +521,19 @@ function viewClientRequest(button) {
 						transactionData.final_payment_receipt +
 						'" id="finalPaymentReceipt" class="initial-receipt-admin-img" alt="" onclick="openImageModal(this.src)"></img>' +
 					  '</div>';
-				}  
+				}
+
+				if(transactionData.status == 'for-approval'){
+					cost_container.style.display = 'none';
+				} else{
+					cost_container.style.display = 'block';
+				}
+
+				if(transactionData.carrier_cage_cost == 0){
+					cage_modif_display.style.display = 'none';
+				} else{
+					cage_modif_display.style.display = 'flex';
+				}
 
             } else {
                 // Handle errors here, for example:
@@ -568,7 +599,7 @@ function getTransactionStatusText(status) {
 				return 'On Transit back to the sender';
 			case 'confirmation-return':
 				return 'Awaiting Return Confirmation';
-			case 'Cancelled':
+			case 'cancelled':
 				return 'Transaction Cancelled';
 			default:
 				return '404 STATUS';

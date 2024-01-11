@@ -48,6 +48,15 @@
                             <p class="data-text" id="tDateFiled_text"></p>
                         </div>
 
+                        <div class="FADetails-data-details">
+                            <p class="data-text">Date of Departure:</p>
+                            <p class="data-text" id="departure_date"></p>
+                        </div>
+                        <div class="FADetails-data-details">
+                            <p class="data-text">Date of Arrvial:</p>
+                            <p class="data-text" id="arrival_date"></p>
+                        </div>
+
                         <!-- Sender Details -->
                         <div class="FADetails-data-label">
                             <p>Sender Details</p>
@@ -119,6 +128,12 @@
                             <p class="data-text">Payment Method:</p>
                             <p class="data-text" id="paymentMethod_text"></p>
                         </div>
+                        <div class="FADetails-data-label">
+                            <p>Other Transaction Attachments</p>
+                        </div>
+                        <div class="FADetails-data-attachments" id="other_transactions_attachments">
+                            
+                        </div>
                         <br>
                     </div>
 
@@ -170,9 +185,42 @@
                             <p class="data-text" id="transactionStatus"></p>
                         </div>
 
-                        <div class="dynamic-admin-payment-container" id="dynamic-admin-payment-container">
-                            
+                        <div class="dynamic-admin-cost-container" id="dynamic-admin-cost-container">
+                            <div class="FADetails-data-label">
+                                <p>Cost Breakdown</p>
+                            </div>
+                            <div class="FADetails-data-details">
+                                <p class="data-text" id="">Animal Pickup</p>
+                                <p class="data-text" id="animal_pickup"></p>
+                            </div>
+                            <div class="FADetails-data-details">
+                                <p class="data-text" id="">Mobilization</p>
+                                <p class="data-text" id="mobilization_info"></p>
+                            </div>
+                            <div class="FADetails-data-details">
+                                <p class="data-text" id="">Land Transportation Permit (LTP)</p>
+                                <p class="data-text" id="ltp_info"></p>
+                            </div>
+                            <div class="FADetails-data-details">
+                                <p class="data-text" id="">Veterinary Health Certificate (VHC)</p>
+                                <p class="data-text" id="vhc_info"></p>
+                            </div>
+                            <div class="FADetails-data-details" id="cage_modif_display">
+                                <p class="data-text" id="">Carrier Cage</p>
+                                <p class="data-text" id="cage_info"></p>
+                            </div>
+                            <div class="FADetails-data-details">
+                                <p class="data-text" id="">Professional Fee</p>
+                                <p class="data-text" id="professional_fee"></p>
+                            </div>
+                            <hr>
+                            <div class="FADetails-data-details">
+                                <p class="data-text" id="">Grand Total</p>
+                                <p class="data-text" id="grand_total"></p>
+                            </div>
+                            <hr>
                         </div>
+                        <div class="dynamic-admin-payment-container" id="dynamic-admin-payment-container"></div>
                     </div>
                 </div>
             </div>
