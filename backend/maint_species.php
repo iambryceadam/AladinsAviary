@@ -212,7 +212,7 @@
 									<tr>
 										<td><?php echo $get_species_validate_result['species_id']; ?></td>
 										<td class="table-image-text"><img src="data:image/jpeg;base64,<?php echo base64_encode($get_clientRecords_result['img_profile']); ?>" alt="Client Profile Image"> <?php echo $get_clientRecords_result['first_name']; ?></td>
-										<td><?php echo $get_species_validate_result['description']; ?></td>
+										<td><?php echo $get_species_validate_result['description'] ?? "---"; ?></td>
 										<td><?php echo $get_species_validate_result['submitted_on']; ?></td>
 										<td>
 											<button class="btn-sm btn m-1 table-action-btn action-approve" data-toggle="modal" data-target="#confirmValidateSpecies" onclick="confirmValidateSpeciesFill(this)" data-id="<?php echo $get_species_validate_result['species_id']; ?>"><i class="material-icons table-action-icon">redo</i></button>

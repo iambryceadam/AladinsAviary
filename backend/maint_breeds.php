@@ -277,8 +277,8 @@
 									<tr>
 										<td><?php echo $get_breeds_validated_result['breed_id']; ?></td>
 										<td class="table-image-text"><img src="data:image/jpeg;base64,<?php echo base64_encode($get_clientRecords_result['img_profile']); ?>" alt="Client Profile Image"> <?php echo $get_clientRecords_result['first_name']; ?></td>
-										<td><?php echo $get_breeds_validated_result['description']; ?></td>
-										<td><?php echo $get_speciesRecords_result['description']; ?></td>
+										<td><?php echo $get_breeds_validated_result['description'] ?? "---"; ?></td>
+										<td><?php echo $get_speciesRecords_result['description'] ?? "---"; ?></td>
 										<td><?php echo $get_breeds_validated_result['approved_on']; ?></td>
 										<td>
 											<button class="btn-sm btn m-1 table-action-btn action-deny" onclick="archiveBreed('<?php echo $get_breeds_validated_result['description']; ?>', '<?php echo $get_breeds_validated_result['breed_id']; ?>')"><i class="material-icons table-action-icon">archive</i></button>
