@@ -584,11 +584,15 @@
 			$payment_type = $payment_type_result['payment_type'];
 
       if($payment_type == "Down Payment"){
-        if($previous_status != 'for-approval' && $previous_status != 'for-downpayment' && $previous_status != 'i-receipt-submitted' && $previous_status != 'i-receipt-reattempt'){ 
+        if($previous_status == 'for-approval' || $previous_status == 'for-downpayment' || $previous_status == 'i-receipt-submitted' || $previous_status == 'i-receipt-reattempt'){ 
+          //do nothing
+        } else{
           mysqli_query($conn, "INSERT INTO tbl_refunds (refund_id, transaction_id, status) VALUES ('$customRefundID', '$tID', 'pending-refund')");
         }
       } else if($payment_type == "Full Payment"){
-        if($previous_status != 'for-approval' && $previous_status != 'for-payment' && $previous_status != 'f-receipt-submitted' && $previous_status != 'f-receipt-reattempt'){ 
+        if($previous_status == 'for-approval' || $previous_status == 'for-payment' || $previous_status == 'f-receipt-submitted' || $previous_status == 'f-receipt-reattempt'){ 
+          //do nothing
+        } else{
           mysqli_query($conn, "INSERT INTO tbl_refunds (refund_id, transaction_id, status) VALUES ('$customRefundID', '$tID', 'pending-refund')");
         }
       }
