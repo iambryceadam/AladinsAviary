@@ -1862,6 +1862,34 @@ thead {
 	border-radius: 15px;
 }
 
+.reports-download{
+	width: 100%;
+	margin-bottom: 20px;
+	display: flex;
+	flex-direction: row;
+	justify-content: right;
+	align-items: right;
+}
+
+.reports-download button{
+	width: 80px;
+}
+
+.download-reports-btn{
+	float: right;
+	background-color: var(--logo-light-green);
+	color: white;
+	border-style: none;
+	padding: 6px;
+	font-size: 1.5rem;
+	transition: 0.5s ease-in-out;
+}
+
+.download-reports-btn:hover{
+	background-color: var(--logo-dark-green);
+	transition: 0.5s ease-in-out;
+}
+
 
 /* Media Query */
 @media screen and (max-width: 768px) {

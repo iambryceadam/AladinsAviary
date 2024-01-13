@@ -1381,7 +1381,7 @@ function approveCancel(cID, name, tID){
 		}
 	}).then((result) => {
 		if (result.isConfirmed) {
-			window.location.href='processes/queries.php?approveCancel=' + tID + '?cid=' + cID;
+			window.location.href='processes/queries.php?approveCancel=' + tID + '&cid=' + cID;
 		}
 	});
 }
@@ -1549,7 +1549,7 @@ function rejectCancel(cID, name, tID){
 		}
 	}).then((result) => {
 		if (result.isConfirmed) {
-			window.location.href='processes/queries.php?rejectCancellation=' + tID + '?cid=' + cID;
+			window.location.href='processes/queries.php?rejectCancel=' + tID + '&cid=' + cID;
 		}
 	});
 }

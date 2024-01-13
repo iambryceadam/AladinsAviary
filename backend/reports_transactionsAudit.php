@@ -344,6 +344,11 @@
 							</div>
 						</form>
 					</div>
+					<div class="reports-download" >
+						<form action="processes/download_report.php" method="POST">
+							<button type="submit" name="download_report" id="download_report" class="download-reports-btn"><i class='bx bxs-download icon'></i></button>
+						</form>
+					</div>
 					<div class="table-responsive">
 						<table class="table table-sm table-hover table-striped table-bordered table-light" id="table-admin">
 							<thead>
@@ -469,8 +474,8 @@
 								$dateTimeObj = new DateTime($lastSubmittedDateTime);
 								$formattedDateTime = $dateTimeObj->format('Y-m-d');
 
-								$get_animalRecords = mysqli_query($conn, "SELECT * FROM tbl_animals WHERE animal_id = '$animalID'");
-								$get_animalRecords_result = mysqli_fetch_array($get_animalRecords);
+								// $get_animalRecords = mysqli_query($conn, "SELECT * FROM tbl_animals WHERE animal_id = '$animalID'");
+								// $get_animalRecords_result = mysqli_fetch_array($get_animalRecords);
 							?>
 								<tr>
 									<td><?php echo $tID; ?></td>

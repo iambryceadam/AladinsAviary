@@ -769,8 +769,8 @@
       header("Location: ?reject_cancel=" . urldecode($reject_cancel));
     }
 
-    if(isset($_GET['rejectCancellation'])){
-      $tID = $_GET['rejectCancellation'];
+    if(isset($_GET['rejectCancel'])){
+      $tID = $_GET['rejectCancel'];
       $client_id = $_GET['cid'];
 
       $get_previous_status = mysqli_query($conn, "SELECT * FROM tbl_cancelled_transactions WHERE transaction_id = '$tID'");
