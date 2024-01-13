@@ -31,10 +31,23 @@
 			<li class="divider" data-text="main"></li>
 			<li><a href="dashboard.php"><i class='bx bxs-dashboard icon' ></i>Dashboard</a></li>
 			<li>
-				<a href="messages.php">
-					<i class='bx bxs-message-square-dots icon' id="icon-notification" style="margin-right: -4px;"><span class="notification-badge"></span></i>
-						Messages
-				</a>
+				<?php
+					if($get_admin_message_unread_count > 0){
+						echo '
+							<a href="messages.php" class="">
+								<i class="bx bxs-message-square-dots icon" id="icon-notification" style="margin-right: -4px;"><span class="notification-badge"></span></i>
+									Messages
+							</a>
+						';
+					} else{
+						echo '
+						<a href="messages.php" class="">
+							<i class="bx bxs-message-square-dots icon" id="icon-notification" style="margin-right: -4px; padding-right: 23px;"></span></i>
+								Messages
+						</a>
+						';
+					}
+				?>
 			</li>
 			<li>
 				<?php 
@@ -243,7 +256,7 @@
 									<td><?php echo $formattedDateTime ?></td>
 									<td>
 										<button class="btn-sm btn m-1 table-action-btn action-view" data-toggle="modal" data-target="#viewClientRequest" data-transaction-id="<?php echo $transactionID; ?>" onclick="viewClientRequest(this);"><i class="material-icons table-action-icon">visibility</i></button>
-										<button class="btn-sm btn m-1 table-action-btn action-approve" onclick="proceedForReturn('<?php echo $client_name; ?>', '<?php echo $transactionID; ?>')"><i class="material-icons table-action-icon">thumb_up</i></button>
+										<button class="btn-sm btn m-1 table-action-btn action-approve" onclick="proceedForReturn('<?php echo $clientID ?>', '<?php echo $client_name; ?>', '<?php echo $transactionID; ?>')"><i class="material-icons table-action-icon">thumb_up</i></button>
 									</td>
 								</tr>
 								<?php } ?>
@@ -311,8 +324,8 @@
 									<td><?php echo $get_location_details_results['return_location']; ?></td>
 									<td>
 										<button class="btn-sm btn m-1 table-action-btn action-view" data-toggle="modal" data-target="#viewClientRequest" data-transaction-id="<?php echo $transactionID; ?>" onclick="viewClientRequest(this);"><i class="material-icons table-action-icon">visibility</i></button>
-										<button class="btn-sm btn m-1 table-action-btn action-approve" onclick="confirmReturn('<?php echo $client_name; ?>', '<?php echo $transactionID; ?>')"><i class="material-icons table-action-icon">thumb_up</i></button>
-										<!-- <button class="btn-sm btn m-1 table-action-btn action-deny"><i class="material-icons table-action-icon">thumb_down</i></button> -->
+										<button class="btn-sm btn m-1 table-action-btn action-approve" onclick="confirmReturn('<?php echo $clientID; ?>', '<?php echo $client_name; ?>', '<?php echo $transactionID; ?>')"><i class="material-icons table-action-icon">thumb_up</i></button>
+										<button class="btn-sm btn m-1 table-action-btn action-deny" onclick="unsuccessfulReturn('<?php echo $clientID; ?>', '<?php echo $client_name; ?>', '<?php echo $transactionID; ?>')"><i class="material-icons table-action-icon">thumb_down</i></button>
 									</td>
 								</tr>
 							<?php } ?>

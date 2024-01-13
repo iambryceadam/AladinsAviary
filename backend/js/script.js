@@ -1365,7 +1365,7 @@ function animalReceived(name, tID){
 	});
 }
 
-function approveCancel(name, tID){
+function approveCancel(cID, name, tID){
 	Swal.fire({
 		icon: "warning",
 		html: 'Are you sure you want to cancel ' + name + '\'s animal transportation request?',
@@ -1381,7 +1381,7 @@ function approveCancel(name, tID){
 		}
 	}).then((result) => {
 		if (result.isConfirmed) {
-			window.location.href='processes/queries.php?approveCancel=' + tID;
+			window.location.href='processes/queries.php?approveCancel=' + tID + '?cid=' + cID;
 		}
 	});
 }
@@ -1428,7 +1428,7 @@ function cancelToReturn(name, tID){
 	});
 }
 
-function proceedForReturn(name, tID){
+function proceedForReturn(cID, name, tID){
 	Swal.fire({
 		icon: "warning",
 		html: 'Proceed to for return?',
@@ -1444,12 +1444,33 @@ function proceedForReturn(name, tID){
 		}
 	}).then((result) => {
 		if (result.isConfirmed) {
-			window.location.href='processes/queries.php?proceedForReturn=' + tID;
+			window.location.href='processes/queries.php?proceedForReturn=' + tID + '&cid=' + cID;
 		}
 	});
 }
 
-function confirmReturn (name, tID){
+function unsuccessfulReturn (cID, name, tID){
+	Swal.fire({
+		icon: "warning",
+		html: 'Return attempt unsuccessful?',
+		showCancelButton: true,
+		confirmButtonColor: '#f7941d',
+		cancelButtonColor: '#8D8D8D',
+		confirmButtonText: 'Yes',
+		cancelButtonText: 'No',
+		width: '380px',
+		customClass: {
+		  popup: 'swal-popup',
+		  confirmButton: 'swal-btn',
+		}
+	}).then((result) => {
+		if (result.isConfirmed) {
+			window.location.href='processes/queries.php?unsuccessfulReturn=' + tID + '&cid=' + cID;
+		}
+	});
+}
+
+function confirmReturn (cID, name, tID){
 	Swal.fire({
 		icon: "warning",
 		html: 'Proceed to confirm return?',
@@ -1465,7 +1486,7 @@ function confirmReturn (name, tID){
 		}
 	}).then((result) => {
 		if (result.isConfirmed) {
-			window.location.href='processes/queries.php?confirmReturn=' + tID;
+			window.location.href='processes/queries.php?confirmReturn=' + tID + '&cid=' + cID;
 		}
 	});
 }
@@ -1512,7 +1533,7 @@ function pickupUnsuccessful(cID, name, tID){
 	});
 }
 
-function rejectCancel(name, tID){
+function rejectCancel(cID, name, tID){
 	Swal.fire({
 		icon: "warning",
 		html: 'Reject ' + name + '\'s<br> request for cancellation?',
@@ -1528,7 +1549,7 @@ function rejectCancel(name, tID){
 		}
 	}).then((result) => {
 		if (result.isConfirmed) {
-			window.location.href='processes/queries.php?rejectCancellation=' + tID;
+			window.location.href='processes/queries.php?rejectCancellation=' + tID + '?cid=' + cID;
 		}
 	});
 }

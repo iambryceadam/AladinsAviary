@@ -80,10 +80,23 @@
 			<li class="divider" data-text="main"></li>
 			<li><a href="dashboard.php"><i class='bx bxs-dashboard icon' ></i>Dashboard</a></li>
 			<li>
-				<a href="messages.php">
-					<i class='bx bxs-message-square-dots icon' id="icon-notification" style="margin-right: -4px;"><span class="notification-badge"></span></i>
-						Messages
-				</a>
+				<?php
+					if($get_admin_message_unread_count > 0){
+						echo '
+							<a href="messages.php" class="">
+								<i class="bx bxs-message-square-dots icon" id="icon-notification" style="margin-right: -4px;"><span class="notification-badge"></span></i>
+									Messages
+							</a>
+						';
+					} else{
+						echo '
+						<a href="messages.php" class="">
+							<i class="bx bxs-message-square-dots icon" id="icon-notification" style="margin-right: -4px; padding-right: 23px;"></span></i>
+								Messages
+						</a>
+						';
+					}
+				?>
 			</li>
 			<li>
 				<?php 

@@ -293,7 +293,6 @@
 										<div class="form-group">
 											<label for="imageFile">Choose Image:</label>
                                             <input type="file" class="form-control-file" accept=".jpg, .jpeg, .png" id="transportAttachments" name="images[]" multiple>
-
                                         </div>
 										<input type="hidden" id="insertShipmentAttachmentsInput" name="insertBookingAttachments">
 									</div>
