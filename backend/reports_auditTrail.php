@@ -198,8 +198,16 @@
 					<div class="table-search-action">
 						<form action="#">
 							<div class="form-group" style="flex: 95;">
-								<input type="text" placeholder="Search" id="table-search-admin">
+								<input type="text" placeholder="Search" id="table-search-clients">
 								<i class='bx bx-search icon'></i>
+							</div>
+							<div class="form-group date-filter">
+								<label for="start_date" class="date-label">Start Date:</label>
+								<input type="date" id="start_date" name="start_date" class="form-control">
+							</div>
+							<div class="form-group date-filter">
+								<label for="end_date" class="date-label">End Date:</label>
+								<input type="date" id="end_date" name="end_date" class="form-control">
 							</div>
 						</form>
 					</div>

@@ -2149,37 +2149,48 @@ function retrieveSpecies(name, retrieveID){
 document.addEventListener('DOMContentLoaded', function() {
 	// Maintenance - Client Table Search
 	var searchInput = document.getElementById('table-search-clients');
-	var table = document.getElementById('table-client');
+	var table = document.getElementById('table-admin');
+	var startDateInput = document.getElementById('start_date');
+    var endDateInput = document.getElementById('end_date');
 	var noMatchDisplay = document.getElementById('search_no_match');
 	var tbody = table.querySelector('tbody'); // Get the tbody element
 	var rows = tbody.getElementsByTagName('tr');
   
-	searchInput.addEventListener('input', function() {
-	  var searchText = this.value.toLowerCase();
-	  var noMatchFound = true; // Flag to track if any matches were found
-  
-	  // Loop through table rows and hide/show based on search input
-	  if (rows.length > 0) {
-		for (var i = 0; i < rows.length; i++) {
-		  var rowData = rows[i].textContent.toLowerCase();
-  
-		  if (rowData.includes(searchText)) {
-			rows[i].style.display = '';
-			noMatchFound = false; // A match was found
-		  } else {
-			rows[i].style.display = 'none';
-		  }
-		}
-		// Update the visibility of the "search_no_match" element
-		if (noMatchFound) {
-		  noMatchDisplay.style.display = 'block'; // No matches found, display the message
-		} else {
-		  noMatchDisplay.style.display = 'none'; // Matches found, hide the message
-		}
-	  } else {
-		noMatchDisplay.style.display = 'none';
-	  }
-	});
+	function filterRows() {
+        var searchText = searchInput.value.toLowerCase();
+        var startDate = startDateInput.value;
+        var endDate = endDateInput.value;
+        var noMatchFound = true;
+
+        if (rows.length > 0) {
+            for (var i = 0; i < rows.length; i++) {
+                var rowData = rows[i].textContent.toLowerCase();
+                var dateFiled = rows[i].querySelector('td:nth-child(3)').textContent;
+
+                if (rowData.includes(searchText) &&
+                    (startDate === '' || dateFiled >= startDate) &&
+                    (endDate === '' || dateFiled <= endDate)
+                ) {
+                    rows[i].style.display = '';
+                    noMatchFound = false;
+                } else {
+                    rows[i].style.display = 'none';
+                }
+            }
+
+            if (noMatchFound) {
+                noMatchDisplay.style.display = 'block';
+            } else {
+                noMatchDisplay.style.display = 'none';
+            }
+        } else {
+            noMatchDisplay.style.display = 'none';
+        }
+    }
+
+    searchInput.addEventListener('input', filterRows);
+    startDateInput.addEventListener('input', filterRows);
+    endDateInput.addEventListener('input', filterRows);
 });
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -2228,6 +2239,57 @@ document.addEventListener('DOMContentLoaded', function() {
     endDateInput.addEventListener('input', filterRows);
 });
 
+// Add this code after your existing JavaScript code
+
+// document.getElementById('download-btn').addEventListener('click', function() {
+//     var table = document.getElementById('table-admin');
+//     var tbody = table.querySelector('tbody');
+//     var rows = tbody.getElementsByTagName('tr');
+//     var filteredData = [];
+
+//     // Extract the headers
+//     var headers = [];
+//     var headerRow = table.querySelector('thead tr');
+//     for (var i = 0; i < headerRow.cells.length; i++) {
+//         headers.push(headerRow.cells[i].textContent.trim());
+//     }
+//     filteredData.push(headers);
+
+//     // Iterate through the visible rows and extract the data
+//     for (var i = 0; i < rows.length; i++) {
+//         if (rows[i].style.display !== 'none') {
+//             var rowData = [];
+//             for (var j = 0; j < rows[i].cells.length; j++) {
+//                 rowData.push(rows[i].cells[j].textContent.trim());
+//             }
+//             filteredData.push(rowData);
+//         }
+//     }
+
+//     // Create a worksheet with styling
+//     var ws = XLSX.utils.aoa_to_sheet(filteredData);
+
+//     // Add style for bold headers and centered text
+//     ws['!cols'] = headers.map(function() {
+//         return { wch: 15 }; // Set a fixed width for headers
+//     });
+
+//     ws['!rows'] = [{ hpx: 20, // Set row height for headers
+//         s: { // Style object
+//             font: { bold: true }, // Bold text
+//             alignment: { horizontal: 'center', vertical: 'center' } // Centered text
+//         }
+//     }];
+
+//     // Create a workbook and add the worksheet
+//     var wb = XLSX.utils.book_new();
+//     XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+
+//     // Save the workbook as an Excel file
+//     XLSX.writeFile(wb, 'filtered_data.xlsx');
+// });
+
+////////////////////////////////////////////////////////////////////////////////////
 
 document.addEventListener('DOMContentLoaded', function() {
 	// Maintenance - Breeds Table Search (Validate)
