@@ -269,7 +269,7 @@
 									<td>
 										<button class="btn-sm btn m-1 table-action-btn action-view" data-toggle="modal" data-target="#viewClientRequest" data-transaction-id="<?php echo $transactionID; ?>" onclick="viewClientRequest(this);"><i class="material-icons table-action-icon">visibility</i></button>
 										<button class="btn-sm btn m-1 table-action-btn action-approve" onclick="initiatePickup('<?php echo $clientID ?>', '<?php echo $client_name; ?>', '<?php echo $transactionID; ?>')"><i class="material-icons table-action-icon">thumb_up</i></button>
-										<button class="btn-sm btn m-1 table-action-btn action-deny" data-client-id="<?php echo $clientID; ?>" data-transaction-id="<?php echo $transactionID; ?>" data-clientname="<?php echo $client_name; ?>" onclick="rejectRequest('<?php echo $client_name; ?>', '<?php echo $transactionID; ?>')"><i class="material-icons table-action-icon">thumb_down</i></button>
+										<button class="btn-sm btn m-1 table-action-btn action-deny" data-toggle="modal" data-target="#cancelwRefundModal" data-client-id="<?php echo $clientID; ?>" data-transaction-id="<?php echo $transactionID; ?>" data-clientname="<?php echo $client_name; ?>" onclick="SPcancelClientDetails(this)"><i class="material-icons table-action-icon">cancel</i></button>
 									</td>
 								</tr>
 								<?php } ?>
@@ -338,6 +338,7 @@
 										<button class="btn-sm btn m-1 table-action-btn action-view" data-toggle="modal" data-target="#viewClientRequest" data-transaction-id="<?php echo $transactionID; ?>" onclick="viewClientRequest(this);"><i class="material-icons table-action-icon">visibility</i></button>
 										<button class="btn-sm btn m-1 table-action-btn action-approve" onclick="successPickup('<?php echo $clientID ?>', '<?php echo $client_name; ?>', '<?php echo $transactionID; ?>')"><i class="material-icons table-action-icon">thumb_up</i></button>
 										<button class="btn-sm btn m-1 table-action-btn action-deny" data-client-id="<?php echo $clientID; ?>" data-transaction-id="<?php echo $transactionID; ?>" data-clientname="<?php echo $client_name; ?>" onclick="pickupUnsuccessful('<?php echo $clientID ?>', '<?php echo $client_name; ?>', '<?php echo $transactionID; ?>')"><i class="material-icons table-action-icon">thumb_down</i></button>
+										<button class="btn-sm btn m-1 table-action-btn action-deny" data-toggle="modal" data-target="#cancelwRefundModal" data-client-id="<?php echo $clientID; ?>" data-transaction-id="<?php echo $transactionID; ?>" data-clientname="<?php echo $client_name; ?>" onclick="SPcancelClientDetails(this)"><i class="material-icons table-action-icon">cancel</i></button>
 									</td>
 								</tr>
 								<?php } ?>
@@ -410,7 +411,9 @@
 									<td> <?php echo $formattedDateTime ?> </td>
 									<td>
 										<button class="btn-sm btn m-1 table-action-btn action-view" data-toggle="modal" data-target="#viewClientRequest" data-transaction-id="<?php echo $transactionID; ?>" onclick="viewClientRequest(this);"><i class="material-icons table-action-icon">visibility</i></button>
-										<button class="btn-sm btn m-1 table-action-btn action-approve" onclick="proceedForMedical('<?php echo $clientID ?>', '<?php echo $client_name; ?>', '<?php echo $transactionID; ?>')"><i class="material-icons table-action-icon">thumb_up</i></button>
+										<!-- <button class="btn-sm btn m-1 table-action-btn action-approve" onclick="proceedForMedical('<?php echo $clientID ?>', '<?php echo $client_name; ?>', '<?php echo $transactionID; ?>')"><i class="material-icons table-action-icon">thumb_up</i></button> -->
+										<button class="btn-sm btn m-1 table-action-btn action-approve" data-toggle="modal" data-target="#addPickupAttachments" data-client-id="<?php echo $clientID; ?>" data-transaction-id="<?php echo $transactionID; ?>" data-clientname="<?php echo $client_name; ?>" onclick="medicalClientDetails(this)"><i class="material-icons table-action-icon">thumb_up</i></button>
+										<button class="btn-sm btn m-1 table-action-btn action-deny" data-toggle="modal" data-target="#cancelwReturn" data-client-id="<?php echo $clientID; ?>" data-transaction-id="<?php echo $transactionID; ?>" data-clientname="<?php echo $client_name; ?>" onclick="SPRcancelClientDetails(this)"><i class="material-icons table-action-icon">cancel</i></button>
 									</td>
 								</tr>
 								<?php } ?>
@@ -478,7 +481,7 @@
 									<td>
 										<button class="btn-sm btn m-1 table-action-btn action-view" data-toggle="modal" data-target="#viewClientRequest" data-transaction-id="<?php echo $transactionID; ?>" onclick="viewClientRequest(this);"><i class="material-icons table-action-icon">visibility</i></button>
 										<button class="btn-sm btn m-1 table-action-btn action-approve" onclick="reattemptPickup('<?php echo $clientID ?>', '<?php echo $client_name; ?>', '<?php echo $transactionID; ?>')"><i class="material-icons table-action-icon"><i class="material-icons table-action-icon">redo</i></button>
-										<button class="btn-sm btn m-1 table-action-btn action-deny" data-toggle="modal" data-target="#cancelTransaction" data-client-id="<?php echo $clientID; ?>" data-transaction-id="<?php echo $transactionID; ?>" data-clientname="<?php echo $client_name; ?>" onclick="cancelClientDetails(this)"><i class="material-icons table-action-icon">cancel</i></button>
+										<button class="btn-sm btn m-1 table-action-btn action-deny" data-toggle="modal" data-target="#cancelwRefundModal" data-client-id="<?php echo $clientID; ?>" data-transaction-id="<?php echo $transactionID; ?>" data-clientname="<?php echo $client_name; ?>" onclick="SPcancelClientDetails(this)"><i class="material-icons table-action-icon">cancel</i></button>
 									</td>
 								</tr>
 								<?php } ?>
@@ -524,6 +527,113 @@
 				</div>
 			</div>
 			<!-- Reason For Cancellation --> 
+
+			<!-- ADD MEDICAL ATTACHMENTS -->
+			<div class="modal fade" id="addPickupAttachments" tabindex="-1" role="dialog" aria-hidden="true">
+				<div class="modal-dialog modal-dialog-centered" role="document">
+					<div class="modal-content popup">
+						<div class="modal-header">
+							<h5 class="modal-title popup-title" id="exampleModalCenterTitle">Add Successful Pickup Attachments</h5>
+							<span aria-hidden="true" data-dismiss="modal" class="modal-exit">&times;</span>
+							</button>
+						</div>
+						<form id="pickupAttachmentsForm" action="pickup.php" method="POST" autocomplete="off" enctype="multipart/form-data">
+							<div class="modal-body" style="padding-bottom: 0px;">
+								<div class="row form-modal" style="padding-right: 20px;">
+									<div class="col col-md-12 ml-auto">
+									<p class="pop-up-heading">Click the button to add pickup attachments:</p>
+										<div class="form-group">
+											<input type="hidden" name="client_name" id="medical_cName">
+											<input type="hidden" name="client_id" id="medical_cID">
+											<input type="hidden" name="transaction_id" id="medical_tID">
+											<label for="imageFile">Choose Image:</label>
+                                            <input type="file" class="form-control-file" accept=".jpg, .jpeg, .png" id="pickupAttachments" name="images[]" multiple>
+                                        </div>
+										<input type="hidden" id="insertPickupAttachmentsInput" name="insertPickupAttachments">
+									</div>
+									<div class="modal-footer popup-footer">
+										<button type="button" class="btn btn-secondary action-cancel" data-dismiss="modal">Close</button>
+										<button type="submit" id="insertPickupAttachmentsSubmit" class="btn action-view" name="insertPickupAttachments" onclick="uploadAttachments(event)">Proceed</button>
+									</div>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+			<!-- ADD MEDICAL ATTACHMENTS -->
+
+			<!-- Reason For Cancellation -->
+			<div class="modal fade" id="cancelwReturn" tabindex="-1" role="dialog" aria-hidden="true">
+				<div class="modal-dialog modal-dialog-centered" role="document">
+					<div class="modal-content popup">
+						<div class="modal-header">
+							<h5 class="modal-title popup-title" id="exampleModalCenterTitle">Cancel Transaction</h5>
+							<span aria-hidden="true" data-dismiss="modal" class="modal-exit">&times;</span>
+							</button>
+						</div>
+						<form id="insertRFCwReturn" action="pickup.php" method="POST" autocomplete="off" enctype="multipart/form-data">
+							<input type="hidden" id="e_admin_id" name="e_admin_id">
+							<div class="modal-body" style="padding-bottom: 0px;">
+								<div class="row form-modal" style="padding-right: 20px;">
+									<div class="col col-md-12 ml-auto">
+										<div class="pop-up-prompt" id="update_admin_error"></div>
+										<div class="row mb-3 ml-auto">
+											<p class="pop-up-heading">Please type in the reason for canceling this transaction:</p>
+											<input type="text" class="form-control" placeholder="Reason..." name="rfctext" id="rfctext">
+											<input type="hidden" name="cancel_client_name" id="c_client_name">
+											<input type="hidden" name="cancel_client_id" id="c_client_id">
+											<input type="hidden" name="cancel_transaction_id" id="c_transaction_id">
+										</div>
+										<input type="hidden" id="rfcwReturnInput" name="rfcwReturn">
+									</div>
+									<div class="modal-footer popup-footer">
+										<button type="button" class="btn btn-secondary action-cancel" data-dismiss="modal">Close</button>
+										<button type="submit" id="rfcSubmit" class="btn action-view" name="rfcwReturn" onclick="cancelTransactionValidateWReturn(event)">Cancel Transaction</button>
+									</div>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+			<!-- Reason For Cancellation -->
+
+			<!-- Reason For Cancellation -->
+			<div class="modal fade" id="cancelwRefundModal" tabindex="-1" role="dialog" aria-hidden="true">
+				<div class="modal-dialog modal-dialog-centered" role="document">
+					<div class="modal-content popup">
+						<div class="modal-header">
+							<h5 class="modal-title popup-title" id="exampleModalCenterTitle">Cancel Transaction</h5>
+							<span aria-hidden="true" data-dismiss="modal" class="modal-exit">&times;</span>
+							</button>
+						</div>
+						<form id="insertRFCwRefund" action="pickup.php" method="POST" autocomplete="off" enctype="multipart/form-data">
+							<input type="hidden" id="e_admin_id" name="e_admin_id">
+							<div class="modal-body" style="padding-bottom: 0px;">
+								<div class="row form-modal" style="padding-right: 20px;">
+									<div class="col col-md-12 ml-auto">
+										<div class="pop-up-prompt" id="update_admin_error"></div>
+										<div class="row mb-3 ml-auto">
+											<p class="pop-up-heading">Please type in the reason for canceling this transaction:</p>
+											<input type="text" class="form-control" placeholder="Reason..." name="rfctext" id="rfctextwRefund">
+											<input type="hidden" name="cr_client_name" id="cr_client_name">
+											<input type="hidden" name="cr_client_id" id="cr_client_id">
+											<input type="hidden" name="cr_transaction_id" id="cr_transaction_id">
+										</div>
+										<input type="hidden" id="rfcwReturnInput" name="rfcwRefund">
+									</div>
+									<div class="modal-footer popup-footer">
+										<button type="button" class="btn btn-secondary action-cancel" data-dismiss="modal">Close</button>
+										<button type="submit" id="rfcSubmit" class="btn action-view" name="rfcwRefund" onclick="cancelTransactionValidateWRefund(event)">Cancel Transaction</button>
+									</div>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+			<!-- Reason For Cancellation -->
 
 			<!-- Pickup -->
 			<!-- MODAL TRANSACTION VIEWER -->

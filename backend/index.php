@@ -14,7 +14,7 @@
 
 	<div class="main-container">
 		<div class="container">
-			<form action="login.php" method="POST">
+			<form action="index.php" method="POST">
 				<img src="images/app_icon.png" alt="Aladin's Aviary">
 				<h1 class="login-header">Welcome Back!</h1>
 				<p class="login-description">Please enter your account credentials and login to access Aladin's Aviary's Database Management System.</p>

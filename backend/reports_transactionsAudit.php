@@ -342,6 +342,14 @@
 								<input type="text" placeholder="Search" id="table-search-admin">
 								<i class='bx bx-search icon'></i>
 							</div>
+							<div class="form-group date-filter">
+								<label for="start_date" class="date-label">Start Date:</label>
+								<input type="date" id="start_date" name="start_date" class="form-control">
+							</div>
+							<div class="form-group date-filter">
+								<label for="end_date" class="date-label">End Date:</label>
+								<input type="date" id="end_date" name="end_date" class="form-control">
+							</div>
 						</form>
 					</div>
 					<div class="reports-download" >
@@ -415,6 +423,7 @@
 										return '404 STATUS';
 								}
 							}
+							
 							while($get_all_available_transactions_results = mysqli_fetch_array($get_all_available_transactions)) { 
 								$tID = $get_all_available_transactions_results['transaction_id'];
 								$clientID = $get_all_available_transactions_results['client_id'];
@@ -473,9 +482,6 @@
 								$lastSubmittedDateTime = end($matches[1]);
 								$dateTimeObj = new DateTime($lastSubmittedDateTime);
 								$formattedDateTime = $dateTimeObj->format('Y-m-d');
-
-								// $get_animalRecords = mysqli_query($conn, "SELECT * FROM tbl_animals WHERE animal_id = '$animalID'");
-								// $get_animalRecords_result = mysqli_fetch_array($get_animalRecords);
 							?>
 								<tr>
 									<td><?php echo $tID; ?></td>

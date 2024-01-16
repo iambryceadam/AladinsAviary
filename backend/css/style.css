@@ -1232,7 +1232,7 @@ thead {
 	justify-content: center;
 	align-items: center;
 	width: 100%;
-	height: 250px;
+	height: auto;
 	background-color: rgb(175, 175, 175);
 	border-radius: 15px;
 	margin-bottom: 75px;
@@ -1864,7 +1864,6 @@ thead {
 
 .reports-download{
 	width: 100%;
-	margin-bottom: 20px;
 	display: flex;
 	flex-direction: row;
 	justify-content: right;
@@ -1890,6 +1889,17 @@ thead {
 	transition: 0.5s ease-in-out;
 }
 
+.date-filter {
+	margin-top: 10px;
+    margin-bottom: 10px;
+	display: inline-flex;
+}
+
+.date-label {
+    margin-right: 10px;
+    display: inline-block;
+    width: 10%; /* Adjust the width as needed */
+}
 
 /* Media Query */
 @media screen and (max-width: 768px) {

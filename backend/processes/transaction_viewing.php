@@ -185,6 +185,8 @@ if (isset($_GET['transaction_id'])) {
         'final_payment_cost' => $pFinal_cost,
         'initial_payment_receipt' => base64_encode($pMethod_row['initial_payment_receipt']),
         'final_payment_receipt' => base64_encode($pMethod_row['final_payment_receipt']),
+        'additional_initial_receipt' => base64_encode($pMethod_row['additional_initial_receipt']),
+        'additional_final_receipt' => base64_encode($pMethod_row['additional_final_receipt']),
         'animal_pickup_cost' => $animal_pickup_cost,
         'mobilization_cost' => $mobilization_cost,
         'ltp_cost' => $ltp_cost,

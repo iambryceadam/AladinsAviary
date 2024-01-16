@@ -263,7 +263,7 @@
 											<?php }  else if($payment_type == "Full Payment"){ ?>
 												<button class="btn-sm btn m-1 table-action-btn action-approve" data-toggle="modal" data-target="#addMedicalAttachments" data-client-id="<?php echo $clientID; ?>" data-transaction-id="<?php echo $transactionID; ?>" data-clientname="<?php echo $client_name; ?>" onclick="medicalClientDetails(this)"><i class="material-icons table-action-icon">thumb_up</i></button>
 											<?php } ?>
-										<button class="btn-sm btn m-1 table-action-btn action-deny" data-toggle="modal" data-target="#cancelTransaction" data-client-id="<?php echo $clientID; ?>" data-transaction-id="<?php echo $transactionID; ?>" data-clientname="<?php echo $client_name; ?>" onclick="cancelClientDetails(this)"><i class="material-icons table-action-icon">cancel</i></button>
+											<button class="btn-sm btn m-1 table-action-btn action-deny" data-toggle="modal" data-target="#cancelwReturn" data-client-id="<?php echo $clientID; ?>" data-transaction-id="<?php echo $transactionID; ?>" data-clientname="<?php echo $client_name; ?>" onclick="SPRcancelClientDetails(this)"><i class="material-icons table-action-icon">cancel</i></button>
 									</td>
 								</tr>
 								<?php } ?>
@@ -346,7 +346,7 @@
 			<!-- ADD MEDICAL ATTACHMENTS -->
 
 			<!-- Reason For Cancellation -->
-			<div class="modal fade" id="cancelTransaction" tabindex="-1" role="dialog" aria-hidden="true">
+			<div class="modal fade" id="cancelwReturn" tabindex="-1" role="dialog" aria-hidden="true">
 				<div class="modal-dialog modal-dialog-centered" role="document">
 					<div class="modal-content popup">
 						<div class="modal-header">
@@ -362,10 +362,10 @@
 										<div class="pop-up-prompt" id="update_admin_error"></div>
 										<div class="row mb-3 ml-auto">
 											<p class="pop-up-heading">Please type in the reason for canceling this transaction:</p>
-											<input type="text" class="form-control" value="Multiple unsuccessful pickup attempts" name="rfctext" id="rfctext">
-											<input type="hidden" name="cancel_client_name" id="cancel_client_name">
-											<input type="hidden" name="cancel_client_id" id="cancel_client_id">
-											<input type="hidden" name="cancel_transaction_id" id="cancel_transaction_id">
+											<input type="text" class="form-control" placeholder="Reason..." name="rfctext" id="rfctext">
+											<input type="hidden" name="cancel_client_name" id="c_client_name">
+											<input type="hidden" name="cancel_client_id" id="c_client_id">
+											<input type="hidden" name="cancel_transaction_id" id="c_transaction_id">
 										</div>
 										<input type="hidden" id="rfcwReturnInput" name="rfcwReturn">
 									</div>

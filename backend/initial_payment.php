@@ -13,6 +13,9 @@
 	<!-- Bootstrap -->
 	<!-- Google Icons -->
 	<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
 	<!-- Google Icons -->
 	<!-- External Stylesheet -->
 	<link rel="stylesheet" href="css/style.css">
@@ -267,6 +270,9 @@
 									<td><?php echo $formattedDate ?></td>
 									<td>
 										<button class="btn-sm btn m-1 table-action-btn action-view" data-toggle="modal" data-target="#viewClientRequest" data-transaction-id="<?php echo $transactionID; ?>" onclick="viewClientRequest(this);"><i class="material-icons table-action-icon">visibility</i></button>
+										<button class="btn-sm btn m-1 table-action-btn action-approve" data-toggle="modal" data-target="#addPayment" data-client-id="<?php echo $clientID; ?>" data-transaction-id="<?php echo $transactionID; ?>" data-clientname="<?php echo $client_name; ?>" onclick="costClientDetails(this)"><i class="material-symbols-outlined table-action-icon">add_card</i></button>
+										<button class="btn-sm btn m-1 table-action-btn action-approve" data-toggle="modal" data-target="#editPayment" data-client-id="<?php echo $clientID; ?>" data-transaction-id="<?php echo $transactionID; ?>" data-clientname="<?php echo $client_name; ?>'" onclick="editCostDetails(this)"><i class="material-symbols-outlined">edit_square</i></button>
+										<button class="btn-sm btn m-1 table-action-btn action-deny" data-toggle="modal" data-target="#cancelTransaction" data-client-id="<?php echo $clientID; ?>" data-transaction-id="<?php echo $transactionID; ?>" data-clientname="<?php echo $client_name; ?>" onclick="cancelClientDetails(this)"><i class="material-icons table-action-icon">cancel</i></button>
 									</td>
 								</tr>
 							<?php } ?>
@@ -352,7 +358,10 @@
 									<td>
 										<button class="btn-sm btn m-1 table-action-btn action-view" data-toggle="modal" data-target="#viewClientRequest" data-transaction-id="<?php echo $transactionID; ?>" onclick="viewClientRequest(this);"><i class="material-icons table-action-icon">visibility</i></button>
 										<button class="btn-sm btn m-1 table-action-btn action-approve" onclick="approveInitialPayment('<?php echo $clientID ?>', '<?php echo $client_name ?>' , '<?php echo $transactionID; ?>')"><i class="material-icons table-action-icon">thumb_up</i></button>
+										<button class="btn-sm btn m-1 table-action-btn action-approve" data-toggle="modal" data-target="#addPayment" data-client-id="<?php echo $clientID; ?>" data-transaction-id="<?php echo $transactionID; ?>" data-clientname="<?php echo $client_name; ?>" onclick="costClientDetails(this)"><i class="material-symbols-outlined table-action-icon">add_card</i></button>
 										<button class="btn-sm btn m-1 table-action-btn action-deny" data-client-id="<?php echo $clientID; ?>" data-transaction-id="<?php echo $transactionID; ?>" data-clientname="<?php echo $client_name; ?>" onclick="rejectInitialPayment('<?php echo $clientID; ?>', '<?php echo $client_name; ?>', '<?php echo $transactionID; ?>')"><i class="material-icons table-action-icon">thumb_down</i></button>
+										<button class="btn-sm btn m-1 table-action-btn action-deny" data-toggle="modal" data-target="#cancelTransaction" data-client-id="<?php echo $clientID; ?>" data-transaction-id="<?php echo $transactionID; ?>" data-clientname="<?php echo $client_name; ?>" onclick="cancelClientDetails(this)"><i class="material-icons table-action-icon">cancel</i></button>
+										<button class="btn-sm btn m-1 table-action-btn action-deny" data-toggle="modal" data-target="#cancelwRefundModal" data-client-id="<?php echo $clientID; ?>" data-transaction-id="<?php echo $transactionID; ?>" data-clientname="<?php echo $client_name; ?>" onclick="SPcancelClientDetails(this)"><i class="material-symbols-outlined">contract_delete</i></button>
 									</td>
 								</tr>
 							<?php } ?>
@@ -437,7 +446,9 @@
 									<td><?php echo $formattedDateTime ?></td>
 									<td>
 										<button class="btn-sm btn m-1 table-action-btn action-view" data-toggle="modal" data-target="#viewClientRequest" data-transaction-id="<?php echo $transactionID; ?>" onclick="viewClientRequest(this);"><i class="material-icons table-action-icon">visibility</i></button>
+										<button class="btn-sm btn m-1 table-action-btn action-approve" data-toggle="modal" data-target="#addPayment" data-client-id="<?php echo $clientID; ?>" data-transaction-id="<?php echo $transactionID; ?>" data-clientname="<?php echo $client_name; ?>" onclick="costClientDetails(this)"><i class="material-symbols-outlined table-action-icon">add_card</i></button>
 										<button class="btn-sm btn m-1 table-action-btn action-deny" data-toggle="modal" data-target="#cancelTransaction" data-client-id="<?php echo $clientID; ?>" data-transaction-id="<?php echo $transactionID; ?>" data-clientname="<?php echo $client_name; ?>" onclick="cancelClientDetails(this)"><i class="material-icons table-action-icon">cancel</i></button>
+										<button class="btn-sm btn m-1 table-action-btn action-deny" data-toggle="modal" data-target="#cancelwRefundModal" data-client-id="<?php echo $clientID; ?>" data-transaction-id="<?php echo $transactionID; ?>" data-clientname="<?php echo $client_name; ?>" onclick="SPcancelClientDetails(this)"><i class="material-symbols-outlined">contract_delete</i></button>
 									</td>
 								</tr>
 							<?php } ?>
@@ -447,6 +458,164 @@
 				</div>
 			</div>
 			<!-- Reattempt Payments -->
+
+			<!-- Additional Payments -->
+			<div class="card table-card">
+				<div class="card-body table-card-body">
+					<h4 class="card-title table-card-title">Additional Payments</h4>
+					<p class="card-description table-card-description">
+						Transactions placed from this record are transactions that requires additional payment, once payment has been successful, transaction will be transferred to successful payments.
+					</p>
+					<div class="table-search-action">
+						<form action="#">
+							<div class="form-group" style="flex: 95;">
+								<input type="text" placeholder="Search" id="table-search-admin">
+								<i class='bx bx-search icon'></i>
+							</div>
+						</form>
+					</div>
+					<div class="table-responsive">
+						<table class="table table-sm table-hover table-striped table-bordered table-light" id="table-admin">
+							<thead>
+								<tr>
+									<th>Transaction ID</th>
+									<th>Client</th>
+									<th>Payment Method</th>
+									<th>Date Payment</th>
+									<th>Actions</th>
+								</tr>
+							</thead>
+							<tbody>
+							<?php while($get_additional_initial_payments_result =  mysqli_fetch_array($get_additional_initial_payments)){
+									$transactionID = $get_additional_initial_payments_result['transaction_id'];
+									$clientID = $get_additional_initial_payments_result['client_id'];
+									$dateID = $get_additional_initial_payments_result['date_id'];
+									$animalID = $get_additional_initial_payments_result['animal_id'];
+									$paymentID = $get_additional_initial_payments_result['payment_id'];
+									$paymentType = $get_additional_initial_payments_result['payment_type'];
+									$paymentMethod = $get_additional_initial_payments_result['payment_method'];
+
+									$get_breed_id = mysqli_query($conn, "SELECT breed_id FROM tbl_animals WHERE transaction_id = '$transactionID'");
+									$breed_id_result = mysqli_fetch_assoc($get_breed_id);
+									$breedID = $breed_id_result['breed_id'];
+
+									$get_breed_data = mysqli_query($conn, "SELECT species_id, description FROM tbl_breeds WHERE breed_id = '$breedID'");
+									$breed_data_result = mysqli_fetch_assoc($get_breed_data);
+									$breed_name = $breed_data_result['description'];
+									$speciesID = $breed_data_result['species_id'];
+
+									$get_species_name = mysqli_query($conn, "SELECT description FROM tbl_species WHERE species_id = '$speciesID'");
+									$species_name_result = mysqli_fetch_assoc($get_species_name);
+									$species_name = $species_name_result['description'];
+
+									$get_clientRecords = mysqli_query($conn, "SELECT * FROM tbl_clients WHERE client_id = '$clientID'");
+									$get_clientRecords_result = mysqli_fetch_array($get_clientRecords);
+									$client_name = $get_clientRecords_result['first_name'];
+
+									$get_dateRecords = mysqli_query($conn, "SELECT * FROM tbl_transactions_dates WHERE date_id = '$dateID'");
+									$get_dateRecords_result = mysqli_fetch_array($get_dateRecords);
+
+									$get_animalRecords = mysqli_query($conn, "SELECT * FROM tbl_animals WHERE animal_id = '$animalID'");
+									$get_animalRecords_result = mysqli_fetch_array($get_animalRecords);
+
+									$get_date_data = mysqli_query($conn, "SELECT * FROM tbl_transactions_dates WHERE transaction_id = '$transactionID'");
+									$get_date_data_results = mysqli_fetch_assoc($get_date_data);
+									preg_match_all('/Down Payment Rejected-(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})/', $get_date_data_results['other_transaction_dates'], $matches);
+									$lastSubmittedDateTime = end($matches[1]);
+									$dateTimeObj = new DateTime($lastSubmittedDateTime);
+									$formattedDateTime = $dateTimeObj->format('Y-m-d');
+								
+								?>
+								<tr>
+									<td><?php echo $transactionID; ?></td>
+									<td class="table-image-text"><img src="data:image/jpeg;base64,<?php echo base64_encode($get_clientRecords_result['img_profile']); ?>" alt="Client Profile Image"> <span><?php echo $get_clientRecords_result['first_name']; ?></span></td>
+									<td><?php echo $paymentMethod; ?></td>
+									<td><?php echo $formattedDateTime ?></td>
+									<td>
+										<button class="btn-sm btn m-1 table-action-btn action-view" data-toggle="modal" data-target="#viewClientRequest" data-transaction-id="<?php echo $transactionID; ?>" onclick="viewClientRequest(this);"><i class="material-icons table-action-icon">visibility</i></button>
+										<button class="btn-sm btn m-1 table-action-btn action-approve" data-toggle="modal" data-target="#addPayment" data-client-id="<?php echo $clientID; ?>" data-transaction-id="<?php echo $transactionID; ?>" data-clientname="<?php echo $client_name; ?>" onclick="costClientDetails(this)"><i class="material-symbols-outlined table-action-icon">add_card</i></button>
+										<button class="btn-sm btn m-1 table-action-btn action-deny" data-toggle="modal" data-target="#cancelTransaction" data-client-id="<?php echo $clientID; ?>" data-transaction-id="<?php echo $transactionID; ?>" data-clientname="<?php echo $client_name; ?>" onclick="cancelClientDetails(this)"><i class="material-icons table-action-icon">cancel</i></button>
+										<button class="btn-sm btn m-1 table-action-btn action-deny" data-toggle="modal" data-target="#cancelwRefundModal" data-client-id="<?php echo $clientID; ?>" data-transaction-id="<?php echo $transactionID; ?>" data-clientname="<?php echo $client_name; ?>" onclick="SPcancelClientDetails(this)"><i class="material-symbols-outlined">contract_delete</i></button>
+									</td>
+								</tr>
+							<?php } ?>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+
+			<!-- Input Cost -->
+			<div class="modal fade" id="addPayment" tabindex="-1" role="dialog" aria-hidden="true">
+				<div class="modal-dialog modal-dialog-centered" role="document">
+					<div class="modal-content popup">
+						<div class="modal-header">
+							<h5 class="modal-title popup-title" id="exampleModalCenterTitle">Add payment cost</h5>
+							<span aria-hidden="true" data-dismiss="modal" class="modal-exit">&times;</span>
+							</button>
+						</div>
+						<form id="addInitalPaymentCost" action="initial_payment.php" method="POST" autocomplete="off" enctype="multipart/form-data">
+							<input type="hidden" id="e_admin_id" name="e_admin_id">
+							<div class="modal-body" style="padding-bottom: 0px;">
+								<div class="row form-modal" style="padding-right: 20px;">
+									<div class="col col-md-12 ml-auto">
+										<div class="pop-up-prompt" id="update_admin_error"></div>
+										<div class="row mb-3 ml-auto">
+											<p class="pop-up-heading">Insert the cost amount to be added in the payment:</p>
+											<input type="text" class="form-control" required pattern="[a-zA-Z0-9\s]+" oninput="validatePaymentAmountPattern(this)" placeholder="Payment Cost..." name="add_initial_cost" id="add_initial_cost">
+											<input type="hidden" name="client_name" id="client_name">
+											<input type="hidden" name="client_id" id="client_id">
+											<input type="hidden" name="transaction_id" id="transaction_id">
+										</div>
+										<input type="hidden" id="addInitialPaymentInput" name="addInitialPayment">
+									</div>
+									<div class="modal-footer popup-footer">
+										<button type="button" class="btn btn-secondary action-cancel" data-dismiss="modal">Close</button>
+										<button type="submit" id="addInitialPaymentSubmit" class="btn action-view" name="addInitialPayment" onclick="addInitialPaymentValidate(event)">Approve Transaction</button>
+									</div>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+			<!-- Input Cost -->
+
+			<!-- Input Cost -->
+			<div class="modal fade" id="editPayment" tabindex="-1" role="dialog" aria-hidden="true">
+				<div class="modal-dialog modal-dialog-centered" role="document">
+					<div class="modal-content popup">
+						<div class="modal-header">
+							<h5 class="modal-title popup-title" id="exampleModalCenterTitle">Edit Price</h5>
+							<span aria-hidden="true" data-dismiss="modal" class="modal-exit">&times;</span>
+							</button>
+						</div>
+						<form id="editPaymentCost" action="initial_payment.php" method="POST" autocomplete="off" enctype="multipart/form-data">
+							<input type="hidden" id="e_admin_id" name="e_admin_id">
+							<div class="modal-body" style="padding-bottom: 0px;">
+								<div class="row form-modal" style="padding-right: 20px;">
+									<div class="col col-md-12 ml-auto">
+										<div class="pop-up-prompt" id="update_admin_error"></div>
+										<div class="row mb-3 ml-auto">
+											<p class="pop-up-heading">Edit Payment Amount:</p>
+											<input type="text" class="form-control" required pattern="[a-zA-Z0-9\s]+" oninput="validatePaymentAmountPattern(this)" placeholder="Payment Cost..." name="e_payment_cost" id="e_payment_cost">
+											<input type="hidden" name="e_client_name" id="e_client_name">
+											<input type="hidden" name="e_client_id" id="e_client_id">
+											<input type="hidden" name="e_transaction_id" id="e_transaction_id">
+										</div>
+										<input type="hidden" id="editPaymentCostInput" name="editPaymentCostBtn">
+									</div>
+									<div class="modal-footer popup-footer">
+										<button type="button" class="btn btn-secondary action-cancel" data-dismiss="modal">Close</button>
+										<button type="submit" id="editPaymentCostSubmit" class="btn action-view" name="editPaymentCostBtn" onclick="editPaymentValidate(event)">Approve Transaction</button>
+									</div>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+			<!-- Input Cost -->
 
 			<!-- Reason For Cancellation -->
 			<div class="modal fade" id="cancelTransaction" tabindex="-1" role="dialog" aria-hidden="true">
@@ -465,7 +634,7 @@
 										<div class="pop-up-prompt" id="update_admin_error"></div>
 										<div class="row mb-3 ml-auto">
 											<p class="pop-up-heading">Please type in the reason for canceling this transaction:</p>
-											<input type="text" class="form-control" value="Multiple unsuccessful payment attempts" name="rfctext" id="rfctext">
+											<input type="text" class="form-control" placeholder="Reason..." name="rfctext" id="rfctext">
 											<input type="hidden" name="cancel_client_name" id="cancel_client_name">
 											<input type="hidden" name="cancel_client_id" id="cancel_client_id">
 											<input type="hidden" name="cancel_transaction_id" id="cancel_transaction_id">
@@ -475,6 +644,42 @@
 									<div class="modal-footer popup-footer">
 										<button type="button" class="btn btn-secondary action-cancel" data-dismiss="modal">Close</button>
 										<button type="submit" id="rfcSubmit" class="btn action-view" name="rfc" onclick="cancelTransactionValidate(event)">Cancel Transaction</button>
+									</div>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+			<!-- Reason For Cancellation -->
+
+			<!-- Reason For Cancellation -->
+			<div class="modal fade" id="cancelwRefundModal" tabindex="-1" role="dialog" aria-hidden="true">
+				<div class="modal-dialog modal-dialog-centered" role="document">
+					<div class="modal-content popup">
+						<div class="modal-header">
+							<h5 class="modal-title popup-title" id="exampleModalCenterTitle">Cancel Transaction</h5>
+							<span aria-hidden="true" data-dismiss="modal" class="modal-exit">&times;</span>
+							</button>
+						</div>
+						<form id="insertRFCwRefund" action="initial_payment.php" method="POST" autocomplete="off" enctype="multipart/form-data">
+							<input type="hidden" id="e_admin_id" name="e_admin_id">
+							<div class="modal-body" style="padding-bottom: 0px;">
+								<div class="row form-modal" style="padding-right: 20px;">
+									<div class="col col-md-12 ml-auto">
+										<div class="pop-up-prompt" id="update_admin_error"></div>
+										<div class="row mb-3 ml-auto">
+											<p class="pop-up-heading">Please type in the reason for canceling this transaction:</p>
+											<input type="text" class="form-control" placeholder="Reason..." name="rfctext" id="rfctextwRefund">
+											<input type="hidden" name="cr_client_name" id="cr_client_name">
+											<input type="hidden" name="cr_client_id" id="cr_client_id">
+											<input type="hidden" name="cr_transaction_id" id="cr_transaction_id">
+										</div>
+										<input type="hidden" id="rfcwReturnInput" name="rfcwRefund">
+									</div>
+									<div class="modal-footer popup-footer">
+										<button type="button" class="btn btn-secondary action-cancel" data-dismiss="modal">Close</button>
+										<button type="submit" id="rfcSubmit" class="btn action-view" name="rfcwRefund" onclick="cancelTransactionValidateWRefund(event)">Cancel Transaction</button>
 									</div>
 								</div>
 							</div>

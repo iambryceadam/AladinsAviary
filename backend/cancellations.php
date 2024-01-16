@@ -243,7 +243,7 @@
 											<?php } else if (($previous_status == 'for-payment' && $payment_type = 'For Downpayment') || ($previous_status == 'f-receipt-submitted' && $payment_type = 'For Downpayment') || ($previous_status == 'f-receipt-reattempt' && $payment_type = 'For Downpayment') || $previous_status == 'pending-pickup' || $previous_status == 'pickup-success' || $previous_status == 'ongoing-medical' || $previous_status == 'for-booking'){ ?>
 												<button class="btn-sm btn m-1 table-action-btn action-approve" data-toggle="modal" data-target="#addReturnLocationForm" data-client-id="<?php echo $clientID; ?>" data-transaction-id="<?php echo $transactionID; ?>" data-clientname="<?php echo $client_name; ?>" onclick="transportClientDetails(this)"><i class="material-icons table-action-icon">redo</i></button>
 											<?php } ?>
-											<button class="btn-sm btn m-1 table-action-btn action-deny" onclick="rejectCancellation('<?php echo $clientID; ?>', '<?php echo $client_name; ?>', '<?php echo $transactionID; ?>')"><i class="material-icons table-action-icon">thumb_down</i></button>
+											<button class="btn-sm btn m-1 table-action-btn action-deny" onclick="rejectCancel('<?php echo $clientID; ?>', '<?php echo $client_name; ?>', '<?php echo $transactionID; ?>')"><i class="material-icons table-action-icon">thumb_down</i></button>
 										</td>
 									</tr>
 								<?php } ?>

@@ -211,6 +211,15 @@ function costClientDetails(button){
 	document.getElementById('transaction_id').value = tID;
 }
 
+function editCostDetails(button){
+	var cName = button.getAttribute('data-clientname');
+	var cID = button.getAttribute('data-client-id');
+	var tID = button.getAttribute('data-transaction-id');
+	document.getElementById('e_client_name').value = cName;
+	document.getElementById('e_client_id').value = cID;
+	document.getElementById('e_transaction_id').value = tID;
+}
+
 function refundClientDetails(button){
 	var cName = button.getAttribute('data-clientname');
 	var cID = button.getAttribute('data-client-id');
@@ -226,7 +235,25 @@ function insertInitialPaymentValidate(event) {
 	var client_id = document.getElementById("client_id").value;
 	var transaction_id = document.getElementById("transaction_id").value;
 
-    if (i_payment_cost == "") {} 
+    if (i_payment_cost < 5000) {
+		event.preventDefault();
+        Swal.fire({
+            icon: "warning",
+            html: 'Payment cost cannot be less than P5,000',
+            showCancelButton: false,
+            confirmButtonColor: '#8D8D8D',
+            confirmButtonText: 'Okay',
+            width: '380px',
+            customClass: {
+                popup: 'swal-popup',
+                confirmButton: 'swal-btn',
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                //do nothing
+            }
+        });
+	} 
     else {
         event.preventDefault();
         Swal.fire({
@@ -245,6 +272,114 @@ function insertInitialPaymentValidate(event) {
         }).then((result) => {
             if (result.isConfirmed) {
                 var form = document.getElementById("insertPaymentCost").submit();
+            }
+        });
+    }
+}
+
+function editPaymentValidate(event) {
+	var e_payment_cost = document.getElementById("e_payment_cost").value;
+	var client_name = document.getElementById("e_client_name").value;
+	var client_id = document.getElementById("e_client_id").value;
+	var transaction_id = document.getElementById("e_transaction_id").value;
+
+    if (e_payment_cost < 5000) {
+		event.preventDefault();
+        Swal.fire({
+            icon: "warning",
+            html: 'Payment cost cannot be less than P5,000',
+            showCancelButton: false,
+            confirmButtonColor: '#8D8D8D',
+            confirmButtonText: 'Okay',
+            width: '380px',
+            customClass: {
+                popup: 'swal-popup',
+                confirmButton: 'swal-btn',
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                //do nothing
+            }
+        });
+	} 
+    else {
+        event.preventDefault();
+        Swal.fire({
+            icon: "warning",
+            html: 'Are you sure you want<br>to approve request from ' + client_name + '?',
+            showCancelButton: true,
+            confirmButtonColor: '#f7941d',
+            cancelButtonColor: '#8D8D8D',
+            confirmButtonText: 'Yes',
+            cancelButtonText: 'No',
+            width: '380px',
+            customClass: {
+                popup: 'swal-popup',
+                confirmButton: 'swal-btn',
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                var form = document.getElementById("editPaymentCost").submit();
+            }
+        });
+    }
+}
+
+function addInitialPaymentValidate(event) {
+	var add_initial_cost = document.getElementById("add_initial_cost").value;
+	var client_name = document.getElementById("client_name").value;
+	var client_id = document.getElementById("client_id").value;
+	var transaction_id = document.getElementById("transaction_id").value;
+
+    if (add_initial_cost == "") {} 
+    else {
+        event.preventDefault();
+        Swal.fire({
+            icon: "warning",
+            html: 'Are you sure you want to add this amount to ' + client_name + '\s transaction cost?',
+            showCancelButton: true,
+            confirmButtonColor: '#f7941d',
+            cancelButtonColor: '#8D8D8D',
+            confirmButtonText: 'Yes',
+            cancelButtonText: 'No',
+            width: '380px',
+            customClass: {
+                popup: 'swal-popup',
+                confirmButton: 'swal-btn',
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                var form = document.getElementById("addInitalPaymentCost").submit();
+            }
+        });
+    }
+}
+
+function addFinalPaymentValidate(event) {
+	var add_final_cost = document.getElementById("add_final_cost").value;
+	var client_name = document.getElementById("client_name").value;
+	var client_id = document.getElementById("client_id").value;
+	var transaction_id = document.getElementById("transaction_id").value;
+
+    if (add_final_cost == "") {} 
+    else {
+        event.preventDefault();
+        Swal.fire({
+            icon: "warning",
+            html: 'Are you sure you want to add this amount to ' + client_name + '\s transaction cost?',
+            showCancelButton: true,
+            confirmButtonColor: '#f7941d',
+            cancelButtonColor: '#8D8D8D',
+            confirmButtonText: 'Yes',
+            cancelButtonText: 'No',
+            width: '380px',
+            customClass: {
+                popup: 'swal-popup',
+                confirmButton: 'swal-btn',
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                var form = document.getElementById("addFinalPaymentCost").submit();
             }
         });
     }
@@ -303,6 +438,24 @@ function cancelClientDetails(button){
 	document.getElementById('cancel_transaction_id').value = tID;
 }
 
+function SPcancelClientDetails(button){
+	var cName = button.getAttribute('data-clientname');
+	var cID = button.getAttribute('data-client-id');
+	var tID = button.getAttribute('data-transaction-id');
+	document.getElementById('cr_client_name').value = cName;
+	document.getElementById('cr_client_id').value = cID;
+	document.getElementById('cr_transaction_id').value = tID;
+}
+
+function SPRcancelClientDetails(button){
+	var cName = button.getAttribute('data-clientname');
+	var cID = button.getAttribute('data-client-id');
+	var tID = button.getAttribute('data-transaction-id');
+	document.getElementById('c_client_name').value = cName;
+	document.getElementById('c_client_id').value = cID;
+	document.getElementById('c_transaction_id').value = tID;
+}
+
 
 function cancelTransactionValidate(event) {
 	var rfcText = document.getElementById("rfctext").value;
@@ -334,7 +487,7 @@ function cancelTransactionValidate(event) {
 
 function cancelTransactionValidateWReturn(event) {
 	var rfcText = document.getElementById("rfctext").value;
-	var client_name = document.getElementById("cancel_client_name").value;
+	var client_name = document.getElementById("c_client_name").value;
 
     if (rfcText == "") {} 
     else {
@@ -355,6 +508,34 @@ function cancelTransactionValidateWReturn(event) {
         }).then((result) => {
             if (result.isConfirmed) {
                 var form = document.getElementById("insertRFCwReturn").submit();
+            }
+        });
+    }
+}
+
+function cancelTransactionValidateWRefund(event) {
+	var rfcText = document.getElementById("rfctextwRefund").value;
+	var client_name = document.getElementById("cr_client_name").value;
+
+    if (rfcText == "") {} 
+    else {
+        event.preventDefault();
+        Swal.fire({
+            icon: "warning",
+            html: 'Are you sure you want to cancel ' + client_name + '\'s animal transportation request?',
+            showCancelButton: true,
+            confirmButtonColor: '#f7941d',
+            cancelButtonColor: '#8D8D8D',
+            confirmButtonText: 'Yes',
+            cancelButtonText: 'No',
+            width: '380px',
+            customClass: {
+                popup: 'swal-popup',
+                confirmButton: 'swal-btn',
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                var form = document.getElementById("insertRFCwRefund").submit();
             }
         });
     }
@@ -484,6 +665,12 @@ function viewClientRequest(button) {
 						'<img src="data:image/png;base64,' +
 						transactionData.final_payment_receipt +
 						'" id="finalPaymentReceipt" class="initial-receipt-admin-img" alt="" onclick="openImageModal(this.src)"></img>' +
+						'<img src="data:image/png;base64,' +
+						transactionData.additional_initial_receipt +
+						'" id="finalPaymentReceipt" class="initial-receipt-admin-img" alt="" onclick="openImageModal(this.src)"></img>' +
+						'<img src="data:image/png;base64,' +
+						transactionData.additional_final_receipt +
+						'" id="finalPaymentReceipt" class="initial-receipt-admin-img" alt="" onclick="openImageModal(this.src)"></img>' +
 					  '</div>';
 				} else if (transactionData.payment_type == "Full Payment" && (transactionData.final_payment_receipt === "")) {
 					document.getElementById('dynamic-admin-payment-container').innerHTML = '<div class="FADetails-data-label">' +
@@ -518,6 +705,9 @@ function viewClientRequest(button) {
 					  '<div class="FADetails-data-attachments">' +
 						'<img src="data:image/png;base64,' +
 						transactionData.final_payment_receipt +
+						'" id="finalPaymentReceipt" class="initial-receipt-admin-img" alt="" onclick="openImageModal(this.src)"></img>' +
+						'<img src="data:image/png;base64,' +
+						transactionData.additional_final_receipt +
 						'" id="finalPaymentReceipt" class="initial-receipt-admin-img" alt="" onclick="openImageModal(this.src)"></img>' +
 					  '</div>';
 				}
@@ -959,6 +1149,31 @@ function uploadMedicalAttachments(event){
         });
     }
 }
+
+function uploadAttachments(event){
+
+    event.preventDefault();
+    Swal.fire({
+        icon: "warning",
+        html: 'Are you sure you want to proceed to the next transaction status (For Medical)?',
+        showCancelButton: true,
+        confirmButtonColor: '#f7941d',
+        cancelButtonColor: '#8D8D8D',
+        confirmButtonText: 'Yes',
+        cancelButtonText: 'No',
+        width: '380px',
+        customClass: {
+            popup: 'swal-popup',
+            confirmButton: 'swal-btn',
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            var form = document.getElementById("pickupAttachmentsForm").submit();
+        }
+    });
+    
+}
+
 
 function proceedAfterMedical(name, tID){
 	Swal.fire({
@@ -1494,7 +1709,7 @@ function confirmReturn (cID, name, tID){
 function rejectRequest(name, tID){
 	Swal.fire({
 		icon: "warning",
-		html: 'Are you sure you want to<br>reject ' + name + '\'s request for animal transportation?',
+		html: 'Are you sure you want to<br>cancel ' + name + '\'s request for animal transportation?',
 		showCancelButton: true,
 		confirmButtonColor: '#f7941d',
 		cancelButtonColor: '#8D8D8D',
@@ -1968,40 +2183,51 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 document.addEventListener('DOMContentLoaded', function() {
-	// Maintenance - Admin Table Search
-	var searchInput = document.getElementById('table-search-admin');
-	var table = document.getElementById('table-admin');
-	var noMatchDisplay = document.getElementById('search_no_match');
-	var tbody = table.querySelector('tbody'); // Get the tbody element
-	var rows = tbody.getElementsByTagName('tr');
-  
-	searchInput.addEventListener('input', function() {
-	  var searchText = this.value.toLowerCase();
-	  var noMatchFound = true; // Flag to track if any matches were found
-  
-	  // Loop through table rows and hide/show based on search input
-	  if (rows.length > 0) {
-		for (var i = 0; i < rows.length; i++) {
-		  var rowData = rows[i].textContent.toLowerCase();
-  
-		  if (rowData.includes(searchText)) {
-			rows[i].style.display = '';
-			noMatchFound = false; // A match was found
-		  } else {
-			rows[i].style.display = 'none';
-		  }
-		}
-		// Update the visibility of the "search_no_match" element
-		if (noMatchFound) {
-		  noMatchDisplay.style.display = 'block'; // No matches found, display the message
-		} else {
-		  noMatchDisplay.style.display = 'none'; // Matches found, hide the message
-		}
-	  } else {
-		noMatchDisplay.style.display = 'none';
-	  }
-	});
+    var searchInput = document.getElementById('table-search-admin');
+    var startDateInput = document.getElementById('start_date');
+    var endDateInput = document.getElementById('end_date');
+    var table = document.getElementById('table-admin');
+    var noMatchDisplay = document.getElementById('search_no_match');
+    var tbody = table.querySelector('tbody');
+    var rows = tbody.getElementsByTagName('tr');
+
+    function filterRows() {
+        var searchText = searchInput.value.toLowerCase();
+        var startDate = startDateInput.value;
+        var endDate = endDateInput.value;
+        var noMatchFound = true;
+
+        if (rows.length > 0) {
+            for (var i = 0; i < rows.length; i++) {
+                var rowData = rows[i].textContent.toLowerCase();
+                var dateFiled = rows[i].querySelector('td:nth-child(9)').textContent;
+
+                if (rowData.includes(searchText) &&
+                    (startDate === '' || dateFiled >= startDate) &&
+                    (endDate === '' || dateFiled <= endDate)
+                ) {
+                    rows[i].style.display = '';
+                    noMatchFound = false;
+                } else {
+                    rows[i].style.display = 'none';
+                }
+            }
+
+            if (noMatchFound) {
+                noMatchDisplay.style.display = 'block';
+            } else {
+                noMatchDisplay.style.display = 'none';
+            }
+        } else {
+            noMatchDisplay.style.display = 'none';
+        }
+    }
+
+    searchInput.addEventListener('input', filterRows);
+    startDateInput.addEventListener('input', filterRows);
+    endDateInput.addEventListener('input', filterRows);
 });
+
 
 document.addEventListener('DOMContentLoaded', function() {
 	// Maintenance - Breeds Table Search (Validate)

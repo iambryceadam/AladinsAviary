@@ -54,6 +54,38 @@
 
     // TRANSACTIONS
     // REQUEST APPROVAL
+    if(isset($_POST['editPaymentCostBtn'])){
+      $e_payment_cost = mysqli_real_escape_string($conn, $_POST['e_payment_cost']);
+      $transaction_id = mysqli_real_escape_string($conn, $_POST['e_transaction_id']);
+      $client_id = mysqli_real_escape_string($conn, $_POST['e_client_id']);
+      $numeric_payment_format = floatval($e_payment_cost);
+      $divided_cost = $numeric_payment_format/2;
+      $currentDate = date('mdY');
+      $eventID = generateEventID($conn, $currentDate);
+      $admin_ID = $_SESSION['admin_id'];
+
+      $get_payment_type = mysqli_query($conn, "SELECT payment_type FROM tbl_payments WHERE transaction_id = '$transaction_id'");
+      $payment_type_result = mysqli_fetch_assoc($get_payment_type);
+      $payment_type = $payment_type_result['payment_type'];
+
+      if($payment_type == "Down Payment"){
+        mysqli_query($conn, "UPDATE tbl_transactions SET status = 'for-downpayment' WHERE transaction_id = '$transaction_id'");
+        mysqli_query($conn, "UPDATE tbl_payments SET initial_payment_cost = $divided_cost, final_payment_cost = $divided_cost, previous_initial_cost = 0  WHERE transaction_id = '$transaction_id'");
+      } else if($payment_type == "Full Payment"){
+        mysqli_query($conn, "UPDATE tbl_transactions SET status = 'for-payment' WHERE transaction_id = '$transaction_id'");
+        mysqli_query($conn, "UPDATE tbl_payments SET final_payment_cost = $e_payment_cost, previous_final_cost = 0 WHERE transaction_id = '$transaction_id'");
+      }
+      $clientHeader = "Your Payment Cost has been changed in a transaction";
+      $adminHeader = "You have edited a payment cost";
+      addNotif($conn, $transaction_id, $client_id, $adminHeader, $clientHeader);
+      // mysqli_query($conn, "UPDATE tbl_transactions_dates SET other_transaction_dates = CONCAT('Approved-', NOW()) WHERE transaction_id = '$transaction_id'");
+      // mysqli_query($conn, "UPDATE tbl_transactions_dates SET other_transaction_dates = 'Approved-', NOW() WHERE transaction_id = '$transaction_id'");
+      mysqli_query($conn, "UPDATE tbl_transactions_dates SET other_transaction_dates = CONCAT(other_transaction_dates, ',', 'Payment Cost Edited-', NOW()) WHERE transaction_id = '$transaction_id'");
+      mysqli_query($conn, "INSERT INTO tbl_audit_trail (event_id, user_id, users_name, event_type, date) VALUES ('$eventID', '$admin_ID', '$users_name', 'Payment cost has been edited', NOW())");
+      $transaction_approved_succes = "Successfully edited payment cost";
+      header("Location: initial_payment.php?transaction_approved_success=". urldecode($transaction_approved_succes));
+    }
+
     if(isset($_POST['insertPaymentCost'])){
       $i_payment_cost = mysqli_real_escape_string($conn, $_POST['i_payment_cost']);
       $transaction_id = mysqli_real_escape_string($conn, $_POST['transaction_id']);
@@ -82,8 +114,91 @@
       // mysqli_query($conn, "UPDATE tbl_transactions_dates SET other_transaction_dates = 'Approved-', NOW() WHERE transaction_id = '$transaction_id'");
       // mysqli_query($conn, "UPDATE tbl_transactions_dates SET other_transaction_dates = CONCAT(other_transaction_dates, ',', 'Approved-', NOW()) WHERE transaction_id = '$transaction_id'");
       mysqli_query($conn, "INSERT INTO tbl_audit_trail (event_id, user_id, users_name, event_type, date) VALUES ('$eventID', '$admin_ID', '$users_name', 'Approved a request for transport', NOW())");
+      
+      $message = "Hey there!
+
+    I trust this email finds you well. We would like to inform you that a recent animal transaction request has been approved, and you have been listed as the designated recipient by the initiator of the transaction.
+    The initiator has provided your contact information as the recipient of the animal, and we kindly request your cooperation in facilitating the collection or reception of the animal as per the agreed-upon terms. 
+    If you have any specific instructions or requirements, please let us know, and we will do our best to accommodate them. Additionally, ensure that all relevant paperwork, including ownership documents, 
+    health records, and any permits required for the transportation of the animal, are in order.
+
+    If you have any questions or concerns regarding the approved transaction, please feel free to reach out to us at aladinsaviary@gmail.com.
+    We appreciate your cooperation in this matter and look forward to the successful completion of the transaction. Thank you for your involvement in our services.
+
+Best regards,
+Aladin's Aviary
+      ";
+      sendMail($conn, $transaction_id, $message);
+      
       $transaction_approved_succes = "Successfully approved transaction";
       header("Location: requests.php?transaction_approved_success=". urldecode($transaction_approved_succes));
+    }
+
+    if(isset($_POST['addInitialPayment'])){
+      $add_initial_cost = mysqli_real_escape_string($conn, $_POST['add_initial_cost']);
+      $transaction_id = mysqli_real_escape_string($conn, $_POST['transaction_id']);
+      $client_id = mysqli_real_escape_string($conn, $_POST['client_id']);
+      $numeric_payment_format = floatval($add_initial_cost);
+
+      $divided_cost = $numeric_payment_format/2;
+      $currentDate = date('mdY');
+      $eventID = generateEventID($conn, $currentDate);
+      $admin_ID = $_SESSION['admin_id'];
+
+      $get_payment_details = mysqli_query($conn, "SELECT * FROM tbl_payments WHERE transaction_id = '$transaction_id'");
+      $payment_details_result = mysqli_fetch_assoc($get_payment_details);
+      $payment_type = $payment_details_result['payment_type'];
+      $initial_cost = $payment_details_result['initial_payment_cost'];
+      $final_cost = $payment_details_result['final_payment_cost'];
+
+      $new_cost = $initial_cost + $divided_cost;
+      $previous_cost = $initial_cost + $final_cost;
+
+      mysqli_query($conn, "UPDATE tbl_transactions SET status = 'i-additional-payment' WHERE transaction_id = '$transaction_id'");
+      mysqli_query($conn, "UPDATE tbl_payments SET initial_payment_cost = $new_cost, final_payment_cost = $new_cost, previous_initial_cost = $previous_cost WHERE transaction_id = '$transaction_id'");
+      
+      $clientHeader = "An additional payment amount has been requested by Aladin's Aviary for your transaction";
+      $adminHeader = "You have addded an additional payment amount for a transaction";
+      addNotif($conn, $transaction_id, $client_id, $adminHeader, $clientHeader);
+      // mysqli_query($conn, "UPDATE tbl_transactions_dates SET other_transaction_dates = CONCAT('Additional Payment Requested-', NOW()) WHERE transaction_id = '$transaction_id'");
+      // mysqli_query($conn, "UPDATE tbl_transactions_dates SET other_transaction_dates = 'Approved-', NOW() WHERE transaction_id = '$transaction_id'");
+      mysqli_query($conn, "UPDATE tbl_transactions_dates SET other_transaction_dates = CONCAT(other_transaction_dates, ',', 'Additional Payment Requested-', NOW()) WHERE transaction_id = '$transaction_id'");
+      mysqli_query($conn, "INSERT INTO tbl_audit_trail (event_id, user_id, users_name, event_type, date) VALUES ('$eventID', '$admin_ID', '$users_name', 'Requested an additional payment amount', NOW())");
+      $transaction_approved_succes = "Successfully added transaction cost";
+      header("Location: initial_payment.php?transaction_approved_success=". urldecode($transaction_approved_succes));
+    }
+
+    if(isset($_POST['addFinalPayment'])){
+      $add_final_cost = mysqli_real_escape_string($conn, $_POST['add_final_cost']);
+      $transaction_id = mysqli_real_escape_string($conn, $_POST['transaction_id']);
+      $client_id = mysqli_real_escape_string($conn, $_POST['client_id']);
+      $numeric_payment_format = floatval($add_final_cost);
+
+      $currentDate = date('mdY');
+      $eventID = generateEventID($conn, $currentDate);
+      $admin_ID = $_SESSION['admin_id'];
+
+      $get_payment_details = mysqli_query($conn, "SELECT * FROM tbl_payments WHERE transaction_id = '$transaction_id'");
+      $payment_details_result = mysqli_fetch_assoc($get_payment_details);
+      $payment_type = $payment_details_result['payment_type'];
+      $initial_cost = $payment_details_result['initial_payment_cost'];
+      $final_cost = $payment_details_result['final_payment_cost'];
+
+      $new_cost = $final_cost + $numeric_payment_format;
+      $previous_cost = $initial_cost + $final_cost;
+
+      mysqli_query($conn, "UPDATE tbl_transactions SET status = 'f-additional-payment' WHERE transaction_id = '$transaction_id'");
+      mysqli_query($conn, "UPDATE tbl_payments SET final_payment_cost = $new_cost, previous_final_cost = $previous_cost WHERE transaction_id = '$transaction_id'");
+      
+      $clientHeader = "An additional payment amount has been requested by Aladin's Aviary for your transaction";
+      $adminHeader = "You have addded an additional payment amount for a transaction";
+      addNotif($conn, $transaction_id, $client_id, $adminHeader, $clientHeader);
+      // mysqli_query($conn, "UPDATE tbl_transactions_dates SET other_transaction_dates = CONCAT('Additional Payment Requested-', NOW()) WHERE transaction_id = '$transaction_id'");
+      // mysqli_query($conn, "UPDATE tbl_transactions_dates SET other_transaction_dates = 'Approved-', NOW() WHERE transaction_id = '$transaction_id'");
+      mysqli_query($conn, "UPDATE tbl_transactions_dates SET other_transaction_dates = CONCAT(other_transaction_dates, ',', 'Additional Payment Requested-', NOW()) WHERE transaction_id = '$transaction_id'");
+      mysqli_query($conn, "INSERT INTO tbl_audit_trail (event_id, user_id, users_name, event_type, date) VALUES ('$eventID', '$admin_ID', '$users_name', 'Requested an additional payment amount', NOW())");
+      $transaction_approved_succes = "Successfully added transaction cost";
+      header("Location: final_payment.php?transaction_approved_success=". urldecode($transaction_approved_succes));
     }
 
     function generateEventID($conn, $currentDate) {
@@ -173,7 +288,17 @@
     if(isset($_GET['rejectInitialPayment'])){
       $tID = $_GET['rejectInitialPayment'];
       $client_id = $_GET['cid'];
-      mysqli_query($conn, "UPDATE tbl_transactions SET status = 'i-receipt-reattempt' WHERE transaction_id = '$tID'");
+
+      $get_additional_initial_receipt = mysqli_query($conn, "SELECT * FROM tbl_payments WHERE transaction_id = '$tID'");
+      $additional_initial_receipt_result = mysqli_fetch_assoc($get_additional_initial_receipt);
+      $previous_initial_cost = $additional_initial_receipt_result['previous_initial_cost'];
+
+      if($previous_initial_cost != 0){
+          mysqli_query($conn, "UPDATE tbl_transactions SET status = 'i-additional-payment' WHERE transaction_id = '$tID'");
+      } else {
+          mysqli_query($conn, "UPDATE tbl_transactions SET status = 'i-receipt-reattempt' WHERE transaction_id = '$tID'");
+      }
+
       mysqli_query($conn, "UPDATE tbl_transactions_dates SET other_transaction_dates = CONCAT(other_transaction_dates, ',', 'Down Payment Rejected-', NOW()) WHERE transaction_id = '$tID'");
       $currentDate = date('mdY');
       $eventID = generateEventID($conn, $currentDate);
@@ -191,7 +316,15 @@
       $tID = $_GET['rejectFinalPayment'];
       $client_id = $_GET['cid'];
 
-      mysqli_query($conn, "UPDATE tbl_transactions SET status = 'f-receipt-reattempt' WHERE transaction_id = '$tID'");
+      $get_additional_final_receipt = mysqli_query($conn, "SELECT * FROM tbl_payments WHERE transaction_id = '$tID'");
+      $additional_final_receipt_result = mysqli_fetch_assoc($get_additional_final_receipt);
+      $previous_final_cost = $additional_final_receipt_result['previous_final_cost'];
+
+      if($previous_final_cost != 0){
+          mysqli_query($conn, "UPDATE tbl_transactions SET status = 'f-additional-payment' WHERE transaction_id = '$tID'");
+      } else {
+          mysqli_query($conn, "UPDATE tbl_transactions SET status = 'f-receipt-reattempt' WHERE transaction_id = '$tID'");
+      }
       mysqli_query($conn, "UPDATE tbl_transactions_dates SET other_transaction_dates = CONCAT(other_transaction_dates, ',', 'Payment Rejected-', NOW()) WHERE transaction_id = '$tID'");
       $currentDate = date('mdY');
       $eventID = generateEventID($conn, $currentDate);
@@ -209,7 +342,15 @@
       $tID = $_GET['rejectFullPayment'];
       $client_id = $_GET['cid'];
 
-      mysqli_query($conn, "UPDATE tbl_transactions SET status = 'f-receipt-reattempt' WHERE transaction_id = '$tID'");
+      $get_additional_final_receipt = mysqli_query($conn, "SELECT * FROM tbl_payments WHERE transaction_id = '$tID'");
+      $additional_final_receipt_result = mysqli_fetch_assoc($get_additional_final_receipt);
+      $previous_final_cost = $additional_final_receipt_result['previous_final_cost'];
+
+      if($previous_final_cost != 0){
+          mysqli_query($conn, "UPDATE tbl_transactions SET status = 'f-additional-payment' WHERE transaction_id = '$tID'");
+      } else {
+          mysqli_query($conn, "UPDATE tbl_transactions SET status = 'f-receipt-reattempt' WHERE transaction_id = '$tID'");
+      }
       mysqli_query($conn, "UPDATE tbl_transactions_dates SET other_transaction_dates = CONCAT(other_transaction_dates, ',', 'Payment Rejected-', NOW()) WHERE transaction_id = '$tID'");
       $currentDate = date('mdY');
       $eventID = generateEventID($conn, $currentDate);
@@ -274,6 +415,20 @@
       $adminHeader = "You have successfully picked up an animal";
       addNotif($conn, $tID, $client_id, $adminHeader, $clientHeader);
       mysqli_query($conn, "INSERT INTO tbl_audit_trail (event_id, user_id, users_name, event_type, date) VALUES ('$eventID', '$admin_ID', '$users_name', '$event_type', NOW())");
+      
+      $message = "Hey there!
+
+    We trust this message finds you well. We would like to inform you that the animal to be sent to you has been successfully picked up by our team at Aladin's Aviary. Rest assured, the animal is now 
+    under our care and will be looked after attentively until the completion of the transaction.
+
+    If you have any questions or concerns regarding the approved transaction, please feel free to reach out to us at aladinsaviary@gmail.com.
+    We appreciate your cooperation in this matter and look forward to the successful completion of the transaction. Thank you for your involvement in our services.
+
+Best regards,
+Aladin's Aviary
+      ";
+      sendMail($conn, $tID, $message);
+      
       $pickup_successful = "Successfully picked up animal";
       header("Location: ../pickup.php?pickup_successful=" . urldecode($pickup_successful));
     }
@@ -294,7 +449,7 @@
       header("Location: ../pickup.php?pickup_unsuccessful=" . urldecode($pickup_unsuccessful));
     } 
 
-    if(isset($_GET['forMedical'])){
+    if(isset($GET['forMedical'])){
       $tID = $_GET['forMedical'];
       $client_id = $_GET['cid'];
 
@@ -308,6 +463,21 @@
       $clientHeader = "Your animal is undergoing medical processing";
       $adminHeader = "An animal has proceeded to medical processing";
       addNotif($conn, $tID, $client_id, $adminHeader, $clientHeader);
+      
+      $message = "Hey there!
+
+    We trust this message finds you well. We are thrilled to share the positive news that the medical processing for the animal designated for you has been successfully completed. The animal is now in excellent health and ready
+    to embark on the next phase of its journey to you. We are currently in the process of booking a suitable flight for its safe transport to your location. Our team will ensure that all necessary arrangements are made to guarantee 
+    a smooth and comfortable journey for the animal.
+
+    If you have any questions or concerns regarding the approved transaction, please feel free to reach out to us at aladinsaviary@gmail.com.
+    We appreciate your cooperation in this matter and look forward to the successful completion of the transaction. Thank you for your involvement in our services.
+
+Best regards,
+Aladin's Aviary
+      ";
+      sendMail($conn, $transaction_id, $message);
+      
       $proceed_for_medical = "Successfully proceeded to next step (Ongoing Medical)";
       header("Location: ../pickup.php?pickup_successful=" . urldecode($proceed_for_medical));
     }
@@ -345,6 +515,21 @@
       $clientHeader = "Medical processing is successful";
       $adminHeader = "Medical processing successful";
       addNotif($conn, $transaction_id, $client_id, $adminHeader, $clientHeader);
+      
+      $message = "Hey there!
+
+    We trust this message finds you well. We are thrilled to share the positive news that the medical processing for the animal designated for you has been successfully completed. The animal is now in excellent health and ready
+    to embark on the next phase of its journey to you. We are currently in the process of booking a suitable flight for its safe transport to your location. Our team will ensure that all necessary arrangements are made to guarantee 
+    a smooth and comfortable journey for the animal.
+
+    If you have any questions or concerns regarding the approved transaction, please feel free to reach out to us at aladinsaviary@gmail.com.
+    We appreciate your cooperation in this matter and look forward to the successful completion of the transaction. Thank you for your involvement in our services.
+
+Best regards,
+Aladin's Aviary
+      ";
+      sendMail($conn, $transaction_id, $message);
+      
       $complete_medical = "Successfully proceeded to the next step (For Payment)";
       header("Location: ?complete_medical=" . urldecode($complete_medical));
   }
@@ -384,8 +569,75 @@
     $clientHeader = "Medical processing is successful";
     $adminHeader = "Medical processing successful.";
     addNotif($conn, $transaction_id, $client_id, $adminHeader, $clientHeader);
-    // Redirect with success message
+    
+    $message = "Hey there!
+
+    We trust this message finds you well. We are thrilled to share the positive news that the medical processing for the animal designated for you has been successfully completed. The animal is now in excellent health and ready to embark on the next phase of its journey to you.
+    We are currently in the process of booking a suitable flight for its safe transport to your location. Our team will ensure that all necessary arrangements are made to guarantee a smooth and comfortable journey for the animal.
+
+    If you have any questions or concerns regarding the approved transaction, please feel free to reach out to us at aladinsaviary@gmail.com.
+    We appreciate your cooperation in this matter and look forward to the successful completion of the transaction. Thank you for your involvement in our services.
+
+Best regards,
+Aladin's Aviary
+      ";
+      sendMail($conn, $transaction_id, $message);
+    
     $complete_medical = "Successfully proceeded to the next step (For Booking)";
+    header("Location: ?complete_medical=" . urldecode($complete_medical));
+  } 
+
+  if (isset($_POST['insertPickupAttachments'])) {
+    $transaction_id = mysqli_real_escape_string($conn, $_POST['transaction_id']);
+    $client_id = mysqli_real_escape_string($conn, $_POST['client_id']);
+    $currentDate = date('mdY');
+
+    mysqli_query($conn, "UPDATE tbl_transactions SET status = 'ongoing-medical' WHERE transaction_id = '$transaction_id'");
+    mysqli_query($conn, "UPDATE tbl_transactions_dates SET other_transaction_dates = CONCAT(other_transaction_dates, ',', 'Pickup Successful-', NOW()) WHERE transaction_id = '$transaction_id'");
+
+    if (!empty($_FILES['images']['name'][0])) {
+        $fileNames = $_FILES['images']['name'];
+        $fileTmpNames = $_FILES['images']['tmp_name'];
+
+        for ($i = 0; $i < count($fileNames); $i++) {
+            $fileName = mysqli_real_escape_string($conn, $fileNames[$i]);
+            $fileTmpName = $fileTmpNames[$i];
+            $attachmentTag = "Pickup";
+
+            $fileContent = file_get_contents($fileTmpName);
+            $fileContent = mysqli_real_escape_string($conn, $fileContent);
+
+            $customAttachmentsID = generateCustomAttachmentsID($conn, $currentDate);
+            $insertQuery = "INSERT INTO tbl_transactions_attachments (attachment_id, transaction_id, attachment, attachment_tag) VALUES ('$customAttachmentsID', '$transaction_id', '$fileContent', '$attachmentTag')";
+            
+            mysqli_query($conn, $insertQuery);
+        }
+    }
+
+    // Log the event in the audit trail
+    $eventID = generateEventID($conn, $currentDate);
+    $admin_ID = $_SESSION['admin_id'];
+    $event_type = "Successfully Picked up an animal";
+    mysqli_query($conn, "INSERT INTO tbl_audit_trail (event_id, user_id, users_name, event_type, date) VALUES ('$eventID', '$admin_ID', '$users_name', '$event_type', NOW())");
+    $clientHeader = "Your Animal has been Successfully Picked up";
+    $adminHeader = "You have successfully picked up an animal.";
+    addNotif($conn, $transaction_id, $client_id, $adminHeader, $clientHeader);
+    
+    $message = "Hey there!
+
+    We trust this message finds you well. We are thrilled to share the positive news that the medical processing for the animal designated for you has been successfully completed. The animal is now in excellent health and ready
+    to embark on the next phase of its journey to you. We are currently in the process of booking a suitable flight for its safe transport to your location. Our team will ensure that all necessary arrangements are made to guarantee 
+    a smooth and comfortable journey for the animal.
+
+    If you have any questions or concerns regarding the approved transaction, please feel free to reach out to us at aladinsaviary@gmail.com.
+    We appreciate your cooperation in this matter and look forward to the successful completion of the transaction. Thank you for your involvement in our services.
+
+Best regards,
+Aladin's Aviary
+      ";
+      sendMail($conn, $transaction_id, $message);
+    
+    $complete_medical = "Successfully proceeded to the next step (For Medical)";
     header("Location: ?complete_medical=" . urldecode($complete_medical));
   } 
 
@@ -454,7 +706,6 @@
     if(isset($_POST['insertBookingAttachments'])){
       $transaction_id = mysqli_real_escape_string($conn, $_POST['transaction_id']);
       $client_id = mysqli_real_escape_string($conn, $_POST['client_id']);
-      $dropoff_location = mysqli_real_escape_string($conn, $_POST['dropoff_location']);
       $currentDate = date('mdY');
       $dropoff_location = mysqli_real_escape_string($conn, $_POST['dropoff_location']);
       $departureDateTime = mysqli_real_escape_string($conn, $_POST['departureDateTime']);
@@ -490,6 +741,23 @@
       $clientHeader = "Aladin's Aviary has successfully booked an animal shipping on the way to the receiving point";
       $adminHeader = "Successfully booked an animal for shipping.";
       addNotif($conn, $transaction_id, $client_id, $adminHeader, $clientHeader);
+      $message = "Hey there!
+
+    We are delighted to share the exciting news that the animal you have been eagerly awaiting is now on its way to $dropoff_location. 
+    After completing the necessary medical processing, we have successfully booked a flight, and the animal is currently en route to the receiving airport. 
+      
+    - EXPECTED FLIGHT DEPARTURE: $departureDateTime
+    - EXPECTED FLIGHT ARRIVAL: $arrivalDateTime
+
+    Our team has ensured all arrangements are in place for a safe and comfortable journey. The well-being of the animal remains our top priority throughout the transportation process.
+
+    If you have any questions or concerns regarding the approved transaction, please feel free to reach out to us at aladinsaviary@gmail.com.
+    We appreciate your cooperation in this matter and look forward to the successful completion of the transaction. Thank you for your involvement in our services.
+
+Best regards,
+Aladin's Aviary
+      ";
+      sendMail($conn, $transaction_id, $message);
       $booking_success = "Successfully booked animal for transport";
       header("Location: ?booking_success=" . urldecode($booking_success));
     }
@@ -564,6 +832,22 @@
       $clientHeader = "Your animal has reached its dropoff point. Animal is now ready to be picked up";
       $adminHeader = "Animal transportation completed. Animal is now ready for receiving at the airport";
       addNotif($conn, $tID, $client_id, $adminHeader, $clientHeader);
+
+      $get_dropoff_address = mysqli_query($conn, "SELECT * FROM tbl_locations WHERE transaction_id = '$tID'");
+      $dropoff_address_result = mysqli_fetch_assoc($get_dropoff_address);
+      $dropoff_address = $dropoff_address_result['dropoff_address'];
+      $message = "Hey there!
+
+    We are thrilled to announce that the animal you've been eagerly anticipating has safely arrived at its designated receiving point, $dropoff_address. 
+    The journey was completed successfully, and the animal is now ready to be picked up.
+
+    If you have any questions or concerns regarding the approved transaction, please feel free to reach out to us at aladinsaviary@gmail.com.
+    We appreciate your cooperation in this matter and look forward to the successful completion of the transaction. Thank you for your involvement in our services.
+
+Best regards,
+Aladin's Aviary
+      ";
+      sendMail($conn, $tID, $message);
       $for_receiving_success = "Successfully proceeded to next step (For Receiving))";
       header("Location: ../transport.php?for_receiving_success=" . urldecode($for_receiving_success));
     }
@@ -620,6 +904,18 @@
       $clientHeader = "Your cancellation request has been approved";
       $adminHeader = "You have approved a cancellation request";
       addNotif($conn, $tID, $client_id, $adminHeader, $clientHeader);
+      
+      $message = "Hey there!
+
+      We regret to inform you that the planned transportation of the animal has been unexpectedly cancelled due to unforeseen circumstances. We understand the anticipation and excitement surrounding the arrival of the animal, and we sincerely apologize for any inconvenience this cancellation may have caused. Rest assured, our top priority is to ensure the safety and well-being of the animal throughout the transportation process.
+
+      We appreciate your understanding and cooperation during this unexpected turn of events. We are committed to resolving the situation promptly and ensuring a smooth transition for the animal to its new home.
+
+Best regards,
+Aladin's Aviary
+      ";
+      sendMail($conn, $tID, $message);
+      
       $cancelled_transaction_success = "Transaction has been successfully cancelled";
       header("Location: ../cancellations.php?cancelled_transaction_success=" . urldecode($cancelled_transaction_success));
     }
@@ -658,6 +954,16 @@
       $admin_ID = $_SESSION['admin_id'];
       $event_type = "Approved Cancellation";
       mysqli_query($conn, "INSERT INTO tbl_audit_trail (event_id, user_id, users_name, event_type, date) VALUES ('$eventID', '$admin_ID', '$users_name', '$event_type', NOW())");
+      $message = "Hey there!
+
+      We regret to inform you that the planned transportation of the animal has been unexpectedly cancelled due to unforeseen circumstances. We understand the anticipation and excitement surrounding the arrival of the animal, and we sincerely apologize for any inconvenience this cancellation may have caused. Rest assured, our top priority is to ensure the safety and well-being of the animal throughout the transportation process.
+
+      We appreciate your understanding and cooperation during this unexpected turn of events. We are committed to resolving the situation promptly and ensuring a smooth transition for the animal to its new home.
+
+Best regards,
+Aladin's Aviary
+      ";
+      sendMail($conn, $tID, $message);
       $to_return = "Transaction is now pending for return";
       header("Location: ../cancellations.php?cancelled_transaction_success=" . urldecode($to_return));
     }
@@ -725,7 +1031,7 @@
       mysqli_query($conn, "UPDATE tbl_transactions SET status = 'pending-return' WHERE transaction_id = '$transaction_id'");
       mysqli_query($conn, "UPDATE tbl_locations SET return_location = '$dropoff_location' WHERE transaction_id = '$transaction_id'");
       mysqli_query($conn, "UPDATE tbl_transactions_dates SET time_departure = '$departureDateTime', time_arrival = '$arrivalDateTime'  WHERE transaction_id = '$transaction_id'");
-      mysqli_query($conn, "UPDATE tbl_transactions_dates SET other_transaction_dates = CONCAT(other_transaction_dates, ',', 'Cancellation Approved-', NOW()) WHERE transaction_id = '$transaction_id'");
+      mysqli_query($conn, "UPDATE tbl_transactions_dates SET other_transaction_dates = CONCAT(other_transaction_dates, ',', 'Cancellation Procedure-', NOW()) WHERE transaction_id = '$transaction_id'");
 
       if (!empty($_FILES['images']['name'][0])) {
           $fileNames = $_FILES['images']['name'];
@@ -765,6 +1071,16 @@
           mysqli_query($conn, "INSERT INTO tbl_refunds (refund_id, transaction_id, status) VALUES ('$customRefundID', '$transaction_id', 'pending-refund')");
         }
       }
+      $message = "Hey there!
+
+      We regret to inform you that the planned transportation of the animal has been unexpectedly cancelled due to unforeseen circumstances. We understand the anticipation and excitement surrounding the arrival of the animal, and we sincerely apologize for any inconvenience this cancellation may have caused. Rest assured, our top priority is to ensure the safety and well-being of the animal throughout the transportation process.
+
+      We appreciate your understanding and cooperation during this unexpected turn of events. We are committed to resolving the situation promptly and ensuring a smooth transition for the animal to its new home.
+
+Best regards,
+Aladin's Aviary
+      ";
+      sendMail($conn, $transaction_id, $message);
       $reject_cancel = "Transaction is now pending for return";
       header("Location: ?reject_cancel=" . urldecode($reject_cancel));
     }
@@ -814,9 +1130,71 @@
       $clientHeader = "Your transaction has been cancelled by the administrator";
       $adminHeader = "You have cancelled a transaction";
       addNotif($conn, $transaction_id, $client_id, $adminHeader, $clientHeader);
+      
+      $message = "Hey there!
+
+      We regret to inform you that the planned transportation of the animal has been unexpectedly cancelled due to unforeseen circumstances. We understand the anticipation and excitement surrounding the arrival of the animal, and we sincerely apologize for any inconvenience this cancellation may have caused. Rest assured, our top priority is to ensure the safety and well-being of the animal throughout the transportation process.
+
+      We appreciate your understanding and cooperation during this unexpected turn of events. We are committed to resolving the situation promptly and ensuring a smooth transition for the animal to its new home.
+
+Best regards,
+Aladin's Aviary
+      ";
+      sendMail($conn, $transaction_id, $message);
+      
       $cancelled_transaction_success = "Transaction has been successfully cancelled";
       header("Location: ?cancelled_transaction_success=" . urldecode($cancelled_transaction_success));
-    }
+    } 
+
+    if(isset($_POST['rfcwRefund'])){
+      $currentDate = date('mdY');
+      $customRefundID = generateRefundID($conn, $currentDate);
+      $customCancelID = generateCustomCancellationID($conn, $currentDate);
+      $rfctext = mysqli_real_escape_string($conn, $_POST['rfctext']);
+      $transaction_id = mysqli_real_escape_string($conn, $_POST['cr_transaction_id']);
+      $client_id = mysqli_real_escape_string($conn, $_POST['cr_client_id']);
+
+      $get_status_before_cancel = mysqli_query($conn, "SELECT status FROM tbl_transactions WHERE transaction_id = '$transaction_id'");
+      $status_before_cancel_result = mysqli_fetch_assoc($get_status_before_cancel);
+      $status_before_cancel = $status_before_cancel_result['status'];
+
+      $get_return_location = mysqli_query($conn, "SELECT * FROM tbl_profile_addresses WHERE address_id = '$return_id'");
+      $return_location_result = mysqli_fetch_assoc($get_return_location);
+      $return_location = $return_location_result['region'] . " " . $return_location_result['province'] . " " . $return_location_result['city'] . " " . $return_location_result['barangay'] . " " . $return_location_result['street'] . " " . $return_location_result['house_number'];
+
+      mysqli_query($conn, "INSERT INTO tbl_refunds (refund_id, transaction_id, status) VALUES ('$customRefundID', '$transaction_id', 'pending-refund')");
+      mysqli_query($conn, "UPDATE tbl_locations SET return_location = '$return_location' WHERE transaction_id = '$transaction_id'");
+
+      mysqli_query($conn, "UPDATE tbl_transactions SET status = 'cancelled' WHERE transaction_id = '$transaction_id'"); 
+      mysqli_query($conn, "UPDATE tbl_transactions_dates SET other_transaction_dates = CONCAT(other_transaction_dates, ',', 'Cancelled-', NOW()) WHERE transaction_id = '$transaction_id'");
+      mysqli_query($conn, "INSERT INTO tbl_cancelled_transactions (cancellation_id, transaction_id, reason_for_cancellation, previous_status) values ('$customCancelID', '$transaction_id', '$rfctext', '$status_before_cancel')");
+      $get_return_id = mysqli_query($conn, "SELECT * FROM tbl_locations WHERE transaction_id = '$transaction_id'");
+      $return_id_result = mysqli_fetch_assoc($get_return_id);
+      $return_id = $return_id_result['pickup_location_id'];
+      
+      $currentDate = date('mdY');
+      $eventID = generateEventID($conn, $currentDate);
+      $admin_ID = $_SESSION['admin_id'];
+      $event_type = "Cancelled a transaction";
+      mysqli_query($conn, "INSERT INTO tbl_audit_trail (event_id, user_id, users_name, event_type, date) VALUES ('$eventID', '$admin_ID', '$users_name', '$event_type', NOW())");
+      $clientHeader = "Your transaction has been cancelled by the administrator";
+      $adminHeader = "You have cancelled a transaction";
+      addNotif($conn, $transaction_id, $client_id, $adminHeader, $clientHeader);
+      
+      $message = "Hey there!
+
+      We regret to inform you that the planned transportation of the animal has been unexpectedly cancelled due to unforeseen circumstances. We understand the anticipation and excitement surrounding the arrival of the animal, and we sincerely apologize for any inconvenience this cancellation may have caused. Rest assured, our top priority is to ensure the safety and well-being of the animal throughout the transportation process.
+
+      We appreciate your understanding and cooperation during this unexpected turn of events. We are committed to resolving the situation promptly and ensuring a smooth transition for the animal to its new home.
+
+Best regards,
+Aladin's Aviary
+      ";
+      sendMail($conn, $transaction_id, $message);
+      
+      $cancelled_transaction_success = "Transaction has been successfully cancelled";
+      header("Location: ?cancelled_transaction_success=" . urldecode($cancelled_transaction_success));
+    } 
 
     if(isset($_POST['rfcwReturn'])){
       $currentDate = date('mdY');
@@ -834,7 +1212,16 @@
 			$payment_type_result = mysqli_fetch_assoc($get_payment_type);
 			$payment_type = $payment_type_result['payment_type'];
 
+      $get_return_id = mysqli_query($conn, "SELECT * FROM tbl_locations WHERE transaction_id = '$transaction_id'");
+      $return_id_result = mysqli_fetch_assoc($get_return_id);
+      $return_id = $return_id_result['pickup_location_id'];
+      
+      $get_return_location = mysqli_query($conn, "SELECT * FROM tbl_profile_addresses WHERE address_id = '$return_id'");
+      $return_location_result = mysqli_fetch_assoc($get_return_location);
+      $return_location = $return_location_result['region'] . " " . $return_location_result['province'] . " " . $return_location_result['city'] . " " . $return_location_result['barangay'] . " " . $return_location_result['street'] . " " . $return_location_result['house_number'];
+
       mysqli_query($conn, "INSERT INTO tbl_refunds (refund_id, transaction_id, status) VALUES ('$customRefundID', '$transaction_id', 'pending-refund')");
+      mysqli_query($conn, "UPDATE tbl_locations SET return_location = '$return_location' WHERE transaction_id = '$transaction_id'");
 
       mysqli_query($conn, "UPDATE tbl_transactions SET status = 'pending-return' WHERE transaction_id = '$transaction_id'"); 
       mysqli_query($conn, "INSERT INTO tbl_cancelled_transactions (cancellation_id, transaction_id, reason_for_cancellation, previous_status) values ('$customCancelID', '$transaction_id', '$rfctext', '$previous_status')");
@@ -847,6 +1234,18 @@
       $clientHeader = "Your transaction has been cancelled by the admin";
       $adminHeader = "You have cancelled a transaction";
       addNotif($conn, $transaction_id, $client_id, $adminHeader, $clientHeader);
+      
+      $message = "Hey there!
+
+      We regret to inform you that the planned transportation of the animal has been unexpectedly cancelled due to unforeseen circumstances. We understand the anticipation and excitement surrounding the arrival of the animal, and we sincerely apologize for any inconvenience this cancellation may have caused. Rest assured, our top priority is to ensure the safety and well-being of the animal throughout the transportation process.
+
+      We appreciate your understanding and cooperation during this unexpected turn of events. We are committed to resolving the situation promptly and ensuring a smooth transition for the animal to its new home.
+
+Best regards,
+Aladin's Aviary
+      ";
+      sendMail($conn, $transaction_id, $message);
+      
       $cancelled_transaction_success = "Transaction is now pending for return";
       header("Location: ?cancelled_transaction_success=" . urldecode($cancelled_transaction_success));
     }
@@ -1380,6 +1779,27 @@
     FROM tbl_transactions AS t
     JOIN tbl_payments AS p ON t.payment_id = p.payment_id
     WHERE t.status = 'i-receipt-reattempt' AND p.payment_type = 'Down Payment'
+    ");
+
+    $get_additional_initial_payments = mysqli_query($conn, "
+    SELECT *
+    FROM tbl_transactions AS t
+    JOIN tbl_payments AS p ON t.payment_id = p.payment_id
+    WHERE t.status = 'i-additional-payment' AND p.payment_type = 'Down Payment'
+    ");
+
+    $get_additional_final_payments = mysqli_query($conn, "
+    SELECT *
+    FROM tbl_transactions AS t
+    JOIN tbl_payments AS p ON t.payment_id = p.payment_id
+    WHERE t.status = 'f-additional-payment' AND p.payment_type = 'Down Payment'
+    ");
+
+    $get_additional_full_payments = mysqli_query($conn, "
+    SELECT *
+    FROM tbl_transactions AS t
+    JOIN tbl_payments AS p ON t.payment_id = p.payment_id
+    WHERE t.status = 'f-additional-payment' AND p.payment_type = 'Full Payment'
     ");
 
     $get_rejected_final_payments = mysqli_query($conn, "

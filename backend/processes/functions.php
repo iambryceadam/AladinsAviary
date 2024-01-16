@@ -85,6 +85,26 @@ function addNotif($conn, $TID, $CID, $adminHeader, $clientHeader){
     $stmt->close();
 }
 
+function sendMail($conn, $transaction_id, $message){
+    $subject = "Aladin's Aviary: Transaction Updates";
+    $get_receiver_email = mysqli_query($conn, "SELECT * FROM tbl_receivers WHERE transaction_id = '$transaction_id'");
+    if ($get_receiver_email) {
+        $receiver_email_result = mysqli_fetch_assoc($get_receiver_email);
+        $receiver_email = $receiver_email_result['email'];
+
+        $sender = "From: aladinsaviary@gmail.com";
+
+        if (mail($receiver_email, $subject, $message, $sender)) {
+            //do nothing
+        } else {
+            echo "Error sending mail.";
+        }
+    } else {
+        echo "Error querying the database.";
+    }
+}
+
+
 function generateCustomClientNotificationID($conn, $currentDate) {
     // Get the maximum transaction number from the database
     $checkTransaction = "SELECT MAX(CAST(SUBSTRING(notif_id, 11) AS UNSIGNED)) AS max_number FROM tbl_client_notif";
