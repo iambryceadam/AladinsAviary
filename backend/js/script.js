@@ -2237,57 +2237,56 @@ document.addEventListener('DOMContentLoaded', function() {
     searchInput.addEventListener('input', filterRows);
     startDateInput.addEventListener('input', filterRows);
     endDateInput.addEventListener('input', filterRows);
+	
+	document.getElementById('download-btn').addEventListener('click', function() {
+		var table = document.getElementById('table-admin');
+		var tbody = table.querySelector('tbody');
+		var rows = tbody.getElementsByTagName('tr');
+		var filteredData = [];
+	
+		// Extract the headers
+		var headers = [];
+		var headerRow = table.querySelector('thead tr');
+		for (var i = 0; i < headerRow.cells.length; i++) {
+			headers.push(headerRow.cells[i].textContent.trim());
+		}
+		filteredData.push(headers);
+	
+		// Iterate through the visible rows and extract the data
+		for (var i = 0; i < rows.length; i++) {
+			if (rows[i].style.display !== 'none') {
+				var rowData = [];
+				for (var j = 0; j < rows[i].cells.length; j++) {
+					rowData.push(rows[i].cells[j].textContent.trim());
+				}
+				filteredData.push(rowData);
+			}
+		}
+	
+		// Create a worksheet with styling
+		var ws = XLSX.utils.aoa_to_sheet(filteredData);
+	
+		// Add style for bold headers and centered text
+		ws['!cols'] = headers.map(function() {
+			return { wch: 15 }; // Set a fixed width for headers
+		});
+	
+		ws['!rows'] = [{ hpx: 20, // Set row height for headers
+			s: { // Style object
+				font: { bold: true }, // Bold text
+				alignment: { horizontal: 'center', vertical: 'center' } // Centered text
+			}
+		}];
+	
+		// Create a workbook and add the worksheet
+		var wb = XLSX.utils.book_new();
+		XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+	
+		// Save the workbook as an Excel file
+		XLSX.writeFile(wb, 'filtered_data.xlsx');
+	});
 });
 
-// Add this code after your existing JavaScript code
-
-// document.getElementById('download-btn').addEventListener('click', function() {
-//     var table = document.getElementById('table-admin');
-//     var tbody = table.querySelector('tbody');
-//     var rows = tbody.getElementsByTagName('tr');
-//     var filteredData = [];
-
-//     // Extract the headers
-//     var headers = [];
-//     var headerRow = table.querySelector('thead tr');
-//     for (var i = 0; i < headerRow.cells.length; i++) {
-//         headers.push(headerRow.cells[i].textContent.trim());
-//     }
-//     filteredData.push(headers);
-
-//     // Iterate through the visible rows and extract the data
-//     for (var i = 0; i < rows.length; i++) {
-//         if (rows[i].style.display !== 'none') {
-//             var rowData = [];
-//             for (var j = 0; j < rows[i].cells.length; j++) {
-//                 rowData.push(rows[i].cells[j].textContent.trim());
-//             }
-//             filteredData.push(rowData);
-//         }
-//     }
-
-//     // Create a worksheet with styling
-//     var ws = XLSX.utils.aoa_to_sheet(filteredData);
-
-//     // Add style for bold headers and centered text
-//     ws['!cols'] = headers.map(function() {
-//         return { wch: 15 }; // Set a fixed width for headers
-//     });
-
-//     ws['!rows'] = [{ hpx: 20, // Set row height for headers
-//         s: { // Style object
-//             font: { bold: true }, // Bold text
-//             alignment: { horizontal: 'center', vertical: 'center' } // Centered text
-//         }
-//     }];
-
-//     // Create a workbook and add the worksheet
-//     var wb = XLSX.utils.book_new();
-//     XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
-
-//     // Save the workbook as an Excel file
-//     XLSX.writeFile(wb, 'filtered_data.xlsx');
-// });
 
 ////////////////////////////////////////////////////////////////////////////////////
 
